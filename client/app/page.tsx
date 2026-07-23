@@ -2,6 +2,9 @@ import Navbar from "../components/layout/Navbar";
 import Hero from "../components/Hero";
 import CourseCard from "../components/CourseCard";
 import Stats from "../components/Stats";
+import About from "../components/About";
+import Footer from "../components/Footer";
+import FeaturedCourses from "../components/FeaturedCourses";
 export default function Home() {
   return (
     <>
@@ -33,6 +36,9 @@ export default function Home() {
   description="ABG Analysis Made Easy"
 />
 </section>
+<FeaturedCourses />
+<About />
+<Footer />
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-6xl font-bold text-blue-700">
