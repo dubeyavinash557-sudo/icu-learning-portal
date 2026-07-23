@@ -1,24 +1,35 @@
+import Link from "next/link";
 const courses = [
   {
-    title: "ICU Nursing",
-    icon: "🏥",
-    price: "₹999",
-  },
-  {
+  title: "ICU Nursing",
+  icon: "🏥",
+  price: "₹999",
+  link: "/courses/icu-nursing",
+},
+{
     title: "Ventilator",
     icon: "🫁",
     price: "₹1499",
+    link: "/courses/ventilator",
   },
   {
     title: "ECG",
     icon: "❤️",
     price: "₹799",
+    link: "/courses/ecg",
   },
   {
     title: "ABG",
     icon: "🩸",
     price: "₹699",
+    link: "/courses/abg",
   },
+  {
+  title: "Medical Coding",
+  icon: "💻",
+  price: "₹1999",
+  link: "/courses/medical-coding",
+},
 ];
 
 export default function FeaturedCourses() {
@@ -45,13 +56,16 @@ export default function FeaturedCourses() {
                 ⭐⭐⭐⭐⭐
               </p>
 
-              <p className="text-blue-700 font-bold mt-3">
+                            <p className="text-blue-700 font-bold mt-3">
                 {course.price}
               </p>
 
-              <button className="mt-5 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800">
-                Enroll Now
-              </button>
+              <Link href={course.link}>
+                <button className="mt-5 bg-blue-700 text-white px-6 py-2 rounded-lg hover:bg-blue-800">
+                  Enroll Now
+                </button>
+              </Link>
+
             </div>
           ))}
         </div>
