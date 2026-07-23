@@ -48,6 +48,47 @@ export default function ICUNursingPage() {
         </ul>
 
         <button className="mt-10 bg-blue-700 text-white px-8 py-3 rounded-lg hover:bg-blue-800">
+            <div className="mt-12">
+  <h2 className="text-3xl font-bold text-gray-900 mb-6">
+    📚 Course Syllabus
+  </h2>
+
+  <div className="space-y-3">
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 1 - ICU Basics
+    </div>
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 2 - Patient Assessment
+    </div>
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 3 - Ventilator Management
+    </div>
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 4 - ECG Interpretation
+    </div>
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 5 - ABG Analysis
+    </div>
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 6 - Emergency Drugs
+    </div>
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 7 - ICU Equipment
+    </div>
+
+    <div className="bg-white border rounded-lg p-4 shadow">
+      Module 8 - Infection Control
+    </div>
+
+  </div>
+</div>
           Enroll Now - ₹999
         </button>
       </div>

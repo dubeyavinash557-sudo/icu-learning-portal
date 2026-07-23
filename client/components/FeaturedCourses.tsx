@@ -48,9 +48,9 @@ export default function FeaturedCourses() {
             >
               <div className="text-5xl">{course.icon}</div>
 
-              <h3 className="text-2xl font-bold mt-4">
-                {course.title}
-              </h3>
+              <h3 className="text-2xl font-extrabold text-black mt-4">
+  {course.title}
+</h3>
 
               <p className="text-yellow-500 mt-2">
                 ⭐⭐⭐⭐⭐
