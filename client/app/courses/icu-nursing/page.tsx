@@ -1,39 +1,55 @@
 export default function ICUNursingPage() {
   return (
-    <main className="min-h-screen bg-gray-100">
-      <div className="max-w-6xl mx-auto px-8 py-16">
-
+    <main className="min-h-screen bg-gray-100 py-10">
+      <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8">
         <h1 className="text-5xl font-bold text-blue-700">
-          ICU Nursing Course
+          🏥 ICU Nursing Course
         </h1>
 
-        <p className="text-gray-600 mt-4 text-lg">
-          Learn ICU Nursing from beginner to advanced level.
+        <p className="mt-4 text-lg text-gray-600">
+          Master ICU Nursing from Beginner to Advanced.
         </p>
 
-        <div className="mt-10 bg-white shadow-lg rounded-2xl p-8">
+        <div className="grid md:grid-cols-3 gap-6 mt-10">
+          <div className="bg-blue-700 text-white p-6 rounded-xl text-center shadow-xl border border-blue-900">
+            <h3 className="text-3xl font-extrabold text-white">
+  Duration
+</h3>
 
-          <h2 className="text-3xl font-bold">
-            What You Will Learn
-          </h2>
+<p className="mt-3 text-2xl font-bold text-white">
+  30 Days
+</p>
+          </div>
 
-          <ul className="mt-6 space-y-3 text-lg">
-            <li>✅ ICU Basics</li>
-            <li>✅ Patient Assessment</li>
-            <li>✅ Ventilator Management</li>
-            <li>✅ ECG Interpretation</li>
-            <li>✅ ABG Analysis</li>
-            <li>✅ Emergency Drugs</li>
-            <li>✅ ICU Equipment</li>
-            <li>✅ Infection Control</li>
-          </ul>
+          <div className="bg-green-700 text-white p-6 rounded-xl text-center shadow-xl border border-green-900">
+            <h3 className="text-xl font-bold">Students</h3>
+            <p className="mt-2">5000+</p>
+          </div>
 
-          <button className="mt-8 bg-blue-700 text-white px-8 py-3 rounded-lg hover:bg-blue-800">
-            Enroll Now
-          </button>
-
+          <div className="bg-yellow-400 text-black p-6 rounded-xl text-center shadow-xl border border-yellow-600">
+            <h3 className="text-xl font-bold">Rating</h3>
+            <p className="mt-2">⭐⭐⭐⭐⭐ 4.9</p>
+          </div>
         </div>
 
+        <h2 className="text-3xl font-bold text-gray-900 mt-10 mb-6">
+          📚 What You Will Learn
+        </h2>
+
+        <ul className="space-y-4">
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ ICU Basics</li>
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ Patient Assessment</li>
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ Ventilator Management</li>
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ ECG Interpretation</li>
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ ABG Analysis</li>
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ Emergency Drugs</li>
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ ICU Equipment</li>
+          <li className="bg-gray-100 text-black text-lg font-semibold p-4 rounded-lg shadow">✅ Infection Control</li>
+        </ul>
+
+        <button className="mt-10 bg-blue-700 text-white px-8 py-3 rounded-lg hover:bg-blue-800">
+          Enroll Now - ₹999
+        </button>
       </div>
     </main>
   );
