@@ -1,13 +1,16 @@
+import Link from "next/link";
 type CourseCardProps = {
   title: string;
   icon: string;
   description: string;
+  href: string;
 };
 
 export default function CourseCard({
   title,
   icon,
   description,
+  href,
 }: CourseCardProps) {
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-2xl hover:-translate-y-2 transition duration-300">
@@ -24,9 +27,12 @@ export default function CourseCard({
         {description}
       </p>
 
-      <button className="mt-5 bg-blue-700 text-white px-5 py-2 rounded-lg">
-        Learn More
-      </button>
+      <Link
+  href={href}
+  className="inline-block mt-5 bg-blue-700 text-white px-5 py-2 rounded-lg"
+>
+  Learn More
+</Link>
 
     </div>
   );

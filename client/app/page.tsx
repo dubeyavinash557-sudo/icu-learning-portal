@@ -5,40 +5,54 @@ import Stats from "../components/Stats";
 import About from "../components/About";
 import Footer from "../components/Footer";
 import FeaturedCourses from "../components/FeaturedCourses";
+
 export default function Home() {
   return (
     <>
       <Navbar />
-<Hero />
-<Stats />
-<section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-10">
-  <CourseCard
-  title="ICU Nursing"
-  icon="🏥"
-  description="Complete ICU Nursing Course"
-/>
 
-<CourseCard
-  title="Ventilator"
-  icon="🫁"
-  description="Mechanical Ventilation Training"
-/>
+      <Hero />
 
-<CourseCard
-  title="ECG"
-  icon="❤️"
-  description="Master ECG Interpretation"
-/>
+      <Stats />
 
-<CourseCard
-  title="ABG"
-  icon="🩸"
-  description="ABG Analysis Made Easy"
-/>
-</section>
-<FeaturedCourses />
-<About />
-<Footer />
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-10">
+
+        <CourseCard
+          title="ICU Nursing"
+          icon="🏥"
+          description="Complete ICU Nursing Course"
+          href="/courses/icu-nursing"
+        />
+
+        <CourseCard
+          title="Ventilator"
+          icon="🫁"
+          description="Mechanical Ventilation Training"
+          href="/courses/ventilator"
+        />
+
+        <CourseCard
+          title="ECG"
+          icon="❤️"
+          description="Master ECG Interpretation"
+          href="/courses/ecg"
+        />
+
+        <CourseCard
+          title="ABG"
+          icon="🩸"
+          description="ABG Analysis Made Easy"
+          href="/courses/abg"
+        />
+
+      </section>
+
+      <FeaturedCourses />
+
+      <About />
+
+      <Footer />
+
       <main className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-6xl font-bold text-blue-700">
