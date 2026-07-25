@@ -1,13 +1,28 @@
 import Link from "next/link";
+import {
+  HeartPulse,
+  User,
+  Mail,
+  Phone,
+  Lock,
+  Building2,
+  GraduationCap,
+} from "lucide-react";
 
 export default function RegisterPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-cyan-100 py-10 px-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-cyan-100 px-4 py-10">
+
+      <div className="w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden">
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-700 to-cyan-600 text-white text-center py-8 px-6">
-          <div className="text-5xl mb-3">🏥</div>
+        <div className="bg-gradient-to-r from-blue-700 to-cyan-600 text-white text-center p-8">
+
+          <div className="flex justify-center mb-4">
+            <div className="bg-white/20 p-4 rounded-full">
+              <HeartPulse size={45} />
+            </div>
+          </div>
 
           <h1 className="text-3xl font-bold">
             ICU Learning Portal
@@ -16,109 +31,138 @@ export default function RegisterPage() {
           <p className="mt-2 text-blue-100">
             Create Your Student Account
           </p>
+
         </div>
+
 
         {/* Form */}
         <div className="p-8">
 
-          <form className="space-y-5">
+          <form className="space-y-4">
 
-            <div>
-              <label className="block font-bold text-gray-800 mb-2">
-                👤 Full Name
-              </label>
 
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                className="w-full border-2 border-gray-300 rounded-xl p-3 text-gray-900 placeholder:text-gray-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
+            <InputField
+              icon={<User size={20}/>}
+              label="Full Name"
+              placeholder="Enter your full name"
+            />
 
-            <div>
-              <label className="block font-bold text-gray-800 mb-2">
-                📧 Email Address
-              </label>
 
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full border-2 border-gray-300 rounded-xl p-3 text-gray-900 placeholder:text-gray-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
+            <InputField
+              icon={<Mail size={20}/>}
+              label="Email Address"
+              placeholder="Enter your email"
+              type="email"
+            />
 
-            <div>
-              <label className="block font-bold text-gray-800 mb-2">
-                📱 Mobile Number
-              </label>
 
-              <input
-                type="tel"
-                placeholder="Enter your mobile number"
-                className="w-full border-2 border-gray-300 rounded-xl p-3 text-gray-900 placeholder:text-gray-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
+            <InputField
+              icon={<Phone size={20}/>}
+              label="Mobile Number"
+              placeholder="Enter your mobile number"
+              type="tel"
+            />
 
-            <div>
-              <label className="block font-bold text-gray-800 mb-2">
-                🔒 Password
-              </label>
 
-              <input
-                type="password"
-                placeholder="Create your password"
-                className="w-full border-2 border-gray-300 rounded-xl p-3 text-gray-900 placeholder:text-gray-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
+            <InputField
+              icon={<GraduationCap size={20}/>}
+              label="Qualification"
+              placeholder="GNM / B.Sc Nursing"
+            />
 
-            <div>
-              <label className="block font-bold text-gray-800 mb-2">
-                🔐 Confirm Password
-              </label>
 
-              <input
-                type="password"
-                placeholder="Confirm your password"
-                className="w-full border-2 border-gray-300 rounded-xl p-3 text-gray-900 placeholder:text-gray-700 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300"
-              />
-            </div>
+            <InputField
+              icon={<Building2 size={20}/>}
+              label="Hospital Name"
+              placeholder="Enter hospital name"
+            />
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                className="w-4 h-4 mr-2"
-              />
 
-              <label className="text-gray-700">
-                I agree to the{" "}
-                <span className="text-blue-700 font-semibold">
-                  Terms & Conditions
-                </span>
-              </label>
-            </div>
+            <InputField
+              icon={<Lock size={20}/>}
+              label="Password"
+              placeholder="Create password"
+              type="password"
+            />
+
+
+            <InputField
+              icon={<Lock size={20}/>}
+              label="Confirm Password"
+              placeholder="Confirm password"
+              type="password"
+            />
+
 
             <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-700 to-cyan-600 text-white py-3 rounded-xl text-lg font-bold hover:scale-105 transition duration-300 shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-700 to-cyan-600 text-white py-3 rounded-xl font-bold text-lg hover:scale-105 transition shadow-lg"
             >
-              🚀 Create Account
+              Create Account
             </button>
+
 
           </form>
 
-          <p className="text-center mt-8 text-gray-600">
+
+          <p className="text-center mt-6 text-gray-600">
+
             Already have an account?{" "}
+
             <Link
               href="/login"
-              className="text-blue-700 font-bold hover:underline"
+              className="text-blue-700 font-bold"
             >
               Login Here
             </Link>
+
           </p>
+
 
         </div>
 
       </div>
+
     </main>
+  );
+}
+
+
+
+function InputField({
+  icon,
+  label,
+  placeholder,
+  type = "text",
+}: {
+  icon: React.ReactNode;
+  label: string;
+  placeholder: string;
+  type?: string;
+}) {
+
+  return (
+    <div>
+
+      <label className="block font-semibold text-gray-700 mb-2">
+        {label}
+      </label>
+
+
+      <div className="relative">
+
+        <div className="absolute left-3 top-3 text-gray-400">
+          {icon}
+        </div>
+
+
+        <input
+          type={type}
+          placeholder={placeholder}
+          className="w-full pl-10 p-3 border rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
+        />
+
+      </div>
+
+    </div>
   );
 }
