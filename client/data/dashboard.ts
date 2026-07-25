@@ -1,3 +1,10 @@
+import {
+  BookOpen,
+  Award,
+  Clock,
+  BarChart3,
+} from "lucide-react";
+
 export const student = {
   id: 1,
   name: "Avinash Dubey",
@@ -72,21 +79,21 @@ export const stats = [
   {
     title: "Total Courses",
     value: "5",
-    icon: "BookOpen",
+    icon: BookOpen,
   },
   {
     title: "Completed",
     value: "1",
-    icon: "Award",
+    icon: Award,
   },
   {
     title: "Hours Learned",
     value: "148",
-    icon: "Clock",
+    icon: Clock,
   },
   {
     title: "Quiz Average",
     value: "92%",
-    icon: "BarChart3",
+    icon: BarChart3,
   },
 ];
