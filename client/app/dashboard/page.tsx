@@ -50,14 +50,12 @@ export default function DashboardPage() {
           <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
             {stats.map((item) => (
-
-              <StatsCard
+                            <StatsCard
                 key={item.title}
                 title={item.title}
                 value={item.value}
                 icon={item.icon}
               />
-
             ))}
 
           </section>
@@ -70,7 +68,6 @@ export default function DashboardPage() {
           </section>
 
           {/* Progress + Study Plan */}
-
           <section className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
 
             <ProgressChart />
@@ -78,9 +75,12 @@ export default function DashboardPage() {
             <StudyPlan />
 
           </section>
-                    {/* My Courses */}
+
+          {/* My Courses */}
           <section className="mb-8">
+
             <MyCourses />
+
           </section>
 
           {/* Recent Activity + Achievements */}
@@ -91,8 +91,7 @@ export default function DashboardPage() {
             <Achievements />
 
           </section>
-
-          {/* Notifications */}
+                    {/* Notifications */}
           <section className="mb-8">
 
             <Notifications />
