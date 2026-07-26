@@ -1,6 +1,12 @@
 "use client";
 
-import { Bell, Search, CalendarDays } from "lucide-react";
+import {
+  Bell,
+  Search,
+  CalendarDays,
+  Crown,
+  LogOut,
+} from "lucide-react";
 import { student } from "@/data/dashboard";
 
 export default function Header() {
@@ -9,6 +15,11 @@ export default function Header() {
     day: "numeric",
     month: "long",
     year: "numeric",
+  });
+
+  const currentTime = new Date().toLocaleTimeString("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   const hour = new Date().getHours();
@@ -21,54 +32,112 @@ export default function Header() {
       : "Good Evening 🌙";
 
   return (
-    <header className="mb-8 rounded-3xl bg-white p-6 shadow-lg">
+    <header className="mb-8 rounded-3xl bg-white shadow-xl border border-slate-200">
 
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col lg:flex-row justify-between items-center gap-6 p-6">
 
-        {/* Left */}
-
+        {/* Left Side */}
         <div>
 
-          <h2 className="text-3xl font-bold text-slate-900">
-            {greeting}, {student.name}
-          </h2>
-
-          <p className="mt-2 text-slate-500">
-            Welcome back to ICU Learning Portal
+          <p className="text-sm text-blue-600 font-semibold">
+            ICU Learning Portal
           </p>
 
-          <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
-            <CalendarDays size={16} />
-            {today}
+          <h1 className="text-3xl font-bold text-slate-900 mt-1">
+            {greeting}, {student.name}
+          </h1>
+
+          <p className="text-slate-500 mt-2">
+            Continue your ICU learning journey today.
+          </p>
+
+          <div className="flex items-center gap-5 mt-4 text-sm text-slate-500">
+
+            <div className="flex items-center gap-2">
+              <CalendarDays size={16} />
+              {today}
+            </div>
+
+            <div>
+              🕒 {currentTime}
+            </div>
+
           </div>
 
         </div>
 
-        {/* Right */}
-
-        <div className="flex items-center gap-4">
+        {/* Right Side */}
+        <div className="flex flex-wrap items-center gap-4">
 
           {/* Search */}
+          <div className="flex items-center gap-3 bg-slate-100 rounded-xl px-4 py-3 min-w-[260px]">
 
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-
-            <Search size={18} className="text-slate-400" />
+            <Search
+              size={18}
+              className="text-slate-400"
+            />
 
             <input
               type="text"
               placeholder="Search courses..."
-              className="bg-transparent outline-none"
+              className="bg-transparent outline-none w-full"
             />
 
           </div>
 
           {/* Notification */}
-
-          <button className="relative rounded-xl bg-slate-100 p-3 hover:bg-slate-200">
+          <button className="relative rounded-xl bg-slate-100 p-3 hover:bg-slate-200 transition">
 
             <Bell size={22} />
 
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500"></span>
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">
+              3
+            </span>
+
+          </button>
+
+          {/* Premium Badge */}
+          <div className="hidden md:flex items-center gap-2 rounded-full bg-yellow-100 px-4 py-2 text-yellow-700 font-semibold">
+
+            <Crown size={18} />
+
+            Premium
+
+          </div>
+
+          {/* Student */}
+          <div className="flex items-center gap-3 rounded-xl bg-slate-100 px-4 py-2">
+
+            <div className="relative">
+
+              <img
+                src="https://ui-avatars.com/api/?name=Student&background=2563eb&color=fff"
+                alt="Student"
+                className="w-11 h-11 rounded-full"
+              />
+
+              <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white"></span>
+
+            </div>
+
+            <div>
+
+              <h3 className="font-bold text-slate-800">
+                {student.name}
+              </h3>
+
+              <p className="text-xs text-slate-500">
+                ICU Student
+              </p>
+
+            </div>
+
+          </div>
+
+          {/* Logout */}
+          <button className="rounded-xl bg-red-500 px-4 py-3 text-white hover:bg-red-600 transition">
+
+            <LogOut size={18} />
 
           </button>
 

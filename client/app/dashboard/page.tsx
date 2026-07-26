@@ -1,9 +1,9 @@
 "use client";
-
+import QuickActions from "@/components/dashboard/QuickActions";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
 import StatsCard from "@/components/dashboard/StatsCard";
-
+import LiveClasses from "@/components/dashboard/LiveClasses";
 import ContinueLearning from "@/components/dashboard/ContinueLearning";
 import ProgressChart from "@/components/dashboard/ProgressChart";
 import StudyPlan from "@/components/dashboard/StudyPlan";
@@ -11,7 +11,9 @@ import MyCourses from "@/components/dashboard/MyCourses";
 import RecentActivity from "@/components/dashboard/RecentActivity";
 import Achievements from "@/components/dashboard/Achievements";
 import Notifications from "@/components/dashboard/Notifications";
-
+import LearningAnalytics from "@/components/dashboard/LearningAnalytics";
+import StudyCalendar from "@/components/dashboard/StudyCalendar";
+import RecentCertificate from "@/components/dashboard/RecentCertificate";
 import {
   student,
   stats,
@@ -66,6 +68,26 @@ export default function DashboardPage() {
             <ContinueLearning />
 
           </section>
+          {/* Quick Actions */}
+<section className="mb-8">
+  <QuickActions />
+</section>
+
+          <section className="mb-8">
+  <LiveClasses />
+</section>
+
+          <section className="mb-8">
+  <LearningAnalytics />
+</section>
+
+          <section className="mb-8">
+  <StudyCalendar />
+</section>
+
+          <section className="mb-8">
+  <RecentCertificate />
+</section>
 
           {/* Progress + Study Plan */}
           <section className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">

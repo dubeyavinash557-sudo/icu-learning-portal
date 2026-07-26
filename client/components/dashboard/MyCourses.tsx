@@ -1,6 +1,13 @@
 "use client";
 
-import { BookOpen, ArrowRight } from "lucide-react";
+import {
+  BookOpen,
+  ArrowRight,
+  Star,
+  Clock3,
+  BadgeCheck,
+  Crown,
+} from "lucide-react";
 
 const courses = [
   {
@@ -9,7 +16,11 @@ const courses = [
     lessons: 120,
     completed: 52,
     progress: 43,
+    rating: 4.9,
+    certificate: false,
     color: "from-blue-500 to-cyan-500",
+    image:
+      "https://images.unsplash.com/photo-1584515933487-779824d29309?w=300&h=200&fit=crop",
   },
   {
     id: 2,
@@ -17,7 +28,11 @@ const courses = [
     lessons: 80,
     completed: 35,
     progress: 44,
+    rating: 4.8,
+    certificate: false,
     color: "from-emerald-500 to-green-500",
+    image:
+      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=300&h=200&fit=crop",
   },
   {
     id: 3,
@@ -25,7 +40,11 @@ const courses = [
     lessons: 60,
     completed: 15,
     progress: 25,
+    rating: 4.7,
+    certificate: false,
     color: "from-purple-500 to-pink-500",
+    image:
+      "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=300&h=200&fit=crop",
   },
   {
     id: 4,
@@ -33,7 +52,11 @@ const courses = [
     lessons: 45,
     completed: 20,
     progress: 45,
+    rating: 4.8,
+    certificate: false,
     color: "from-orange-500 to-amber-500",
+    image:
+      "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=300&h=200&fit=crop",
   },
   {
     id: 5,
@@ -41,29 +64,33 @@ const courses = [
     lessons: 100,
     completed: 10,
     progress: 10,
+    rating: 4.9,
+    certificate: false,
     color: "from-rose-500 to-red-500",
+    image:
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300&h=200&fit=crop",
   },
 ];
 
 export default function MyCourses() {
   return (
-    <section className="bg-white rounded-3xl shadow-xl p-8">
+    <section className="rounded-3xl bg-white p-8 shadow-xl">
 
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-center justify-between">
 
         <div>
 
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-3xl font-bold text-slate-900">
             My Courses
           </h2>
 
-          <p className="text-gray-500 mt-1">
+          <p className="mt-2 text-slate-500">
             Continue your enrolled ICU learning programs.
           </p>
 
         </div>
 
-        <button className="text-blue-600 font-semibold hover:text-blue-700 transition">
+        <button className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 transition">
           View All
         </button>
 
@@ -71,48 +98,101 @@ export default function MyCourses() {
 
       <div className="grid gap-6">
 
-              {courses.map((course) => (
-        <div
-          key={course.id}
-          className="border border-gray-200 rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-        >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        {courses.map((course) => (
 
-            {/* Left */}
-            <div className="flex items-start gap-4 flex-1">
+          <div
+            key={course.id}
+            className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+          >
 
-              <div
-                className={`w-14 h-14 rounded-2xl bg-gradient-to-r ${course.color} flex items-center justify-center text-white shadow-lg`}
-              >
-                <BookOpen size={28} />
-              </div>
+            <div className="flex flex-col lg:flex-row">
 
-              <div className="flex-1">
+              {/* Image */}
+              <img
+                src={course.image}
+                alt={course.title}
+                className="h-52 w-full object-cover lg:w-72"
+              />
 
-                <h3 className="text-xl font-bold text-gray-800">
-                  {course.title}
-                </h3>
+              {/* Content */}
+              <div className="flex flex-1 flex-col justify-between p-6">
 
-                <p className="text-gray-500 mt-1">
-                  {course.completed} / {course.lessons} Lessons Completed
-                </p>
+                <div>
 
-                {/* Progress */}
-                <div className="mt-4">
+                  <div className="mb-3 flex flex-wrap items-center gap-3">
 
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-500">Progress</span>
-                    <span className="font-semibold text-blue-600">
-                      {course.progress}%
+                    <span className="flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-sm font-semibold text-yellow-700">
+                      <Crown size={16} />
+                      Premium
                     </span>
+
+                    <span className="flex items-center gap-1 text-amber-500">
+                      <Star size={16} fill="currentColor" />
+                      {course.rating}
+                    </span>
+
                   </div>
 
-                  <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full bg-gradient-to-r ${course.color} rounded-full transition-all duration-700`}
-                      style={{ width: `${course.progress}%` }}
-                    />
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    {course.title}
+                  </h3>
+
+                  <p className="mt-3 text-slate-500">
+                    {course.completed} / {course.lessons} Lessons Completed
+                  </p>
+
+                  <div className="mt-3 flex flex-wrap gap-6 text-sm text-slate-500">
+
+                    <div className="flex items-center gap-2">
+                      <Clock3 size={16} />
+                      {course.lessons - course.completed} Lessons Remaining
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <BadgeCheck size={16} />
+                      {course.certificate
+                        ? "Certificate Earned"
+                        : "Certificate Locked"}
+                    </div>
+
                   </div>
+
+                  {/* Progress */}
+
+                  <div className="mt-6">
+
+                    <div className="mb-2 flex justify-between text-sm font-semibold">
+
+                      <span>Progress</span>
+
+                      <span>{course.progress}%</span>
+
+                    </div>
+
+                    <div className="h-3 overflow-hidden rounded-full bg-slate-200">
+
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${course.color}`}
+                        style={{
+                          width: `${course.progress}%`,
+                        }}
+                      />
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div className="mt-6">
+
+                  <button className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+
+                    Continue Learning
+
+                    <ArrowRight size={18} />
+
+                  </button>
 
                 </div>
 
@@ -120,22 +200,9 @@ export default function MyCourses() {
 
             </div>
 
-            {/* Right */}
-            <div>
-
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition">
-
-                Continue
-
-                <ArrowRight size={18} />
-
-              </button>
-
-            </div>
-
           </div>
-        </div>
-      ))}
+
+        ))}
 
       </div>
 
