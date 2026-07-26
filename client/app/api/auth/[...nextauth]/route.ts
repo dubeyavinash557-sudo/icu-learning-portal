@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { authenticateUser } from "@/lib/auth";
 
 const handler = NextAuth({
   providers: [
@@ -18,19 +19,24 @@ const handler = NextAuth({
       },
 
       async authorize(credentials) {
-
-        if (
-          credentials?.email === "admin@icuportal.com" &&
-          credentials?.password === "123456"
-        ) {
-          return {
-            id: "1",
-            name: "Avinash Dubey",
-            email: "admin@icuportal.com",
-          };
+        if (!credentials?.email || !credentials?.password) {
+          return null;
         }
 
-        return null;
+        const user = await authenticateUser(
+          credentials.email,
+          credentials.password
+        );
+
+        if (!user) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+        };
       },
     }),
   ],
@@ -43,6 +49,7 @@ const handler = NextAuth({
     strategy: "jwt",
   },
 
+  secret: process.env.NEXTAUTH_SECRET,
 });
 
 export { handler as GET, handler as POST };
