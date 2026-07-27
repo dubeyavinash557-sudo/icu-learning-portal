@@ -20,6 +20,7 @@ model User {
   isVerified    Boolean       @default(false)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
   certificates  Certificate[]
   enrollments   Enrollment[]
   payments      Payment[]
@@ -27,62 +28,113 @@ model User {
 
 model Course {
   id           String        @id @default(cuid())
+
   title        String
   slug         String        @unique
+
   description  String
+
+  image        String
+
+  instructor   String
+
   price        Float
+
+  rating       Float         @default(5)
+
+  students     Int           @default(0)
+
+  duration     Int           @default(0)
+
+  language     String        @default("Hindi")
+
+  level        String        @default("Beginner")
+
   isPremium    Boolean       @default(true)
+
   createdAt    DateTime      @default(now())
+
   certificates Certificate[]
+
   enrollments  Enrollment[]
+
   lessons      Lesson[]
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+
+  title       String
+
+  description String
+
+  videoUrl    String
+
+  notesUrl    String?
+
+  duration    Int
+
+  lessonOrder Int
+
+  courseId    String
+
+  createdAt   DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 }
 
 model Enrollment {
   id         String   @id @default(cuid())
+
   userId     String
+
   courseId   String
+
   progress   Int      @default(0)
+
   completed  Boolean  @default(false)
+
   enrolledAt DateTime @default(now())
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
 }
 
 model Payment {
   id            String   @id @default(cuid())
+
   userId        String
+
   amount        Float
+
   status        String
+
   paymentMethod String?
+
   transactionId String?  @unique
+
   createdAt     DateTime @default(now())
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Certificate {
   id            String   @id @default(cuid())
-  userId        String
-  courseId      String
-  certificateNo String   @unique
-  issuedAt      DateTime @default(now())
-  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
 
-model Lesson {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  videoUrl    String
-  notesUrl    String?
-  duration    Int
-  lessonOrder Int
-  courseId    String
-  createdAt   DateTime @default(now())
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  userId        String
+
+  courseId      String
+
+  certificateNo String   @unique
+
+  issuedAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 }
 
 enum Role {
