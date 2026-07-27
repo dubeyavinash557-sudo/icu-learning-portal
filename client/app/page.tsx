@@ -6,7 +6,18 @@ import About from "../components/About";
 import Footer from "../components/Footer";
 import FeaturedCourses from "../components/FeaturedCourses";
 
-export default function Home() {
+import { getCourses } from "@/lib/course";
+
+export default async function Home() {
+  const dbCourses = await getCourses();
+
+  const featuredCourses = dbCourses.map((course) => ({
+    id: course.id,
+    title: course.title,
+    slug: course.slug,
+    price: course.price,
+  }));
+
   return (
     <>
       <Navbar />
@@ -15,8 +26,7 @@ export default function Home() {
 
       <Stats />
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-10">
-
+      <section className="grid grid-cols-1 gap-6 p-10 md:grid-cols-2 lg:grid-cols-4">
         <CourseCard
           title="ICU Nursing"
           icon="🏥"
@@ -44,30 +54,13 @@ export default function Home() {
           description="ABG Analysis Made Easy"
           href="/courses/abg"
         />
-
       </section>
 
-      <FeaturedCourses />
+      <FeaturedCourses courses={featuredCourses} />
 
       <About />
 
       <Footer />
-
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-6xl font-bold text-blue-700">
-            ICU Learning Portal 🚑
-          </h1>
-
-          <p className="mt-6 text-xl text-gray-600">
-            India's Best ICU Learning Platform, Ventilator, ECG, ABG & Critical Care
-          </p>
-
-          <button className="mt-8 bg-blue-700 text-white px-8 py-3 rounded-xl">
-            Start Learning
-          </button>
-        </div>
-      </main>
     </>
   );
 }
