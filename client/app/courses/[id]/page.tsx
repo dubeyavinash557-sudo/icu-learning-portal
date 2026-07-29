@@ -1,8 +1,10 @@
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-
+import { auth } from "@/auth";
+import EnrollButton from "@/components/course/EnrollButton";
 import {
+    
   ArrowRight,
   BookOpen,
   Clock3,
@@ -25,22 +27,44 @@ export default async function CourseDetailsPage({
   const { id } = await params;
 
   const course = await prisma.course.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      lessons: {
-        orderBy: {
-          lessonOrder: "asc",
-        },
+  where: {
+    id,
+  },
+  include: {
+    lessons: {
+      orderBy: {
+        lessonOrder: "asc",
       },
+    },
+  },
+});
+
+if (!course) {
+  notFound();
+}
+
+const session = await auth();
+
+let enrolled = false;
+
+if (session?.user?.email) {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
     },
   });
 
-  if (!course) {
-    notFound();
-  }
+  if (user) {
+    const enrollment = await prisma.enrollment.findFirst({
+      where: {
+        userId: user.id,
+        courseId: course.id,
+      },
+    });
 
+    enrolled = !!enrollment;
+  }
+}
   return (
     <div className="min-h-screen bg-slate-100">
 
@@ -104,16 +128,24 @@ export default async function CourseDetailsPage({
 
         <div className="mt-10">
 
-          <Link
-            href={`/courses/${course.id}/lesson/${course.lessons[0]?.id}`}
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-800"
-          >
-            <BookOpen size={20} />
-            Start Learning
-            <ArrowRight size={18} />
-          </Link>
+  {enrolled ? (
 
-        </div>
+    <Link
+      href={`/courses/${course.id}/lesson/${course.lessons[0]?.id}`}
+      className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-800"
+    >
+      <BookOpen size={20} />
+      Continue Learning
+      <ArrowRight size={18} />
+    </Link>
+
+  ) : (
+
+    <EnrollButton courseId={course.id} />
+
+  )}
+
+</div>
 
         {/* Course Information */}
 

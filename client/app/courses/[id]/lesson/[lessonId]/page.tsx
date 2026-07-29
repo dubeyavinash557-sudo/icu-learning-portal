@@ -40,6 +40,28 @@ export default async function LessonPage({ params }: Props) {
     (item) => item.id === lessonId
   );
 
+  console.log("Course ID:", course.id);
+
+console.log(
+  "Lessons:",
+  course.lessons.map((l) => ({
+    id: l.id,
+    title: l.title,
+  }))
+);
+
+console.log("Course ID:", course.id);
+
+console.log(
+  "Lessons:",
+  course.lessons.map((l) => ({
+    id: l.id,
+    title: l.title,
+  }))
+);
+
+console.log("Requested Lesson:", lessonId);
+
   if (!lesson) {
     notFound();
   }
