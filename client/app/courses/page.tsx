@@ -53,7 +53,7 @@ export default async function CoursesPage() {
                 </div>
 
                 <Link
-                  href={`/courses/${course.slug}`}
+                  href={`/courses/${course.id}`}
                   className="mt-6 block rounded-xl bg-blue-700 px-5 py-3 text-center font-semibold text-white transition hover:bg-blue-800"
                 >
                   View Course

@@ -1,4 +1,4 @@
-"use client";
+import StudentProfile from "@/components/dashboard/StudentProfile";
 import QuickActions from "@/components/dashboard/QuickActions";
 import Header from "@/components/dashboard/Header";
 import Sidebar from "@/components/dashboard/Sidebar";
@@ -14,12 +14,14 @@ import Notifications from "@/components/dashboard/Notifications";
 import LearningAnalytics from "@/components/dashboard/LearningAnalytics";
 import StudyCalendar from "@/components/dashboard/StudyCalendar";
 import RecentCertificate from "@/components/dashboard/RecentCertificate";
+
 import {
   student,
   stats,
 } from "@/data/dashboard";
 
 export default function DashboardPage() {
+  
   return (
     <div className="min-h-screen bg-slate-100">
 
@@ -38,8 +40,8 @@ export default function DashboardPage() {
           <section className="mb-8">
 
             <h1 className="text-4xl font-bold text-gray-800">
-              Welcome back, {student.name} 👋
-            </h1>
+  Welcome back, {student.name} 👋
+</h1>
 
             <p className="text-gray-500 mt-3 text-lg">
               Continue your ICU Learning journey and improve your
@@ -114,11 +116,15 @@ export default function DashboardPage() {
 
           </section>
                     {/* Notifications */}
-          <section className="mb-8">
+<section className="mb-8">
+  <Notifications />
+</section>
 
-            <Notifications />
-
-          </section>
+        {/* Student Profile */}
+<section className="mb-8">
+  <StudentProfile />
+</section>
+          
 
         </main>
 

@@ -421,6 +421,46 @@ async function main() {
     ],
   });
 
+    // ----------------------
+// Create Enrollment
+// ----------------------
+
+const user = await prisma.user.findFirst();
+
+if (user) {
+  await prisma.enrollment.createMany({
+    data: [
+      {
+        userId: user.id,
+        courseId: icuCourse.id,
+        progress: 43,
+      },
+      {
+        userId: user.id,
+        courseId: ventilatorCourse.id,
+        progress: 44,
+      },
+      {
+        userId: user.id,
+        courseId: ecgCourse.id,
+        progress: 25,
+      },
+      {
+        userId: user.id,
+        courseId: abgCourse.id,
+        progress: 45,
+      },
+      {
+        userId: user.id,
+        courseId: codingCourse.id,
+        progress: 10,
+      },
+    ],
+  });
+
+  console.log("✅ User enrolled in all courses");
+}
+
     console.log("✅ Database seeded successfully");
 }
 

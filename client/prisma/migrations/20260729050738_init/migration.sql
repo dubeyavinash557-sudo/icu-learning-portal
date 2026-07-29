@@ -25,11 +25,33 @@ CREATE TABLE "public"."Course" (
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "image" TEXT NOT NULL,
+    "instructor" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
+    "duration" INTEGER NOT NULL,
+    "language" TEXT NOT NULL DEFAULT 'Hindi',
+    "level" TEXT NOT NULL DEFAULT 'Beginner',
+    "rating" DOUBLE PRECISION NOT NULL DEFAULT 5,
+    "students" INTEGER NOT NULL DEFAULT 0,
     "isPremium" BOOLEAN NOT NULL DEFAULT true,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Course_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Lesson" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "videoUrl" TEXT NOT NULL,
+    "notesUrl" TEXT,
+    "duration" INTEGER NOT NULL,
+    "lessonOrder" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "courseId" TEXT NOT NULL,
+
+    CONSTRAINT "Lesson_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -68,6 +90,18 @@ CREATE TABLE "public"."Certificate" (
     CONSTRAINT "Certificate_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "public"."LessonProgress" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "lessonId" TEXT NOT NULL,
+    "completed" BOOLEAN NOT NULL DEFAULT false,
+    "completedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "LessonProgress_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 
@@ -86,6 +120,12 @@ CREATE UNIQUE INDEX "Payment_transactionId_key" ON "public"."Payment"("transacti
 -- CreateIndex
 CREATE UNIQUE INDEX "Certificate_certificateNo_key" ON "public"."Certificate"("certificateNo");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "LessonProgress_userId_lessonId_key" ON "public"."LessonProgress"("userId", "lessonId");
+
+-- AddForeignKey
+ALTER TABLE "public"."Lesson" ADD CONSTRAINT "Lesson_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "public"."Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 -- AddForeignKey
 ALTER TABLE "public"."Enrollment" ADD CONSTRAINT "Enrollment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -100,3 +140,9 @@ ALTER TABLE "public"."Certificate" ADD CONSTRAINT "Certificate_userId_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "public"."Certificate" ADD CONSTRAINT "Certificate_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "public"."Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."LessonProgress" ADD CONSTRAINT "LessonProgress_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."LessonProgress" ADD CONSTRAINT "LessonProgress_lessonId_fkey" FOREIGN KEY ("lessonId") REFERENCES "public"."Lesson"("id") ON DELETE CASCADE ON UPDATE CASCADE;
