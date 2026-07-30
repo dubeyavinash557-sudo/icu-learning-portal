@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
+import CompleteLessonButton from "@/components/course/CompleteLessonButton";
 import {
   ArrowLeft,
   ArrowRight,
@@ -167,6 +167,8 @@ console.log("Requested Lesson:", lessonId);
             ) : (
               <div />
             )}
+
+            <CompleteLessonButton lessonId={lesson.id} />
 
             {nextLesson ? (
               <Link

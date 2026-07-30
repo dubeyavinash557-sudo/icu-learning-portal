@@ -14,14 +14,55 @@ import Notifications from "@/components/dashboard/Notifications";
 import LearningAnalytics from "@/components/dashboard/LearningAnalytics";
 import StudyCalendar from "@/components/dashboard/StudyCalendar";
 import RecentCertificate from "@/components/dashboard/RecentCertificate";
-
+import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
 import {
   student,
   stats,
 } from "@/data/dashboard";
 
-export default function DashboardPage() {
-  
+export default async function DashboardPage() {
+  const session = await auth();
+
+if (!session?.user?.email) {
+  redirect("/login");
+}
+
+const user = await prisma.user.findUnique({
+  where: {
+    email: session.user.email,
+  },
+  include: {
+    enrollments: {
+      include: {
+        course: true,
+      },
+    },
+    lessonProgress: true,
+    certificates: true,
+  },
+});
+
+if (!user) {
+  redirect("/login");
+}
+
+const completedLessons = user.lessonProgress.filter(
+  (lesson) => lesson.completed
+).length;
+
+const totalLessons = await prisma.lesson.count();
+
+const progress =
+  totalLessons === 0
+    ? 0
+    : Math.round((completedLessons / totalLessons) * 100);
+
+const currentCourse =
+  user.enrollments.length > 0
+    ? user.enrollments[0].course
+    : null;
   return (
     <div className="min-h-screen bg-slate-100">
 
@@ -40,7 +81,7 @@ export default function DashboardPage() {
           <section className="mb-8">
 
             <h1 className="text-4xl font-bold text-gray-800">
-  Welcome back, {student.name} 👋
+  Welcome back, {user.fullName} 👋
 </h1>
 
             <p className="text-gray-500 mt-3 text-lg">
@@ -67,7 +108,12 @@ export default function DashboardPage() {
           {/* Continue Learning */}
           <section className="mb-8">
 
-            <ContinueLearning />
+            <ContinueLearning
+  courseTitle={currentCourse?.title ?? "No Course Enrolled"}
+  progress={progress}
+  completedLessons={completedLessons}
+  totalLessons={totalLessons}
+/>
 
           </section>
           {/* Quick Actions */}
