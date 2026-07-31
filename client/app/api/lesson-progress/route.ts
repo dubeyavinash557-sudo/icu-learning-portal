@@ -110,6 +110,13 @@ export async function POST(req: Request) {
       (completedLessons / totalLessons) * 100
     );
 
+    console.log(
+      "Completed Lessons:",
+      completedLessons,
+      "Total Lessons:",
+      totalLessons
+    );
+
     await prisma.enrollment.update({
       where: {
         userId_courseId: {
@@ -122,6 +129,33 @@ export async function POST(req: Request) {
         completed: completedLessons === totalLessons,
       },
     });
+
+    // Create Certificate
+    if (completedLessons === totalLessons) {
+      console.log("Creating Certificate...");
+
+      const existingCertificate =
+        await prisma.certificate.findFirst({
+          where: {
+            userId: user.id,
+            courseId: lesson.courseId,
+          },
+        });
+
+      if (!existingCertificate) {
+        await prisma.certificate.create({
+          data: {
+            userId: user.id,
+            courseId: lesson.courseId,
+            certificateNo: `ICU-${Date.now()}`,
+          },
+        });
+
+        console.log("Certificate Created Successfully");
+      } else {
+        console.log("Certificate Already Exists");
+      }
+    }
 
     return NextResponse.json({
       success: true,

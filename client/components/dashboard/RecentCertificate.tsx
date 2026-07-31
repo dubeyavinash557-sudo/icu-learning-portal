@@ -7,7 +7,34 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-export default function RecentCertificate() {
+type Props = {
+  certificate: {
+    id: string;
+    certificateNo: string;
+    issuedAt: Date;
+    course: {
+      title: string;
+    };
+  } | null;
+};
+
+export default function RecentCertificate({
+  certificate,
+}: Props) {
+  if (!certificate) {
+    return (
+      <section className="rounded-3xl bg-white p-8 shadow-xl">
+        <h2 className="text-2xl font-bold text-slate-900">
+          Latest Certificate
+        </h2>
+
+        <p className="mt-3 text-slate-500">
+          You haven't earned any certificates yet.
+        </p>
+      </section>
+    );
+  }
+
   return (
     <section className="rounded-3xl bg-white p-8 shadow-xl">
 
@@ -41,16 +68,17 @@ export default function RecentCertificate() {
               </div>
 
               <h3 className="text-2xl font-bold text-slate-900">
-                ICU Nursing Foundation
+                {certificate.course.title}
               </h3>
 
               <p className="mt-2 text-slate-600">
-                Successfully completed the ICU Nursing Foundation course.
+                Certificate No: {certificate.certificateNo}
               </p>
 
               <div className="mt-4 flex items-center gap-2 text-sm text-slate-500">
                 <CalendarDays size={16} />
-                Issued on: 20 July 2026
+                Issued on:{" "}
+                {new Date(certificate.issuedAt).toLocaleDateString("en-IN")}
               </div>
 
             </div>

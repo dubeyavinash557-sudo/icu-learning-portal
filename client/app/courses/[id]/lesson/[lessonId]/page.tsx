@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CompleteLessonButton from "@/components/course/CompleteLessonButton";
+import { auth } from "@/auth";
 import {
   ArrowLeft,
   ArrowRight,
@@ -65,6 +66,31 @@ console.log("Requested Lesson:", lessonId);
   if (!lesson) {
     notFound();
   }
+
+  const session = await auth();
+
+let isCompleted = false;
+
+if (session?.user?.email) {
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+  });
+
+  if (user) {
+    const progress = await prisma.lessonProgress.findUnique({
+      where: {
+        userId_lessonId: {
+          userId: user.id,
+          lessonId: lesson.id,
+        },
+      },
+    });
+
+    isCompleted = progress?.completed ?? false;
+  }
+}
 
   const currentIndex = course.lessons.findIndex(
     (item) => item.id === lesson.id
@@ -168,7 +194,15 @@ console.log("Requested Lesson:", lessonId);
               <div />
             )}
 
-            <CompleteLessonButton lessonId={lesson.id} />
+            <CompleteLessonButton
+  lessonId={lesson.id}
+  isCompleted={isCompleted}
+  nextLessonUrl={
+    nextLesson
+      ? `/courses/${course.id}/lesson/${nextLesson.id}`
+      : null
+  }
+/>
 
             {nextLesson ? (
               <Link

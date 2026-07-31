@@ -46,6 +46,7 @@ if (!course) {
 const session = await auth();
 
 let enrolled = false;
+let nextLessonId: string | null = null;
 
 if (session?.user?.email) {
   const user = await prisma.user.findUnique({
@@ -55,15 +56,41 @@ if (session?.user?.email) {
   });
 
   if (user) {
-    const enrollment = await prisma.enrollment.findFirst({
+  const enrollment = await prisma.enrollment.findFirst({
+    where: {
+      userId: user.id,
+      courseId: course.id,
+    },
+  });
+
+  enrolled = !!enrollment;
+
+  if (enrollment) {
+    const completedLessons = await prisma.lessonProgress.findMany({
       where: {
         userId: user.id,
-        courseId: course.id,
+        completed: true,
+      },
+      select: {
+        lessonId: true,
       },
     });
 
-    enrolled = !!enrollment;
+    const completedIds = completedLessons.map(
+      (item) => item.lessonId
+    );
+
+    const nextLesson = course.lessons.find(
+      (lesson) => !completedIds.includes(lesson.id)
+    );
+
+    nextLessonId =
+      nextLesson?.id ??
+      course.lessons[course.lessons.length - 1]?.id ??
+      null;
   }
+}
+
 }
   return (
     <div className="min-h-screen bg-slate-100">
@@ -131,9 +158,13 @@ if (session?.user?.email) {
   {enrolled ? (
 
     <Link
-      href={`/courses/${course.id}/lesson/${course.lessons[0]?.id}`}
-      className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-800"
-    >
+  href={
+    nextLessonId
+      ? `/courses/${course.id}/lesson/${nextLessonId}`
+      : `/courses/${course.id}`
+  }
+  className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-8 py-4 text-lg font-semibold text-white transition hover:bg-blue-800"
+>
       <BookOpen size={20} />
       Continue Learning
       <ArrowRight size={18} />

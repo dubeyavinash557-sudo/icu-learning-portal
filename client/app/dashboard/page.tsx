@@ -14,77 +14,89 @@ import Notifications from "@/components/dashboard/Notifications";
 import LearningAnalytics from "@/components/dashboard/LearningAnalytics";
 import StudyCalendar from "@/components/dashboard/StudyCalendar";
 import RecentCertificate from "@/components/dashboard/RecentCertificate";
+
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import {
-  student,
-  stats,
-} from "@/data/dashboard";
+
+import { stats } from "@/data/dashboard";
 
 export default async function DashboardPage() {
   const session = await auth();
 
-if (!session?.user?.email) {
-  redirect("/login");
-}
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
 
-const user = await prisma.user.findUnique({
-  where: {
-    email: session.user.email,
-  },
-  include: {
-    enrollments: {
-      include: {
-        course: true,
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    include: {
+      enrollments: {
+        include: {
+          course: true,
+        },
+      },
+
+      lessonProgress: true,
+
+      certificates: {
+        include: {
+          course: true,
+        },
+        orderBy: {
+          issuedAt: "desc",
+        },
       },
     },
-    lessonProgress: true,
-    certificates: true,
-  },
-});
+  });
 
-if (!user) {
-  redirect("/login");
-}
+  if (!user) {
+    redirect("/login");
+  }
 
-const completedLessons = user.lessonProgress.filter(
-  (lesson) => lesson.completed
-).length;
+  const completedLessons = user.lessonProgress.filter(
+    (lesson) => lesson.completed
+  ).length;
 
-const totalLessons = await prisma.lesson.count();
+  const totalLessons = await prisma.lesson.count();
 
-const progress =
-  totalLessons === 0
-    ? 0
-    : Math.round((completedLessons / totalLessons) * 100);
+  const progress =
+    totalLessons === 0
+      ? 0
+      : Math.round((completedLessons / totalLessons) * 100);
 
-const currentCourse =
-  user.enrollments.length > 0
-    ? user.enrollments[0].course
-    : null;
+  const currentCourse =
+    user.enrollments.length > 0
+      ? user.enrollments[0].course
+      : null;
+
+  const latestCertificate =
+    user.certificates.length > 0
+      ? user.certificates[0]
+      : null;
+
   return (
-    <div className="min-h-screen bg-slate-100">
 
-      {/* Header */}
+        <div className="min-h-screen bg-slate-100">
+
       <Header />
 
       <div className="flex">
 
-        {/* Sidebar */}
         <Sidebar />
 
-        {/* Main Content */}
         <main className="flex-1 p-6 lg:p-8">
 
           {/* Welcome */}
           <section className="mb-8">
 
             <h1 className="text-4xl font-bold text-gray-800">
-  Welcome back, {user.fullName} 👋
-</h1>
+              Welcome back, {user.fullName} 👋
+            </h1>
 
-            <p className="text-gray-500 mt-3 text-lg">
+            <p className="mt-3 text-lg text-gray-500">
               Continue your ICU Learning journey and improve your
               critical care skills.
             </p>
@@ -92,10 +104,10 @@ const currentCourse =
           </section>
 
           {/* Stats Cards */}
-          <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+          <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
 
             {stats.map((item) => (
-                            <StatsCard
+              <StatsCard
                 key={item.title}
                 title={item.title}
                 value={item.value}
@@ -109,33 +121,40 @@ const currentCourse =
           <section className="mb-8">
 
             <ContinueLearning
-  courseTitle={currentCourse?.title ?? "No Course Enrolled"}
-  progress={progress}
-  completedLessons={completedLessons}
-  totalLessons={totalLessons}
-/>
+              courseTitle={currentCourse?.title ?? "No Course Enrolled"}
+              progress={progress}
+              completedLessons={completedLessons}
+              totalLessons={totalLessons}
+            />
 
           </section>
+
           {/* Quick Actions */}
-<section className="mb-8">
-  <QuickActions />
-</section>
-
           <section className="mb-8">
-  <LiveClasses />
-</section>
+            <QuickActions />
+          </section>
 
+          {/* Live Classes */}
           <section className="mb-8">
-  <LearningAnalytics />
-</section>
+            <LiveClasses />
+          </section>
 
+          {/* Learning Analytics */}
           <section className="mb-8">
-  <StudyCalendar />
-</section>
+            <LearningAnalytics />
+          </section>
 
+          {/* Study Calendar */}
           <section className="mb-8">
-  <RecentCertificate />
-</section>
+            <StudyCalendar />
+          </section>
+
+          {/* Latest Certificate */}
+          <section className="mb-8">
+            <RecentCertificate
+              certificate={latestCertificate}
+            />
+          </section>
 
           {/* Progress + Study Plan */}
           <section className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
@@ -146,11 +165,9 @@ const currentCourse =
 
           </section>
 
-          {/* My Courses */}
+                    {/* My Courses */}
           <section className="mb-8">
-
             <MyCourses />
-
           </section>
 
           {/* Recent Activity + Achievements */}
@@ -161,16 +178,16 @@ const currentCourse =
             <Achievements />
 
           </section>
-                    {/* Notifications */}
-<section className="mb-8">
-  <Notifications />
-</section>
 
-        {/* Student Profile */}
-<section className="mb-8">
-  <StudentProfile />
-</section>
-          
+          {/* Notifications */}
+          <section className="mb-8">
+            <Notifications />
+          </section>
+
+          {/* Student Profile */}
+          <section className="mb-8">
+            <StudentProfile />
+          </section>
 
         </main>
 

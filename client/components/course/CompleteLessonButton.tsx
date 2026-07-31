@@ -6,10 +6,14 @@ import { CheckCircle2 } from "lucide-react";
 
 type Props = {
   lessonId: string;
+  isCompleted: boolean;
+  nextLessonUrl: string | null;
 };
 
 export default function CompleteLessonButton({
   lessonId,
+  isCompleted,
+  nextLessonUrl,
 }: Props) {
   const router = useRouter();
 
@@ -34,10 +38,26 @@ export default function CompleteLessonButton({
       console.log(data);
 
       if (res.ok) {
-        router.refresh();
-      } else {
-        alert(data.message);
-      }
+
+  if (nextLessonUrl) {
+
+    router.push(nextLessonUrl);
+
+    router.refresh();
+
+  } else {
+
+    router.refresh();
+
+    alert("🎉 Congratulations! Course Completed.");
+
+  }
+
+} else {
+
+  alert(data.message);
+
+}
     } catch (error) {
       console.error(error);
       alert("Something went wrong");
@@ -49,12 +69,20 @@ export default function CompleteLessonButton({
   return (
     <button
       onClick={completeLesson}
-      disabled={loading}
-      className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+      disabled={loading || isCompleted}
+      className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition disabled:opacity-50 ${
+  isCompleted
+    ? "bg-gray-500"
+    : "bg-green-600 hover:bg-green-700"
+}`}
     >
       <CheckCircle2 size={18} />
 
-      {loading ? "Completing..." : "Mark as Complete"}
+      {loading
+  ? "Completing..."
+  : isCompleted
+  ? "Completed"
+  : "Mark as Complete"}
     </button>
   );
 }
