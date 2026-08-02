@@ -45,12 +45,12 @@ const menuItems = [
   {
     title: "Quiz",
     icon: ClipboardCheck,
-    href: "/quiz",
+    href: "/dashboard/quiz",
   },
   {
     title: "Certificates",
     icon: Award,
-    href: "/certificates",
+    href: "/dashboard/certificates",
   },
   {
     title: "Payments",

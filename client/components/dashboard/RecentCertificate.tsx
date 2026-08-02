@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import {
   Award,
   CalendarDays,
@@ -21,7 +21,8 @@ type Props = {
 export default function RecentCertificate({
   certificate,
 }: Props) {
-  if (!certificate) {
+  const router = useRouter();
+ if (!certificate) {
     return (
       <section className="rounded-3xl bg-white p-8 shadow-xl">
         <h2 className="text-2xl font-bold text-slate-900">
@@ -85,7 +86,14 @@ export default function RecentCertificate({
 
           </div>
 
-          <button className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+          <button
+  onClick={() =>
+    router.push(
+      `/api/certificates/latest/${certificate.id}`
+    )
+  }
+  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+>
             <Download size={18} />
             Download PDF
           </button>

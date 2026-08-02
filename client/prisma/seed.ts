@@ -7,6 +7,10 @@ async function main() {
 
   // Delete old data
 
+  await prisma.quizAttempt.deleteMany();
+await prisma.quizQuestion.deleteMany();
+await prisma.quiz.deleteMany();
+
   await prisma.lesson.deleteMany();
   await prisma.enrollment.deleteMany();
   await prisma.certificate.deleteMany();
@@ -460,6 +464,371 @@ if (user) {
 
   console.log("✅ User enrolled in all courses");
 }
+
+// ----------------------------------
+// ICU Nursing Quiz
+// ----------------------------------
+
+const icuQuiz = await prisma.quiz.create({
+  data: {
+    title: "ICU Nursing Quiz",
+    description: "Basic ICU Nursing Assessment Quiz",
+    courseId: icuCourse.id,
+
+    questions: {
+      create: [
+        {
+          question: "What is the normal SpO₂ range in adults?",
+          optionA: "70–80%",
+          optionB: "80–85%",
+          optionC: "95–100%",
+          optionD: "100–110%",
+          correctAnswer: "C",
+          explanation:
+            "Normal oxygen saturation in healthy adults is generally 95–100%.",
+        },
+
+        {
+          question: "Which ICU device delivers mechanical ventilation?",
+          optionA: "Nebulizer",
+          optionB: "Ventilator",
+          optionC: "Suction Machine",
+          optionD: "ECG Monitor",
+          correctAnswer: "B",
+          explanation:
+            "Mechanical ventilation is provided using a ventilator.",
+        },
+
+        {
+          question: "What is the normal heart rate of an adult?",
+          optionA: "20–40 bpm",
+          optionB: "40–50 bpm",
+          optionC: "60–100 bpm",
+          optionD: "120–150 bpm",
+          correctAnswer: "C",
+          explanation:
+            "Normal resting heart rate is 60–100 beats per minute.",
+        },
+
+        {
+          question: "Which artery is commonly used for ABG sampling?",
+          optionA: "Femoral",
+          optionB: "Radial",
+          optionC: "Carotid",
+          optionD: "Brachial",
+          correctAnswer: "B",
+          explanation:
+            "The radial artery is the preferred site for ABG collection.",
+        },
+
+        {
+          question: "What does ICU stand for?",
+          optionA: "Internal Care Unit",
+          optionB: "Intensive Care Unit",
+          optionC: "Integrated Care Unit",
+          optionD: "International Care Unit",
+          correctAnswer: "B",
+          explanation:
+            "ICU means Intensive Care Unit.",
+        },
+      ],
+    },
+  },
+});
+
+console.log("✅ ICU Quiz Created:", icuQuiz.title);
+
+// ----------------------------------
+// Ventilator Quiz
+// ----------------------------------
+
+const ventilatorQuiz = await prisma.quiz.create({
+  data: {
+    title: "Mechanical Ventilator Quiz",
+    description: "Ventilator Management Assessment",
+    courseId: ventilatorCourse.id,
+
+    questions: {
+      create: [
+        {
+          question: "PEEP stands for?",
+          optionA: "Positive End Expiratory Pressure",
+          optionB: "Pulmonary End Expiratory Pressure",
+          optionC: "Positive Expiratory Exchange Pressure",
+          optionD: "Pulmonary Exchange End Pressure",
+          correctAnswer: "A",
+          explanation:
+            "PEEP means Positive End Expiratory Pressure.",
+        },
+
+        {
+          question: "Which mode provides mandatory breaths only?",
+          optionA: "SIMV",
+          optionB: "CPAP",
+          optionC: "VCV",
+          optionD: "PSV",
+          correctAnswer: "C",
+          explanation:
+            "VCV (Volume Controlled Ventilation) provides mandatory volume-controlled breaths.",
+        },
+
+        {
+          question: "High pressure alarm usually indicates?",
+          optionA: "Circuit leak",
+          optionB: "Patient coughing or airway obstruction",
+          optionC: "Low oxygen",
+          optionD: "Power failure",
+          correctAnswer: "B",
+          explanation:
+            "High airway pressure commonly occurs due to obstruction, secretions, or coughing.",
+        },
+
+        {
+          question: "Normal FiO₂ in room air is?",
+          optionA: "10%",
+          optionB: "21%",
+          optionC: "40%",
+          optionD: "60%",
+          correctAnswer: "B",
+          explanation:
+            "Atmospheric oxygen concentration is approximately 21%.",
+        },
+
+        {
+          question: "Weaning means?",
+          optionA: "Increasing oxygen",
+          optionB: "Removing ECG leads",
+          optionC: "Gradually discontinuing ventilator support",
+          optionD: "Giving nebulization",
+          correctAnswer: "C",
+          explanation:
+            "Weaning is the gradual reduction and removal of ventilator support.",
+        },
+      ],
+    },
+  },
+});
+
+console.log("✅ Ventilator Quiz Created:", ventilatorQuiz.title);
+
+// ----------------------------------
+// ECG Quiz
+// ----------------------------------
+
+const ecgQuiz = await prisma.quiz.create({
+  data: {
+    title: "ECG Interpretation Quiz",
+    description: "Basic ECG Interpretation Assessment",
+    courseId: ecgCourse.id,
+
+    questions: {
+      create: [
+        {
+          question: "The P wave represents?",
+          optionA: "Ventricular Depolarization",
+          optionB: "Atrial Depolarization",
+          optionC: "Ventricular Repolarization",
+          optionD: "Cardiac Output",
+          correctAnswer: "B",
+          explanation:
+            "The P wave represents atrial depolarization.",
+        },
+
+        {
+          question: "Normal heart rate is?",
+          optionA: "20–40 bpm",
+          optionB: "40–50 bpm",
+          optionC: "60–100 bpm",
+          optionD: "120–160 bpm",
+          correctAnswer: "C",
+          explanation:
+            "Normal adult heart rate is 60–100 bpm.",
+        },
+
+        {
+          question: "Which ECG wave represents ventricular depolarization?",
+          optionA: "P Wave",
+          optionB: "T Wave",
+          optionC: "QRS Complex",
+          optionD: "PR Interval",
+          correctAnswer: "C",
+          explanation:
+            "QRS complex represents ventricular depolarization.",
+        },
+
+        {
+          question: "ST elevation usually indicates?",
+          optionA: "Normal ECG",
+          optionB: "Myocardial Infarction",
+          optionC: "Bradycardia",
+          optionD: "Hypoglycemia",
+          correctAnswer: "B",
+          explanation:
+            "ST elevation commonly indicates acute myocardial infarction.",
+        },
+
+        {
+          question: "The T wave represents?",
+          optionA: "Atrial Repolarization",
+          optionB: "Ventricular Repolarization",
+          optionC: "Atrial Depolarization",
+          optionD: "Cardiac Arrest",
+          correctAnswer: "B",
+          explanation:
+            "T wave represents ventricular repolarization.",
+        },
+      ],
+    },
+  },
+});
+
+console.log("✅ ECG Quiz Created:", ecgQuiz.title);
+
+// ----------------------------------
+// ABG Quiz
+// ----------------------------------
+
+const abgQuiz = await prisma.quiz.create({
+  data: {
+    title: "ABG Analysis Quiz",
+    description: "Arterial Blood Gas Interpretation Assessment",
+    courseId: abgCourse.id,
+
+    questions: {
+      create: [
+        {
+          question: "What does ABG stand for?",
+          optionA: "Arterial Blood Gas",
+          optionB: "Airway Breathing Guide",
+          optionC: "Advanced Blood Group",
+          optionD: "Arterial Body Graph",
+          correctAnswer: "A",
+          explanation:
+            "ABG stands for Arterial Blood Gas.",
+        },
+
+        {
+          question: "Normal blood pH is?",
+          optionA: "6.8–7.0",
+          optionB: "7.35–7.45",
+          optionC: "7.60–7.80",
+          optionD: "8.0–8.5",
+          correctAnswer: "B",
+          explanation:
+            "Normal arterial blood pH is 7.35–7.45.",
+        },
+
+        {
+          question: "Normal PaCO₂ range is?",
+          optionA: "10–20 mmHg",
+          optionB: "20–30 mmHg",
+          optionC: "35–45 mmHg",
+          optionD: "50–60 mmHg",
+          correctAnswer: "C",
+          explanation:
+            "Normal PaCO₂ is 35–45 mmHg.",
+        },
+
+        {
+          question: "Low pH with high PaCO₂ indicates?",
+          optionA: "Respiratory Acidosis",
+          optionB: "Metabolic Alkalosis",
+          optionC: "Respiratory Alkalosis",
+          optionD: "Normal ABG",
+          correctAnswer: "A",
+          explanation:
+            "Low pH with elevated PaCO₂ indicates respiratory acidosis.",
+        },
+
+        {
+          question: "Normal HCO₃⁻ range is?",
+          optionA: "10–15 mEq/L",
+          optionB: "15–20 mEq/L",
+          optionC: "22–26 mEq/L",
+          optionD: "30–35 mEq/L",
+          correctAnswer: "C",
+          explanation:
+            "Normal bicarbonate level is 22–26 mEq/L.",
+        },
+      ],
+    },
+  },
+});
+
+console.log("✅ ABG Quiz Created:", abgQuiz.title);
+
+// ----------------------------------
+// Medical Coding Quiz
+// ----------------------------------
+
+const codingQuiz = await prisma.quiz.create({
+  data: {
+    title: "Medical Coding Quiz",
+    description: "Medical Coding Fundamentals Assessment",
+    courseId: codingCourse.id,
+
+    questions: {
+      create: [
+        {
+          question: "ICD-10-CM is mainly used for?",
+          optionA: "Procedure Coding",
+          optionB: "Diagnosis Coding",
+          optionC: "Medicine Billing",
+          optionD: "Laboratory Reports",
+          correctAnswer: "B",
+          explanation:
+            "ICD-10-CM is used for diagnosis coding.",
+        },
+
+        {
+          question: "CPT codes are used for?",
+          optionA: "Diagnosis",
+          optionB: "Insurance Claims",
+          optionC: "Procedures and Services",
+          optionD: "Hospital Rooms",
+          correctAnswer: "C",
+          explanation:
+            "CPT codes represent medical procedures and services.",
+        },
+
+        {
+          question: "HCPCS Level II codes mainly represent?",
+          optionA: "Diseases",
+          optionB: "Medical Supplies & Equipment",
+          optionC: "Patient History",
+          optionD: "Vital Signs",
+          correctAnswer: "B",
+          explanation:
+            "HCPCS Level II covers supplies, equipment, drugs and services.",
+        },
+
+        {
+          question: "Who maintains CPT codes?",
+          optionA: "WHO",
+          optionB: "CDC",
+          optionC: "AMA",
+          optionD: "ICU Society",
+          correctAnswer: "C",
+          explanation:
+            "The American Medical Association (AMA) maintains CPT codes.",
+        },
+
+        {
+          question: "Medical coding improves?",
+          optionA: "Patient Entertainment",
+          optionB: "Hospital Billing Accuracy",
+          optionC: "Ventilator Settings",
+          optionD: "ABG Sampling",
+          correctAnswer: "B",
+          explanation:
+            "Accurate coding improves billing, reimbursement and documentation.",
+        },
+      ],
+    },
+  },
+});
+
+console.log("✅ Medical Coding Quiz Created:", codingQuiz.title);
 
     console.log("✅ Database seeded successfully");
 }

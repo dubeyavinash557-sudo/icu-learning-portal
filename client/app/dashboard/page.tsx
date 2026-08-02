@@ -18,9 +18,12 @@ import RecentCertificate from "@/components/dashboard/RecentCertificate";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-
-import { stats } from "@/data/dashboard";
-
+import {
+  BookOpen,
+  CheckCircle,
+  Clock,
+  Award,
+} from "lucide-react";
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -77,6 +80,49 @@ export default async function DashboardPage() {
       ? user.certificates[0]
       : null;
 
+      const quizAttempts = await prisma.quizAttempt.findMany({
+  where: {
+    userId: user.id,
+  },
+});
+
+const averageQuizScore =
+  quizAttempts.length === 0
+    ? 0
+    : Math.round(
+        quizAttempts.reduce(
+          (sum, quiz) => sum + quiz.percentage,
+          0
+        ) / quizAttempts.length
+      );
+
+const completedCourses = user.enrollments.filter(
+  (course) => course.completed
+).length;
+
+const dashboardStats = [
+  {
+    title: "Total Courses",
+    value: String(user.enrollments.length),
+    icon: BookOpen,
+  },
+  {
+    title: "Completed",
+    value: String(completedCourses),
+    icon: CheckCircle,
+  },
+  {
+    title: "Hours Learned",
+    value: String(completedLessons),
+    icon: Clock,
+  },
+  {
+    title: "Quiz Average",
+    value: `${averageQuizScore}%`,
+    icon: Award,
+  },
+];
+
   return (
 
         <div className="min-h-screen bg-slate-100">
@@ -106,7 +152,7 @@ export default async function DashboardPage() {
           {/* Stats Cards */}
           <section className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
 
-            {stats.map((item) => (
+            {dashboardStats.map((item) => (
               <StatsCard
                 key={item.title}
                 title={item.title}
