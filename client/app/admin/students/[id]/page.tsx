@@ -2,6 +2,10 @@ import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
+  togglePremium,
+  deleteStudent,
+} from "@/app/actions/student-actions";
+import {
   ArrowLeft,
   User,
   Mail,
@@ -44,6 +48,16 @@ export default async function StudentProfilePage({
   if (!student) {
     notFound();
   }
+
+  const togglePremiumAction = togglePremium.bind(
+  null,
+  student.id
+);
+
+const deleteStudentAction = deleteStudent.bind(
+  null,
+  student.id
+);
 
   return (
     <main className="min-h-screen bg-slate-100 p-8">
@@ -477,25 +491,37 @@ export default async function StudentProfilePage({
 
           </button>
 
-          <button
-            className={`rounded-2xl px-6 py-4 font-semibold text-white transition ${
-              student.isPremium
-                ? "bg-amber-500 hover:bg-amber-600"
-                : "bg-emerald-600 hover:bg-emerald-700"
-            }`}
-          >
+          <form action={togglePremiumAction}>
 
-            {student.isPremium
-              ? "Remove Premium"
-              : "Make Premium"}
+  <button
+    type="submit"
+    className={`w-full rounded-2xl px-6 py-4 font-semibold text-white transition ${
+      student.isPremium
+        ? "bg-amber-500 hover:bg-amber-600"
+        : "bg-emerald-600 hover:bg-emerald-700"
+    }`}
+  >
 
-          </button>
+    {student.isPremium
+      ? "Remove Premium"
+      : "Make Premium"}
 
-          <button className="rounded-2xl bg-red-600 px-6 py-4 font-semibold text-white transition hover:bg-red-700">
+  </button>
 
-            Delete Student
+</form>
 
-          </button>
+          <form action={deleteStudentAction}>
+
+  <button
+    type="submit"
+    className="w-full rounded-2xl bg-red-600 px-6 py-4 font-semibold text-white transition hover:bg-red-700"
+  >
+
+    Delete Student
+
+  </button>
+
+</form>
 
         </div>
 

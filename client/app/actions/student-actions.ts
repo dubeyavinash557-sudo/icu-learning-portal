@@ -44,3 +44,53 @@ export async function updateStudent(
 
   redirect(`/admin/students/${id}`);
 }
+
+export async function togglePremium(id: string) {
+  "use server";
+
+  const student = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!student) {
+    throw new Error("Student not found.");
+  }
+
+  await prisma.user.update({
+    where: {
+      id,
+    },
+    data: {
+      isPremium: !student.isPremium,
+    },
+  });
+
+  revalidatePath("/admin/students");
+  revalidatePath(`/admin/students/${id}`);
+}
+
+export async function deleteStudent(id: string) {
+  "use server";
+
+  const student = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!student) {
+    throw new Error("Student not found.");
+  }
+
+  await prisma.user.delete({
+    where: {
+      id,
+    },
+  });
+
+  revalidatePath("/admin/students");
+
+  redirect("/admin/students");
+}
