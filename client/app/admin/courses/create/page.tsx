@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createCourse } from "@/app/actions/course-actions";
 import {
   ArrowLeft,
   BookOpen,
@@ -45,7 +46,10 @@ export default function CreateCoursePage() {
 
       <div className="rounded-3xl bg-white p-8 shadow-lg">
 
-        <form className="space-y-8">
+        <form
+  action={createCourse}
+  className="space-y-8"
+>
 
                       <div className="grid gap-8 md:grid-cols-2">
 
