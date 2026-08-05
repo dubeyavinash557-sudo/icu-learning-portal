@@ -52,3 +52,48 @@ export async function createCourse(
 
   redirect("/admin/courses");
 }
+
+export async function updateCourse(
+  formData: FormData
+) {
+  const id = formData.get("id") as string;
+
+  const title = formData.get("title") as string;
+  const slug = formData.get("slug") as string;
+  const description = formData.get("description") as string;
+
+  const image = formData.get("image") as string;
+  const instructor = formData.get("instructor") as string;
+
+  const price = Number(formData.get("price"));
+  const duration = Number(formData.get("duration"));
+
+  const language = formData.get("language") as string;
+  const level = formData.get("level") as string;
+
+  const isPremium =
+    formData.get("isPremium") === "true";
+
+  await prisma.course.update({
+    where: {
+      id,
+    },
+    data: {
+      title,
+      slug,
+      description,
+      image,
+      instructor,
+      price,
+      duration,
+      language,
+      level,
+      isPremium,
+    },
+  });
+
+  revalidatePath("/admin/courses");
+  revalidatePath(`/courses/${slug}`);
+
+  redirect("/admin/courses");
+}
