@@ -1,10 +1,14 @@
 import prisma from "@/lib/prisma";
-import { updateCourse } from "@/app/actions/course-actions";
+import {
+  updateCourse,
+  deleteCourse,
+} from "@/app/actions/course-actions";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   BookOpen,
+  Save,
 } from "lucide-react";
 
 interface PageProps {
@@ -266,11 +270,12 @@ export default async function EditCoursePage({
 <div className="flex flex-wrap gap-4 border-t border-slate-200 pt-8">
 
   <button
-    type="submit"
-    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
-  >
-    Save Changes
-  </button>
+  type="submit"
+  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+>
+  <Save size={18} />
+  Save Changes
+</button>
 
   <Link
     href="/admin/courses"
@@ -278,6 +283,17 @@ export default async function EditCoursePage({
   >
     Cancel
   </Link>
+
+  <button
+  type="submit"
+  formAction={async () => {
+    "use server";
+    await deleteCourse(course.id);
+  }}
+  className="rounded-xl bg-red-600 px-6 py-3 font-semibold text-white transition hover:bg-red-700"
+>
+  Delete Course
+</button>
 
 </div>
 
