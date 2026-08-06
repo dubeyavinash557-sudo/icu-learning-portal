@@ -1,9 +1,11 @@
 import prisma from "@/lib/prisma";
+import { deleteLesson } from "@/app/actions/course-actions";
 import Link from "next/link";
 import {
   ArrowLeft,
   BookOpen,
   Plus,
+  Trash2,
 } from "lucide-react";
 
 interface PageProps {
@@ -145,6 +147,34 @@ export default async function LessonsPage({
   >
     Edit
   </Link>
+
+  <form
+  action={async () => {
+    "use server";
+
+    await deleteLesson(
+      lesson.id,
+      course.id
+    );
+  }}
+  onSubmit={(e) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this lesson?"
+      )
+    ) {
+      e.preventDefault();
+    }
+  }}
+>
+  <button
+    type="submit"
+    className="flex items-center gap-1 text-red-600 hover:underline"
+  >
+    <Trash2 size={16} />
+    Delete
+  </button>
+</form>
 
 </div>
 

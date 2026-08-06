@@ -283,3 +283,32 @@ export async function createLesson(
     `/admin/courses/${courseId}/lessons`
   );
 }
+
+export async function deleteLesson(
+  lessonId: string,
+  courseId: string
+) {
+  const lesson = await prisma.lesson.findUnique({
+    where: {
+      id: lessonId,
+    },
+  });
+
+  if (!lesson) {
+    throw new Error("Lesson not found.");
+  }
+
+  await prisma.lesson.delete({
+    where: {
+      id: lessonId,
+    },
+  });
+
+  revalidatePath(
+    `/admin/courses/${courseId}/lessons`
+  );
+
+  redirect(
+    `/admin/courses/${courseId}/lessons`
+  );
+}
