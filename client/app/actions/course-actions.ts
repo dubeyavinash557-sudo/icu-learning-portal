@@ -177,3 +177,51 @@ export async function deleteCourse(
 
   redirect("/admin/courses");
 }
+
+export async function createLesson(
+  formData: FormData
+) {
+  const courseId = formData.get("courseId") as string;
+
+  const title = formData.get("title") as string;
+
+  const description =
+    formData.get("description") as string;
+
+  const videoUrl = formData.get("videoUrl") as string;
+
+  const notesUrl =
+    (formData.get("notesUrl") as string) || null;
+
+  const duration = Number(
+    formData.get("duration")
+  );
+
+  const lessonOrder = Number(
+    formData.get("lessonOrder")
+  );
+
+  if (!courseId || !title) {
+    throw new Error("Course ID and Title are required.");
+  }
+
+  await prisma.lesson.create({
+    data: {
+      title,
+      description,
+      videoUrl,
+      notesUrl,
+      duration,
+      lessonOrder,
+      courseId,
+    },
+  });
+
+  revalidatePath(
+    `/admin/courses/${courseId}/lessons`
+  );
+
+  redirect(
+    `/admin/courses/${courseId}/lessons`
+  );
+}
