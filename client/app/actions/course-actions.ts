@@ -178,6 +178,64 @@ export async function deleteCourse(
   redirect("/admin/courses");
 }
 
+export async function updateLesson(
+  formData: FormData
+) {
+  const id = formData.get("id") as string;
+
+  const courseId =
+    formData.get("courseId") as string;
+
+  const title = formData.get("title") as string;
+
+  const description =
+    formData.get("description") as string;
+
+  const videoUrl =
+    formData.get("videoUrl") as string;
+
+  const notesUrl =
+    (formData.get("notesUrl") as string) || null;
+
+  const duration = Number(
+    formData.get("duration")
+  );
+
+  const lessonOrder = Number(
+    formData.get("lessonOrder")
+  );
+
+  if (!id || !courseId) {
+    throw new Error("Missing required data.");
+  }
+
+  await prisma.lesson.update({
+    where: {
+      id,
+    },
+    data: {
+      title,
+      description,
+      videoUrl,
+      notesUrl,
+      duration,
+      lessonOrder,
+    },
+  });
+
+  revalidatePath(
+    `/admin/courses/${courseId}/lessons`
+  );
+
+  revalidatePath(
+    `/admin/courses/${courseId}/lessons/${id}/edit`
+  );
+
+  redirect(
+    `/admin/courses/${courseId}/lessons`
+  );
+}
+
 export async function createLesson(
   formData: FormData
 ) {
