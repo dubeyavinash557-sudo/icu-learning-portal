@@ -343,3 +343,27 @@ export async function deleteLesson(
     `/admin/courses/${courseId}/lessons`
   );
 }
+
+export async function deleteQuiz(
+  quizId: string
+) {
+  const quiz = await prisma.quiz.findUnique({
+    where: {
+      id: quizId,
+    },
+  });
+
+  if (!quiz) {
+    throw new Error("Quiz not found.");
+  }
+
+  await prisma.quiz.delete({
+    where: {
+      id: quizId,
+    },
+  });
+
+  revalidatePath("/admin/quizzes");
+
+  redirect("/admin/quizzes");
+}
