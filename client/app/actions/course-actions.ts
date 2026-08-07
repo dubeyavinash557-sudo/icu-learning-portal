@@ -284,6 +284,37 @@ export async function createLesson(
   );
 }
 
+export async function createQuiz(
+  formData: FormData
+) {
+  const title =
+    formData.get("title") as string;
+
+  const courseId =
+    formData.get("courseId") as string;
+
+  const description =
+    (formData.get("description") as string) || null;
+
+  if (!title || !courseId) {
+    throw new Error(
+      "Title and Course are required."
+    );
+  }
+
+  await prisma.quiz.create({
+    data: {
+      title,
+      description,
+      courseId,
+    },
+  });
+
+  revalidatePath("/admin/quizzes");
+
+  redirect("/admin/quizzes");
+}
+
 export async function deleteLesson(
   lessonId: string,
   courseId: string
