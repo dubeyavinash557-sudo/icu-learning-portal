@@ -15,39 +15,39 @@ export default function DeleteQuestionButton({
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this question?"
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this question?"
+  );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setDeleting(true);
+
+    const response = await fetch(
+      `/admin/quizzes/${quizId}/questions/${questionId}`,
+      {
+        method: "DELETE",
+      }
     );
 
-    if (!confirmed) {
-      return;
+    if (!response.ok) {
+      throw new Error("Failed to delete question.");
     }
 
-    try {
-      setDeleting(true);
+    window.location.reload();
+  } catch (error) {
+    console.error(error);
 
-      const response = await fetch(
-        `/api/admin/quizzes/${quizId}/questions/${questionId}`,
-        {
-          method: "DELETE",
-        }
-      );
+    alert(
+      "Failed to delete question. Please try again."
+    );
 
-      if (!response.ok) {
-        throw new Error("Failed to delete question.");
-      }
-
-      window.location.reload();
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        "Failed to delete question. Please try again."
-      );
-
-      setDeleting(false);
-    }
+    setDeleting(false);
   }
+}
 
   return (
     <button
