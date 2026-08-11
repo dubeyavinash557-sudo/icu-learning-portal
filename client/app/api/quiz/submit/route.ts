@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
+    // Check login session
     const session = await auth();
 
     if (!session?.user?.email) {
@@ -13,6 +14,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // Find logged-in user
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email,
@@ -26,13 +28,20 @@ export async function POST(req: Request) {
       );
     }
 
+    // Read request body
     const body = await req.json();
 
-    const {
-      quizId,
-      answers,
-    } = body;
+    const { quizId, answers } = body;
 
+    // Validate quizId
+    if (!quizId) {
+      return NextResponse.json(
+        { error: "Quiz ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Get quiz with questions
     const quiz = await prisma.quiz.findUnique({
       where: {
         id: quizId,
@@ -49,28 +58,45 @@ export async function POST(req: Request) {
       );
     }
 
+    // Calculate score
     let score = 0;
 
     for (const question of quiz.questions) {
-      if (
-        answers[question.id] ===
-        question.correctAnswer
-      ) {
+      const selectedAnswer = answers?.[question.id];
+
+      // correctAnswer contains A / B / C / D
+      // Convert it to the actual option text.
+      const correctOption =
+        question.correctAnswer === "A"
+          ? question.optionA
+          : question.correctAnswer === "B"
+            ? question.optionB
+            : question.correctAnswer === "C"
+              ? question.optionC
+              : question.optionD;
+
+      // Compare selected option text with correct option text
+      if (selectedAnswer === correctOption) {
         score += question.marks;
       }
     }
 
+    // Calculate total marks
     const total = quiz.questions.reduce(
-      (sum, q) => sum + q.marks,
+      (sum, question) => sum + question.marks,
       0
     );
 
-    const percentage = Math.round(
-      (score / total) * 100
-    );
+    // Calculate percentage
+    const percentage =
+      total === 0
+        ? 0
+        : Math.round((score / total) * 100);
 
+    // Passing percentage = 70%
     const passed = percentage >= 70;
 
+    // Save / update quiz attempt
     await prisma.quizAttempt.upsert({
       where: {
         userId_quizId: {
@@ -94,26 +120,28 @@ export async function POST(req: Request) {
       },
     });
 
+    // Create certificate when student passes
     if (passed) {
-  const existingCertificate =
-    await prisma.certificate.findFirst({
-      where: {
-        userId: user.id,
-        courseId: quiz.courseId,
-      },
-    });
+      const existingCertificate =
+        await prisma.certificate.findFirst({
+          where: {
+            userId: user.id,
+            courseId: quiz.courseId,
+          },
+        });
 
-  if (!existingCertificate) {
-    await prisma.certificate.create({
-      data: {
-        userId: user.id,
-        courseId: quiz.courseId,
-        certificateNo: `ICU-${Date.now()}`,
-      },
-    });
-  }
-}
+      if (!existingCertificate) {
+        await prisma.certificate.create({
+          data: {
+            userId: user.id,
+            courseId: quiz.courseId,
+            certificateNo: `ICU-${Date.now()}`,
+          },
+        });
+      }
+    }
 
+    // Return result
     return NextResponse.json({
       success: true,
       score,
@@ -121,13 +149,16 @@ export async function POST(req: Request) {
       percentage,
       passed,
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Quiz submit error:", error);
 
     return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
+      {
+        error: "Internal Server Error",
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
