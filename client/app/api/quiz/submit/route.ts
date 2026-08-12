@@ -4,17 +4,21 @@ import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    // Check login session
+    // 1. Check login session
     const session = await auth();
 
     if (!session?.user?.email) {
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    // Find logged-in user
+    // 2. Find logged-in user
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email,
@@ -23,25 +27,46 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
+        {
+          error: "User not found",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    // Read request body
+    // 3. Read request body
     const body = await req.json();
 
-    const { quizId, answers } = body;
+    const quizId = body.quizId;
+    const answers = body.answers;
 
-    // Validate quizId
+    // 4. Validate quizId
     if (!quizId) {
       return NextResponse.json(
-        { error: "Quiz ID is required" },
-        { status: 400 }
+        {
+          error: "Quiz ID is required",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
-    // Get quiz with questions
+    // 5. Validate answers
+    if (!answers || typeof answers !== "object") {
+      return NextResponse.json(
+        {
+          error: "Answers are required",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // 6. Get quiz with questions
     const quiz = await prisma.quiz.findUnique({
       where: {
         id: quizId,
@@ -53,74 +78,158 @@ export async function POST(req: Request) {
 
     if (!quiz) {
       return NextResponse.json(
-        { error: "Quiz not found" },
-        { status: 404 }
+        {
+          error: "Quiz not found",
+        },
+        {
+          status: 404,
+        }
       );
     }
 
-    // Calculate score
+    // 7. Calculate score
     let score = 0;
 
+    const answerRecords: {
+      questionId: string;
+      selectedAnswer: string;
+      correctAnswer: string;
+      isCorrect: boolean;
+      marks: number;
+    }[] = [];
+
     for (const question of quiz.questions) {
-      const selectedAnswer = answers?.[question.id];
+      const selectedAnswer = String(answers[question.id] ?? "");
 
-      // correctAnswer contains A / B / C / D
-      // Convert it to the actual option text.
-      const correctOption =
-        question.correctAnswer === "A"
-          ? question.optionA
-          : question.correctAnswer === "B"
-            ? question.optionB
-            : question.correctAnswer === "C"
-              ? question.optionC
-              : question.optionD;
+      let correctOption = "";
 
-      // Compare selected option text with correct option text
-      if (selectedAnswer === correctOption) {
+      switch (question.correctAnswer.trim().toUpperCase()) {
+        case "A":
+          correctOption = question.optionA;
+          break;
+
+        case "B":
+          correctOption = question.optionB;
+          break;
+
+        case "C":
+          correctOption = question.optionC;
+          break;
+
+        case "D":
+          correctOption = question.optionD;
+          break;
+
+        default:
+          correctOption = question.correctAnswer;
+          break;
+      }
+
+      const isCorrect =
+        selectedAnswer.trim() === correctOption.trim();
+
+      if (isCorrect) {
         score += question.marks;
       }
+
+      console.log("QUIZ ANSWER CHECK:", {
+        questionId: question.id,
+        question: question.question,
+        selectedAnswer,
+        correctAnswerLetter: question.correctAnswer,
+        correctOption,
+        isCorrect,
+        marks: isCorrect ? question.marks : 0,
+      });
+
+      answerRecords.push({
+        questionId: question.id,
+        selectedAnswer,
+        correctAnswer: correctOption,
+        isCorrect,
+        marks: isCorrect ? question.marks : 0,
+      });
     }
 
-    // Calculate total marks
+    // 8. Calculate total marks
     const total = quiz.questions.reduce(
       (sum, question) => sum + question.marks,
       0
     );
 
-    // Calculate percentage
+    // 9. Calculate percentage
     const percentage =
       total === 0
         ? 0
         : Math.round((score / total) * 100);
 
-    // Passing percentage = 70%
+    // 10. Passing percentage
     const passed = percentage >= 70;
 
-    // Save / update quiz attempt
-    await prisma.quizAttempt.upsert({
-      where: {
-        userId_quizId: {
-          userId: user.id,
-          quizId,
-        },
-      },
-      update: {
-        score,
-        total,
-        percentage,
-        passed,
-      },
-      create: {
-        userId: user.id,
-        quizId,
-        score,
-        total,
-        percentage,
-        passed,
-      },
+    console.log("QUIZ FINAL RESULT:", {
+      quizId,
+      userId: user.id,
+      score,
+      total,
+      percentage,
+      passed,
     });
 
-    // Create certificate when student passes
+    // 11. Save quiz attempt and answers
+    const attempt = await prisma.$transaction(
+      async (tx) => {
+        // Create or update quiz attempt
+        const quizAttempt = await tx.quizAttempt.upsert({
+          where: {
+            userId_quizId: {
+              userId: user.id,
+              quizId,
+            },
+          },
+
+          update: {
+            score,
+            total,
+            percentage,
+            passed,
+          },
+
+          create: {
+            userId: user.id,
+            quizId,
+            score,
+            total,
+            percentage,
+            passed,
+          },
+        });
+
+        // Delete previous answers
+        await tx.quizAttemptAnswer.deleteMany({
+          where: {
+            attemptId: quizAttempt.id,
+          },
+        });
+
+        // Save latest answers
+        if (answerRecords.length > 0) {
+          await tx.quizAttemptAnswer.createMany({
+            data: answerRecords.map((answer) => ({
+              attemptId: quizAttempt.id,
+              questionId: answer.questionId,
+              selectedAnswer: answer.selectedAnswer,
+              correctAnswer: answer.correctAnswer,
+              isCorrect: answer.isCorrect,
+              marks: answer.marks,
+            })),
+          });
+        }
+
+        return quizAttempt;
+      }
+    );
+
+    // 12. Create certificate if passed
     if (passed) {
       const existingCertificate =
         await prisma.certificate.findFirst({
@@ -141,9 +250,10 @@ export async function POST(req: Request) {
       }
     }
 
-    // Return result
+    // 13. Return result
     return NextResponse.json({
       success: true,
+      attemptId: attempt.id,
       score,
       total,
       percentage,
