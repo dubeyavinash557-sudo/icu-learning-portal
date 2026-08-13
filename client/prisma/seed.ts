@@ -150,7 +150,7 @@ await prisma.quiz.deleteMany();
       description:
         "Complete ventilator management from beginner to advanced with practical ICU cases.",
       image:
-        "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=1200",
+  "https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=1200",
       instructor: "Avinash Dubey",
       price: 1499,
       rating: 4.8,
@@ -221,7 +221,7 @@ await prisma.quiz.deleteMany();
       description:
         "Master ECG interpretation from basic rhythm recognition to advanced cardiac emergencies.",
       image:
-        "https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=1200",
+"https://images.unsplash.com/photo-1530026405186-ed1f139313f8?w=1200",
       instructor: "Avinash Dubey",
       price: 799,
       rating: 4.9,
@@ -292,7 +292,7 @@ await prisma.quiz.deleteMany();
       description:
         "Learn Arterial Blood Gas interpretation from basic to advanced with ICU case studies.",
       image:
-        "https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1200",
+"https://images.unsplash.com/photo-1516549655169-df83a0774514?w=1200",
       instructor: "Avinash Dubey",
       price: 699,
       rating: 4.8,
@@ -363,7 +363,7 @@ await prisma.quiz.deleteMany();
       description:
         "Complete Medical Coding training including ICD-10-CM, CPT, HCPCS and real-world coding practice.",
       image:
-        "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200",
+"https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200",
       instructor: "Avinash Dubey",
       price: 1999,
       rating: 5.0,

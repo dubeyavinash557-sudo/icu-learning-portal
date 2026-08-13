@@ -5,18 +5,26 @@ import Stats from "../components/Stats";
 import About from "../components/About";
 import Footer from "../components/Footer";
 import FeaturedCourses from "../components/FeaturedCourses";
-
+import Experts from "../components/Experts";
 import { getCourses } from "@/lib/course";
 
 export default async function Home() {
   const dbCourses = await getCourses();
 
   const featuredCourses = dbCourses.map((course) => ({
-    id: course.id,
-    title: course.title,
-    slug: course.slug,
-    price: course.price,
-  }));
+  id: course.id,
+  title: course.title,
+  slug: course.slug,
+  price: course.price,
+  image: course.image,
+  instructor: course.instructor,
+  rating: course.rating,
+  students: course.students,
+  duration: course.duration,
+  language: course.language,
+  level: course.level,
+  isPremium: course.isPremium,
+}));
 
   return (
     <>
@@ -25,6 +33,8 @@ export default async function Home() {
       <Hero />
 
       <Stats />
+
+      <Experts />
 
       <section className="grid grid-cols-1 gap-6 p-10 md:grid-cols-2 lg:grid-cols-4">
         <CourseCard
