@@ -253,3 +253,21 @@ model LessonProgress {
 
   @@unique([userId, lessonId])
 }
+
+model PaymentWebhookEvent {
+  id String @id @default(cuid())
+
+  eventId String @unique
+
+  eventType String
+
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+
+  payload Json
+
+  processed Boolean @default(false)
+
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+}
