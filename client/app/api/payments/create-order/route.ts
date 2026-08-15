@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import Razorpay from "razorpay";
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+import razorpay from "@/lib/razorpay";
 
 export async function POST(request: Request) {
   try {
@@ -19,10 +19,26 @@ export async function POST(request: Request) {
       );
     }
 
-    const body = await request.json();
+    let body: unknown;
+
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        {
+          message: "Invalid request body.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
 
     const courseId =
-      typeof body?.courseId === "string"
+      typeof body === "object" &&
+      body !== null &&
+      "courseId" in body &&
+      typeof body.courseId === "string"
         ? body.courseId
         : "";
 
@@ -37,28 +53,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
-    if (!keyId || !keySecret) {
-      console.error(
-        "Razorpay environment variables are missing."
-      );
-
-      return NextResponse.json(
-        {
-          message:
-            "Payment gateway is not configured.",
-        },
-        {
-          status: 500,
-        }
-      );
-    }
-
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        mobile: true,
       },
     });
 
@@ -96,11 +99,10 @@ export async function POST(request: Request) {
       );
     }
 
-    if (course.price <= 0) {
+    if (!Number.isFinite(course.price) || course.price <= 0) {
       return NextResponse.json(
         {
-          message:
-            "This course does not require payment.",
+          message: "Invalid course price.",
         },
         {
           status: 400,
@@ -121,7 +123,8 @@ export async function POST(request: Request) {
     if (existingEnrollment) {
       return NextResponse.json(
         {
-          message: "You are already enrolled in this course.",
+          message:
+            "You are already enrolled in this course.",
           alreadyEnrolled: true,
         },
         {
@@ -130,14 +133,23 @@ export async function POST(request: Request) {
       );
     }
 
+    /*
+     * Razorpay amount is always sent in the smallest
+     * currency unit. For INR:
+     *
+     * ₹499 = 49900 paise
+     */
     const amountInPaise = Math.round(
       course.price * 100
     );
 
-    if (amountInPaise <= 0) {
+    if (
+      !Number.isSafeInteger(amountInPaise) ||
+      amountInPaise <= 0
+    ) {
       return NextResponse.json(
         {
-          message: "Invalid course amount.",
+          message: "Invalid payment amount.",
         },
         {
           status: 400,
@@ -145,13 +157,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const razorpay = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
-    });
-
+    /*
+     * Create a unique receipt for this payment attempt.
+     */
     const receipt = `course_${course.id}_${Date.now()}`;
 
+    /*
+     * Create Razorpay Order SERVER-SIDE.
+     *
+     * The amount comes from our database.
+     * Never trust the price sent by the browser.
+     */
     const order = await razorpay.orders.create({
       amount: amountInPaise,
       currency: "INR",
@@ -162,6 +178,10 @@ export async function POST(request: Request) {
       },
     });
 
+    /*
+     * Save the payment attempt in our database
+     * before returning the order to the browser.
+     */
     await prisma.payment.create({
       data: {
         userId: user.id,
@@ -175,10 +195,18 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      keyId,
+
+      /*
+       * Key ID is safe to send to the browser.
+       *
+       * NEVER send RAZORPAY_KEY_SECRET.
+       */
+      keyId: process.env.RAZORPAY_KEY_ID,
+
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
+
       course: {
         id: course.id,
         title: course.title,
@@ -193,7 +221,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Unable to create payment order.",
+        message:
+          "Unable to create payment order.",
       },
       {
         status: 500,

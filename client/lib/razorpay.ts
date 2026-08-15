@@ -4,7 +4,9 @@ const keyId = process.env.RAZORPAY_KEY_ID;
 const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
 if (!keyId) {
-  throw new Error("RAZORPAY_KEY_ID is missing from environment variables.");
+  throw new Error(
+    "RAZORPAY_KEY_ID is missing from environment variables."
+  );
 }
 
 if (!keySecret) {
