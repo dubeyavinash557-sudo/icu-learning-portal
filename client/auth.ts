@@ -1,12 +1,12 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+
 import prisma from "@/lib/prisma";
+import { authConfig } from "./auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  session: {
-    strategy: "jwt",
-  },
+  ...authConfig,
 
   providers: [
     Credentials({
@@ -65,21 +65,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
 
-  pages: {
-    signIn: "/login",
-  },
-
   callbacks: {
-    authorized({ auth, request }) {
-      const isLoggedIn = !!auth?.user;
-      const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
-
-      if (isDashboard && !isLoggedIn) {
-        return false;
-      }
-
-      return true;
-    },
+    ...authConfig.callbacks,
 
     async jwt({ token, user }) {
       if (user) {
