@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 import {
   LayoutDashboard,
@@ -12,6 +15,7 @@ import {
   Settings,
   LogOut,
   Moon,
+  Sun,
   Video,
   CreditCard,
   CircleHelp,
@@ -77,25 +81,86 @@ const menuItems = [
 export default function Sidebar() {
   const pathname = usePathname();
 
+  const { theme, setTheme } = useTheme();
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = theme === "dark";
+
+  async function handleLogout() {
+    await signOut({
+      callbackUrl: "/login",
+    });
+  }
+
+  function handleThemeToggle() {
+    setTheme(isDark ? "light" : "dark");
+  }
+
   return (
-    <aside className="hidden lg:flex w-80 min-h-screen flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white border-r border-slate-800">
+    <aside
+      className="
+        hidden
+        min-h-screen
+        w-80
+        flex-col
+        border-r
+        transition-colors
+        duration-300
+        lg:flex
 
+        bg-white
+        text-slate-900
+        border-slate-200
+
+        dark:bg-gradient-to-b
+        dark:from-slate-950
+        dark:via-slate-900
+        dark:to-slate-950
+        dark:text-white
+        dark:border-slate-800
+      "
+    >
       {/* Logo */}
-      <div className="border-b border-slate-800 p-6">
-
-        <h1 className="text-3xl font-bold">
+      <div
+        className="
+          border-b
+          p-6
+          border-slate-200
+          dark:border-slate-800
+        "
+      >
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           🏥 ICU Learning
         </h1>
 
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
           Premium Student Portal
         </p>
 
-        <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-yellow-500/20 px-3 py-1 text-sm text-yellow-300">
+        <div
+          className="
+            mt-4
+            inline-flex
+            items-center
+            gap-2
+            rounded-full
+            bg-yellow-100
+            px-3
+            py-1
+            text-sm
+            text-yellow-700
+            dark:bg-yellow-500/20
+            dark:text-yellow-300
+          "
+        >
           <Crown size={16} />
           Premium Member
         </div>
-
       </div>
 
       {/* Student Profile */}
@@ -104,27 +169,46 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 px-5 overflow-y-auto">
-
-        <p className="mb-4 text-xs uppercase tracking-widest text-slate-500">
+      <div className="flex-1 overflow-y-auto px-5">
+        <p
+          className="
+            mb-4
+            text-xs
+            uppercase
+            tracking-widest
+            text-slate-400
+            dark:text-slate-500
+          "
+        >
           Navigation
         </p>
 
         <nav className="space-y-2">
-
           {menuItems.map((item) => {
             const Icon = item.icon;
+
             const active = pathname === item.href;
 
             return (
               <Link
                 key={item.title}
                 href={item.href}
-                className={`flex items-center gap-4 rounded-xl px-4 py-3 transition-all duration-200 ${
-                  active
-                    ? "bg-cyan-600 text-white shadow-lg"
-                    : "hover:bg-slate-800 hover:text-cyan-300 text-slate-300"
-                }`}
+                className={`
+                  flex
+                  items-center
+                  gap-4
+                  rounded-xl
+                  px-4
+                  py-3
+                  transition-all
+                  duration-200
+
+                  ${
+                    active
+                      ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/20"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-cyan-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-cyan-300"
+                  }
+                `}
               >
                 <Icon size={20} />
 
@@ -134,26 +218,85 @@ export default function Sidebar() {
               </Link>
             );
           })}
-
         </nav>
-
       </div>
 
-      {/* Bottom */}
-      <div className="border-t border-slate-800 p-5 space-y-3">
+      {/* Bottom Controls */}
+      <div
+        className="
+          space-y-3
+          border-t
+          p-5
+          border-slate-200
+          dark:border-slate-800
+        "
+      >
+        {/* Theme Toggle */}
+        <button
+          type="button"
+          onClick={handleThemeToggle}
+          disabled={!mounted}
+          aria-label="Toggle dark mode"
+          className="
+            flex
+            w-full
+            items-center
+            gap-3
+            rounded-xl
+            px-4
+            py-3
+            font-medium
+            transition-all
+            duration-200
 
-        <button className="flex w-full items-center gap-3 rounded-xl bg-slate-800 px-4 py-3 hover:bg-slate-700 transition">
-          <Moon size={20} />
-          Dark Mode
+            bg-slate-100
+            text-slate-700
+            hover:bg-slate-200
+
+            dark:bg-slate-800
+            dark:text-slate-100
+            dark:hover:bg-slate-700
+
+            disabled:cursor-not-allowed
+            disabled:opacity-70
+          "
+        >
+          {mounted && isDark ? (
+            <Sun size={20} />
+          ) : (
+            <Moon size={20} />
+          )}
+
+          {mounted && isDark ? "Light Mode" : "Dark Mode"}
         </button>
 
-        <button className="flex w-full items-center gap-3 rounded-xl bg-red-600 px-4 py-3 hover:bg-red-700 transition">
+        {/* Logout */}
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="
+            flex
+            w-full
+            items-center
+            gap-3
+            rounded-xl
+            bg-red-600
+            px-4
+            py-3
+            font-medium
+            text-white
+            shadow-sm
+            transition-all
+            duration-200
+            hover:bg-red-700
+            hover:shadow-md
+          "
+        >
           <LogOut size={20} />
+
           Logout
         </button>
-
       </div>
-
     </aside>
   );
 }

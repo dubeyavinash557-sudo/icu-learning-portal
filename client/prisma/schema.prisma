@@ -67,6 +67,7 @@ model Course {
   enrollments  Enrollment[]
   certificates Certificate[]
   quizzes      Quiz[]
+  payments     Payment[]
 }
 
 model Lesson {
@@ -116,7 +117,8 @@ model Enrollment {
 model Payment {
   id String @id @default(cuid())
 
-  userId String
+  userId   String
+  courseId String?
 
   amount Float
 
@@ -126,9 +128,15 @@ model Payment {
 
   transactionId String? @unique
 
+  razorpayOrderId   String? @unique
+  razorpayPaymentId String? @unique
+  razorpaySignature String?
+
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  course Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
 }
 
 model Certificate {

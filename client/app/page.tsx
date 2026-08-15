@@ -5,8 +5,16 @@ import Stats from "../components/Stats";
 import About from "../components/About";
 import Footer from "../components/Footer";
 import FeaturedCourses from "../components/FeaturedCourses";
-import Experts from "../components/Experts";
 import { getCourses } from "@/lib/course";
+import Experts from "../components/Experts";
+import VideoLearning from "../components/VideoLearning";
+import CriticalCareVisuals from "../components/CriticalCareVisuals";
+import Testimonials from "../components/Testimonials";
+import Certificates from "../components/Certificates";
+import PremiumNotes from "../components/PremiumNotes";
+import LearningPathway from "../components/LearningPathway";
+import Pricing from "../components/Pricing";
+
 
 export default async function Home() {
   const dbCourses = await getCourses();
@@ -35,6 +43,10 @@ export default async function Home() {
       <Stats />
 
       <Experts />
+
+      <VideoLearning />
+
+      <CriticalCareVisuals />
 
       <section className="grid grid-cols-1 gap-6 p-10 md:grid-cols-2 lg:grid-cols-4">
         <CourseCard
@@ -67,6 +79,16 @@ export default async function Home() {
       </section>
 
       <FeaturedCourses courses={featuredCourses} />
+
+      <Testimonials />
+
+      <Certificates />
+
+      <PremiumNotes />
+
+      <LearningPathway />
+
+      <Pricing />
 
       <About />
 
