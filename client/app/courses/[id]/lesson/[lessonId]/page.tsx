@@ -1,14 +1,25 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import CompleteLessonButton from "@/components/course/CompleteLessonButton";
 import { auth } from "@/auth";
+
+import CompleteLessonButton from "@/components/course/CompleteLessonButton";
+
 import {
   ArrowLeft,
   ArrowRight,
+  Award,
+  BookOpen,
+  CheckCircle2,
+  Clock3,
   Download,
-  CheckCircle,
-  Lock,
+  FileText,
+  GraduationCap,
+  HeartPulse,
+  PlayCircle,
+  ShieldCheck,
+  Stethoscope,
+  Trophy,
 } from "lucide-react";
 
 type Props = {
@@ -23,9 +34,11 @@ export default async function LessonPage({
 }: Props) {
   const { id, lessonId } = await params;
 
-  // --------------------------------------------------
-  // 1. Get Course + Lessons
-  // --------------------------------------------------
+  /*
+   * ==========================================================
+   * 1. COURSE + LESSONS
+   * ==========================================================
+   */
 
   const course = await prisma.course.findUnique({
     where: {
@@ -44,9 +57,11 @@ export default async function LessonPage({
     notFound();
   }
 
-  // --------------------------------------------------
-  // 2. Find Requested Lesson
-  // --------------------------------------------------
+  /*
+   * ==========================================================
+   * 2. CURRENT LESSON
+   * ==========================================================
+   */
 
   const lesson = course.lessons.find(
     (item) => item.id === lessonId
@@ -56,9 +71,11 @@ export default async function LessonPage({
     notFound();
   }
 
-  // --------------------------------------------------
-  // 3. Authentication Check
-  // --------------------------------------------------
+  /*
+   * ==========================================================
+   * 3. AUTHENTICATION
+   * ==========================================================
+   */
 
   const session = await auth();
 
@@ -70,13 +87,20 @@ export default async function LessonPage({
     );
   }
 
-  // --------------------------------------------------
-  // 4. Get Current User
-  // --------------------------------------------------
+  /*
+   * ==========================================================
+   * 4. CURRENT USER
+   * ==========================================================
+   */
 
   const user = await prisma.user.findUnique({
     where: {
       email: session.user.email,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
     },
   });
 
@@ -84,11 +108,11 @@ export default async function LessonPage({
     redirect("/login");
   }
 
-  // --------------------------------------------------
-  // 5. PAID COURSE ACCESS CHECK
-  //
-  // Only enrolled students can access lessons.
-  // --------------------------------------------------
+  /*
+   * ==========================================================
+   * 5. ENROLLMENT
+   * ==========================================================
+   */
 
   const enrollment =
     await prisma.enrollment.findUnique({
@@ -100,30 +124,103 @@ export default async function LessonPage({
       },
     });
 
+  /*
+   * Only enrolled students can access lessons.
+   */
+
   if (!enrollment) {
     redirect(`/courses/${course.id}`);
   }
 
-  // --------------------------------------------------
-  // 6. Check Lesson Completion
-  // --------------------------------------------------
+  /*
+   * ==========================================================
+   * 6. ALL LESSON PROGRESS
+   * ==========================================================
+   */
 
-  const progress =
-    await prisma.lessonProgress.findUnique({
+  const lessonProgress =
+    await prisma.lessonProgress.findMany({
       where: {
-        userId_lessonId: {
-          userId: user.id,
-          lessonId: lesson.id,
+        userId: user.id,
+        lesson: {
+          courseId: course.id,
         },
+      },
+      select: {
+        lessonId: true,
+        completed: true,
+        completedAt: true,
       },
     });
 
-  const isCompleted =
-    progress?.completed ?? false;
+  const completedLessonIds =
+    new Set<string>();
 
-  // --------------------------------------------------
-  // 7. Previous / Next Lesson
-  // --------------------------------------------------
+  lessonProgress.forEach((item) => {
+    if (item.completed) {
+      completedLessonIds.add(item.lessonId);
+    }
+  });
+
+  /*
+   * ==========================================================
+   * 7. CURRENT LESSON COMPLETION
+   * ==========================================================
+   */
+
+  const currentLessonProgress =
+    lessonProgress.find(
+      (item) => item.lessonId === lesson.id
+    );
+
+  const isCompleted =
+    currentLessonProgress?.completed ?? false;
+
+  /*
+   * ==========================================================
+   * 8. COURSE PROGRESS
+   * ==========================================================
+   */
+
+  const totalLessons =
+    course.lessons.length;
+
+  const completedLessons =
+    completedLessonIds.size;
+
+      const calculatedProgress =
+    totalLessons > 0
+      ? Math.round(
+          (completedLessons / totalLessons) * 100
+        )
+      : 0;
+
+  const enrollmentProgress = Math.min(
+    Math.max(enrollment.progress, 0),
+    100
+  );
+
+  const courseProgress = Math.min(
+    Math.max(
+      Math.max(
+        enrollmentProgress,
+        calculatedProgress
+      ),
+      0
+    ),
+    100
+  );
+
+  const remainingLessons = Math.max(
+    totalLessons - completedLessons,
+    0
+  );
+
+  /*
+   * ==========================================================
+   * 9. CURRENT LESSON INDEX
+   * ==========================================================
+   */
 
   const currentIndex =
     course.lessons.findIndex(
@@ -136,274 +233,259 @@ export default async function LessonPage({
       : null;
 
   const nextLesson =
-    currentIndex < course.lessons.length - 1
+    currentIndex < totalLessons - 1
       ? course.lessons[currentIndex + 1]
       : null;
 
-  // --------------------------------------------------
-  // 8. UI
-  // --------------------------------------------------
+  /*
+   * ==========================================================
+   * 10. COURSE COMPLETION
+   * ==========================================================
+   */
+
+  const courseCompleted =
+    totalLessons > 0 &&
+    completedLessons >= totalLessons;
+
+  /*
+   * ==========================================================
+   * 11. LESSON POSITION
+   * ==========================================================
+   */
+
+  const lessonNumber =
+    currentIndex >= 0
+      ? currentIndex + 1
+      : lesson.lessonOrder;
+
+  /*
+   * ==========================================================
+   * 12. RENDER
+   * ==========================================================
+   */
 
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-white">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+      {/* ====================================================
+          TOP HEADER
+      ==================================================== */}
 
-        {/* Top Navigation */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
+
+        <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
 
           <Link
             href={`/courses/${course.id}`}
-            className="
-              inline-flex
-              w-fit
-              items-center
-              gap-2
-              rounded-xl
-              bg-white
-              px-5
-              py-3
-              font-semibold
-              text-slate-700
-              shadow
-              transition
-              hover:bg-slate-50
-              dark:bg-slate-900
-              dark:text-slate-200
-              dark:hover:bg-slate-800
-            "
+            className="group inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-blue-700"
           >
-            <ArrowLeft size={18} />
-            Back to Course
+            <ArrowLeft
+              size={18}
+              className="transition-transform group-hover:-translate-x-1"
+            />
+
+            <span className="hidden sm:inline">
+              Back to Course
+            </span>
+
+            <span className="sm:hidden">
+              Course
+            </span>
           </Link>
 
-          <div className="inline-flex w-fit items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-lg">
-            <BookIcon />
+          <div className="hidden min-w-0 flex-1 justify-center md:flex">
 
-            Lesson {lesson.lessonOrder} /{" "}
-            {course.lessons.length}
+            <div className="max-w-xl truncate text-center">
+
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-600">
+                ICU Learning Portal
+              </p>
+
+              <p className="mt-0.5 truncate text-sm font-bold text-slate-800">
+                {course.title}
+              </p>
+
+            </div>
+
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2">
+
+            <div className="hidden items-center gap-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-bold text-blue-700 sm:flex">
+              <BookOpen size={16} />
+
+              Lesson {lessonNumber} / {totalLessons}
+            </div>
+
+            <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
+              <CheckCircle2 size={16} />
+
+              <span>{courseProgress}%</span>
+            </div>
+
           </div>
 
         </div>
 
-        {/* Main Lesson Card */}
-        <div className="overflow-hidden rounded-3xl bg-white shadow-xl dark:bg-slate-900">
+      </header>
 
-          {/* Lesson Header */}
-          <div className="p-6 sm:p-8 lg:p-10">
+      {/* ====================================================
+          PAGE CONTENT
+      ==================================================== */}
 
-            <div className="flex flex-wrap items-center gap-3">
+      <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
 
-              <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-bold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
-                Lesson {lesson.lessonOrder}
-              </span>
+        {/* ==================================================
+            MOBILE COURSE TITLE
+        ================================================== */}
 
-              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-                <Lock size={14} />
-                Enrolled Access
-              </span>
+        <div className="mb-6 md:hidden">
 
-              {isCompleted && (
-                <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-bold text-green-700 dark:bg-green-500/10 dark:text-green-400">
-                  <CheckCircle size={15} />
-                  Completed
-                </span>
-              )}
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-600">
+            ICU Learning Portal
+          </p>
 
-            </div>
+          <h1 className="mt-1 text-xl font-black text-slate-900">
+            {course.title}
+          </h1>
 
-            <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              {lesson.title}
-            </h1>
+        </div>
 
-            <p className="mt-4 max-w-4xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
-              {lesson.description}
-            </p>
+        {/* ==================================================
+            MAIN LEARNING GRID
+        ================================================== */}
 
-          </div>
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
 
-          {/* Video */}
-          <div className="px-6 sm:px-8 lg:px-10">
+          {/* =================================================
+              MAIN LESSON COLUMN
+          ================================================= */}
 
-            <div className="aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl">
+          <div className="min-w-0 space-y-6">
 
-              {lesson.videoUrl ? (
-                <video
-                  controls
-                  preload="metadata"
-                  playsInline
-                  className="h-full w-full"
-                  src={lesson.videoUrl}
-                >
-                  Your browser does not support
-                  HTML video.
-                </video>
-              ) : (
-                <div className="flex h-full flex-col items-center justify-center px-6 text-center text-white">
+            {/* ===============================================
+                LESSON HERO
+            =============================================== */}
 
-                  <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10">
-                    🎥
+            <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+
+              <div className="relative overflow-hidden bg-slate-950 px-6 py-8 sm:px-8 lg:px-10">
+
+                <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
+
+                <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-blue-600/10 blur-3xl" />
+
+                <div className="relative">
+
+                  <div className="flex flex-wrap items-center gap-2">
+
+                                        <span className="inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-300 ring-1 ring-cyan-400/20">
+                      <GraduationCap size={14} />
+                      Learning Module
+                    </span>
+
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-200 ring-1 ring-white/10">
+                      Lesson {lessonNumber}
+                    </span>
+
+                    {isCompleted && (
+                      <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-black text-emerald-300 ring-1 ring-emerald-400/20">
+                        <CheckCircle2 size={14} />
+                        Completed
+                      </span>
+                    )}
+
                   </div>
 
-                  <h2 className="text-2xl font-bold">
-                    Video Coming Soon
-                  </h2>
+                  <h1 className="mt-5 max-w-4xl text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">
+                    {lesson.title}
+                  </h1>
 
-                  <p className="mt-2 max-w-md text-sm text-slate-300">
-                    The video for this lesson has not
-                    been uploaded yet.
+                  <p className="mt-4 max-w-4xl text-sm leading-7 text-slate-300 sm:text-base">
+                    {lesson.description}
                   </p>
 
-                </div>
-              )}
+                  <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-300">
 
-            </div>
+                    <div className="inline-flex items-center gap-2">
+                      <Clock3
+                        size={17}
+                        className="text-cyan-300"
+                      />
 
-          </div>
+                      <span>
+                        {lesson.duration} minutes
+                      </span>
+                    </div>
 
-          {/* Lesson Information */}
-          <div className="px-6 py-8 sm:px-8 lg:px-10">
+                    <div className="inline-flex items-center gap-2">
+                      <BookOpen
+                        size={17}
+                        className="text-cyan-300"
+                      />
 
-            <div className="flex flex-wrap gap-4">
+                      <span>
+                        {completedLessons} of{" "}
+                        {totalLessons} completed
+                      </span>
+                    </div>
 
-              <div className="rounded-xl bg-blue-50 px-5 py-3 font-semibold text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
-                ⏱ Duration: {lesson.duration} Minutes
-              </div>
+                    <div className="inline-flex items-center gap-2">
+                      <ShieldCheck
+                        size={17}
+                        className="text-emerald-300"
+                      />
 
-              <div className="inline-flex items-center rounded-xl bg-green-50 px-5 py-3 font-semibold text-green-700 dark:bg-green-500/10 dark:text-green-400">
-                <CheckCircle
-                  className="mr-2"
-                  size={18}
-                />
-                Premium Lesson
-              </div>
+                      <span>
+                        Enrolled Access
+                      </span>
+                    </div>
 
-            </div>
-
-            {/* Notes */}
-            {lesson.notesUrl && (
-              <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 dark:border-emerald-500/20 dark:bg-emerald-500/5">
-
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
-                  <div>
-                    <h2 className="font-bold text-emerald-800 dark:text-emerald-300">
-                      Lesson Notes
-                    </h2>
-
-                    <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-400">
-                      Download the notes and revise this
-                      lesson anytime.
-                    </p>
                   </div>
 
-                  <a
-                    href={lesson.notesUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="
-                      inline-flex
-                      w-fit
-                      items-center
-                      gap-2
-                      rounded-xl
-                      bg-emerald-600
-                      px-6
-                      py-3
-                      font-semibold
-                      text-white
-                      transition
-                      hover:bg-emerald-700
-                    "
-                  >
-                    <Download size={18} />
-                    Download Notes
-                  </a>
-
                 </div>
 
               </div>
-            )}
 
-            {/* Lesson Completion + Navigation */}
-            <div className="mt-10 border-t border-slate-200 pt-8 dark:border-slate-800">
+              {/* =============================================
+                  VIDEO PLAYER
+              ============================================= */}
 
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="p-4 sm:p-6 lg:p-8">
 
-                {/* Previous */}
-                <div className="order-2 lg:order-1">
+                <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-slate-200">
 
-                  {previousLesson ? (
-                    <Link
-                      href={`/courses/${course.id}/lesson/${previousLesson.id}`}
-                      className="
-                        inline-flex
-                        items-center
-                        gap-2
-                        rounded-xl
-                        bg-slate-100
-                        px-6
-                        py-3
-                        font-semibold
-                        text-slate-700
-                        transition
-                        hover:bg-slate-200
-                        dark:bg-slate-800
-                        dark:text-slate-200
-                        dark:hover:bg-slate-700
-                      "
+                  {lesson.videoUrl ? (
+                    <video
+                      controls
+                      preload="metadata"
+                      playsInline
+                      className="h-full w-full bg-black object-contain"
+                      src={lesson.videoUrl}
                     >
-                      <ArrowLeft size={18} />
-                      Previous Lesson
-                    </Link>
+                      Your browser does not support HTML
+                      video.
+                    </video>
                   ) : (
-                    <div />
-                  )}
+                    <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-6 text-center text-white">
 
-                </div>
+                      <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
 
-                {/* Complete */}
-                <div className="order-1 lg:order-2">
+                        <PlayCircle size={42} />
 
-                  <CompleteLessonButton
-                    lessonId={lesson.id}
-                    isCompleted={isCompleted}
-                    nextLessonUrl={
-                      nextLesson
-                        ? `/courses/${course.id}/lesson/${nextLesson.id}`
-                        : null
-                    }
-                  />
+                      </div>
 
-                </div>
+                      <h2 className="mt-6 text-2xl font-black">
+                        Video Coming Soon
+                      </h2>
 
-                {/* Next */}
-                <div className="order-3">
+                      <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
+                        The video for this lesson has not
+                        been uploaded yet. You can still
+                        review the lesson information and
+                        available notes.
+                      </p>
 
-                  {nextLesson ? (
-                    <Link
-                      href={`/courses/${course.id}/lesson/${nextLesson.id}`}
-                      className="
-                        inline-flex
-                        items-center
-                        gap-2
-                        rounded-xl
-                        bg-blue-700
-                        px-6
-                        py-3
-                        font-semibold
-                        text-white
-                        transition
-                        hover:bg-blue-800
-                      "
-                    >
-                      Next Lesson
-                      <ArrowRight size={18} />
-                    </Link>
-                  ) : (
-                    <div className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white">
-                      <CheckCircle size={18} />
-                      Course Completed
                     </div>
                   )}
 
@@ -411,54 +493,404 @@ export default async function LessonPage({
 
               </div>
 
-            </div>
+            </section>
+
+            {/* ===============================================
+                LESSON INFORMATION
+            =============================================== */}
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+
+              <div className="flex items-start gap-4">
+
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+                  <Stethoscope size={24} />
+                </div>
+
+                <div className="min-w-0">
+
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-600">
+                    Lesson Overview
+                  </p>
+
+                  <h2 className="mt-1 text-2xl font-black text-slate-900">
+                    {lesson.title}
+                  </h2>
+
+                </div>
+
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-slate-50 p-5 sm:p-6">
+
+                <p className="whitespace-pre-line text-base leading-8 text-slate-600">
+                  {lesson.description}
+                </p>
+
+              </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+
+                <LearningInfo
+                  icon={<Clock3 size={18} />}
+                  label="Duration"
+                  value={`${lesson.duration} Minutes`}
+                />
+
+                <LearningInfo
+                  icon={<BookOpen size={18} />}
+                  label="Lesson"
+                  value={`${lessonNumber} of ${totalLessons}`}
+                />
+
+                <LearningInfo
+                  icon={<CheckCircle2 size={18} />}
+                  label="Status"
+                  value={
+                    isCompleted
+                      ? "Completed"
+                      : "In Progress"
+                  }
+                />
+
+              </div>
+
+            </section>
+
+            {/* ===============================================
+                LESSON RESOURCES
+            =============================================== */}
+
+            {lesson.notesUrl && (
+              <section className="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50 shadow-sm">
+
+                <div className="p-6 sm:p-8">
+
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
+                    <div className="flex items-start gap-4">
+
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm">
+                        <FileText size={27} />
+                      </div>
+
+                      <div>
+
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-600">
+                          Study Resource
+                        </p>
+
+                        <h2 className="mt-1 text-xl font-black text-emerald-950">
+                          Lesson Notes
+                        </h2>
+
+                        <p className="mt-1 text-sm leading-6 text-emerald-800/80">
+                          Download the lesson notes and
+                          revise this topic offline.
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                    <a
+                      href={lesson.notesUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-600/15 transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                    >
+                      <Download size={18} />
+                      Download Notes
+                    </a>
+
+                  </div>
+
+                </div>
+
+              </section>
+            )}
+
+                        {/* ===============================================
+                COMPLETION + NAVIGATION
+            =============================================== */}
+
+            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+
+              <div className="flex flex-col gap-5">
+
+                <div>
+
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-600">
+                    Lesson Completion
+                  </p>
+
+                  <h2 className="mt-1 text-2xl font-black text-slate-900">
+                    Continue Your Learning Journey
+                  </h2>
+
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                    Complete this lesson to update your
+                    course progress and unlock the next
+                    step in your learning journey.
+                  </p>
+
+                </div>
+
+                <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
+
+                  {/* Previous Lesson */}
+
+                  <div className="order-2 sm:order-1">
+
+                    {previousLesson ? (
+                      <Link
+                        href={`/courses/${course.id}/lesson/${previousLesson.id}`}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 sm:w-auto"
+                      >
+                        <ArrowLeft size={17} />
+                        Previous
+                      </Link>
+                    ) : (
+                      <span className="hidden sm:block" />
+                    )}
+
+                  </div>
+
+                  {/* Complete Lesson */}
+
+                  <div className="order-1 sm:order-2">
+
+                    <CompleteLessonButton
+                      lessonId={lesson.id}
+                      isCompleted={isCompleted}
+                      nextLessonUrl={
+                        nextLesson
+                          ? `/courses/${course.id}/lesson/${nextLesson.id}`
+                          : null
+                      }
+                    />
+
+                  </div>
+
+                  {/* Next Lesson */}
+
+                  <div className="order-3">
+
+                    {nextLesson ? (
+                      <Link
+                        href={`/courses/${course.id}/lesson/${nextLesson.id}`}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-700/15 transition hover:bg-blue-800 sm:w-auto"
+                      >
+                        Next
+                        <ArrowRight size={17} />
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/courses/${course.id}`}
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-600/15 transition hover:bg-emerald-700 sm:w-auto"
+                      >
+                        Course Complete
+                        <Award size={17} />
+                      </Link>
+                    )}
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </section>
 
           </div>
+
+          {/* =================================================
+              SIDEBAR
+          ================================================= */}
+
+          <aside className="min-w-0 space-y-6">
+
+            {/* ===============================================
+                COURSE PROGRESS CARD
+            =============================================== */}
+
+            <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+
+              <div className="bg-gradient-to-br from-cyan-600 via-blue-700 to-indigo-800 p-6 text-white">
+
+                <div className="flex items-center gap-3">
+
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+                    <Trophy size={22} />
+                  </div>
+
+                  <div>
+
+                    <p className="text-xs font-bold uppercase tracking-wider text-cyan-100">
+                      Your Progress
+                    </p>
+
+                    <h2 className="text-xl font-black">
+                      Learning Journey
+                    </h2>
+
+                  </div>
+
+                </div>
+
+                <div className="mt-6 flex items-end justify-between gap-4">
+
+                  <div>
+
+                    <p className="text-4xl font-black">
+                      {courseProgress}%
+                    </p>
+
+                    <p className="mt-1 text-sm text-blue-100">
+                      Course progress
+                    </p>
+
+                  </div>
+
+                  <div className="text-right">
+
+                    <p className="text-lg font-black">
+                      {completedLessons}
+                    </p>
+
+                    <p className="text-xs text-blue-100">
+                      completed
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="mt-5 h-3 overflow-hidden rounded-full bg-white/15">
+
+                  <div
+                    className="h-full rounded-full bg-white transition-all duration-700"
+                    style={{
+                      width: `${courseProgress}%`,
+                    }}
+                  />
+
+                </div>
+
+              </div>
+
+              <div className="grid grid-cols-2 gap-px bg-slate-200">
+
+                <ProgressBox
+                  value={String(completedLessons)}
+                  label="Completed"
+                />
+
+                <ProgressBox
+                  value={String(remainingLessons)}
+                  label="Remaining"
+                />
+
+              </div>
+
+            </section>
+
+            {/* ===============================================
+                COURSE CURRICULUM
+            =============================================== */}
+
+            <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+
+              <div className="border-b border-slate-100 p-6">
+
+                <div className="flex items-center justify-between gap-3">
+
+                  <div>
+
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600">
+                      Curriculum
+                    </p>
+
+                    <h2 className="mt-1 text-xl font-black text-slate-900">
+                      Course Lessons
+                    </h2>
+
+                  </div>
+
+                  <div className="rounded-xl bg-blue-50 px-3 py-2 text-xs font-black text-blue-700">
+                    {totalLessons}
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="max-h-[600px] overflow-y-auto p-3">
+
+                {course.lessons.map(
+                  (courseLesson, index) => {
+                    const completed =
+                      completedLessonIds.has(
+                        courseLesson.id
+                      );
+
+                    const current =
+                      courseLesson.id === lesson.id;
+
+                    return (
+                      <LessonSidebarItem
+                        key={courseLesson.id}
+                        courseId={course.id}
+                        lessonId={courseLesson.id}
+                        index={index}
+                        title={courseLesson.title}
+                        duration={
+                          courseLesson.duration
+                        }
+                        completed={completed}
+                        current={current}
+                      />
+                    );
+                  }
+                )}
+
+              </div>
+
+            </section>
+
+          </aside>
 
         </div>
 
-        {/* Course Progress Information */}
-        <div className="mt-8 rounded-3xl bg-white p-6 shadow-lg dark:bg-slate-900">
+                {/* ==================================================
+            BOTTOM COURSE INFORMATION
+        ================================================== */}
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
 
-            <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-cyan-600 dark:text-cyan-400">
-                Your Learning
-              </p>
+          <div className="grid gap-6 lg:grid-cols-3">
 
-              <h2 className="mt-1 text-xl font-bold">
-                {course.title}
-              </h2>
-            </div>
+            <LearningSummary
+              icon={<HeartPulse size={23} />}
+              title="Professional Learning"
+              description="Study structured ICU content designed for focused clinical learning."
+            />
 
-            <div className="rounded-xl bg-blue-50 px-5 py-3 text-center dark:bg-blue-500/10">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Course Progress
-              </p>
+            <LearningSummary
+              icon={<ShieldCheck size={23} />}
+              title="Progress Tracking"
+              description="Your completed lessons are automatically recorded in your course progress."
+            />
 
-              <p className="mt-1 text-2xl font-bold text-blue-700 dark:text-blue-400">
-                {enrollment.progress}%
-              </p>
-            </div>
-
-          </div>
-
-          <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 transition-all duration-500"
-              style={{
-                width: `${Math.min(
-                  Math.max(enrollment.progress, 0),
-                  100
-                )}%`,
-              }}
+            <LearningSummary
+              icon={<Award size={23} />}
+              title="Certificate"
+              description="Complete the full curriculum to become eligible for your course certificate."
             />
 
           </div>
 
-        </div>
+        </section>
 
       </div>
 
@@ -466,10 +898,243 @@ export default async function LessonPage({
   );
 }
 
-function BookIcon() {
+/*
+ * ==========================================================
+ * LEARNING INFO
+ * ==========================================================
+ */
+
+function LearningInfo({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
-    <span className="text-base">
-      📖
-    </span>
+    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+
+      <div className="flex items-center gap-3">
+
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm">
+          {icon}
+        </div>
+
+        <div className="min-w-0">
+
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+            {label}
+          </p>
+
+          <p className="mt-1 truncate text-sm font-black text-slate-800">
+            {value}
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
   );
 }
+
+/*
+ * ==========================================================
+ * PROGRESS BOX
+ * ==========================================================
+ */
+
+function ProgressBox({
+  value,
+  label,
+}: {
+  value: string;
+  label: string;
+}) {
+  return (
+    <div className="bg-white p-4">
+
+      <p className="text-2xl font-black text-slate-900">
+        {value}
+      </p>
+
+      <p className="mt-1 text-xs font-bold uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
+
+    </div>
+  );
+}
+
+/*
+ * ==========================================================
+ * LESSON SIDEBAR ITEM
+ * ==========================================================
+ */
+
+function LessonSidebarItem({
+  courseId,
+  lessonId,
+  index,
+  title,
+  duration,
+  completed,
+  current,
+}: {
+  courseId: string;
+  lessonId: string;
+  index: number;
+  title: string;
+  duration: number;
+  completed: boolean;
+  current: boolean;
+}) {
+  return (
+    <Link
+      href={`/courses/${courseId}/lesson/${lessonId}`}
+      className={`group mb-2 block rounded-2xl border p-4 transition ${
+        current
+          ? "border-blue-200 bg-blue-50 shadow-sm"
+          : completed
+            ? "border-emerald-100 bg-emerald-50/50 hover:border-emerald-200 hover:bg-emerald-50"
+            : "border-transparent bg-white hover:border-slate-200 hover:bg-slate-50"
+      }`}
+    >
+
+      <div className="flex items-start gap-3">
+
+        {/* Lesson status */}
+
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-xs font-black ${
+            current
+              ? "bg-blue-700 text-white"
+              : completed
+                ? "bg-emerald-600 text-white"
+                : "bg-slate-100 text-slate-600"
+          }`}
+        >
+
+          {completed ? (
+            <CheckCircle2 size={18} />
+          ) : (
+            String(index + 1).padStart(2, "0")
+          )}
+
+        </div>
+
+        {/* Lesson information */}
+
+        <div className="min-w-0 flex-1">
+
+          <div className="flex items-start justify-between gap-2">
+
+            <h3
+              className={`line-clamp-2 text-sm font-bold leading-5 ${
+                current
+                  ? "text-blue-800"
+                  : completed
+                    ? "text-emerald-800"
+                    : "text-slate-800"
+              }`}
+            >
+              {title}
+            </h3>
+
+            {current && (
+              <span className="shrink-0 rounded-full bg-blue-600 px-2 py-1 text-[9px] font-black uppercase tracking-wide text-white">
+                Now
+              </span>
+            )}
+
+          </div>
+
+          <div className="mt-2 flex items-center gap-2 text-xs font-semibold text-slate-400">
+
+            <Clock3 size={13} />
+
+            {duration} min
+
+            {completed && (
+              <>
+                <span>•</span>
+
+                <span className="text-emerald-600">
+                  Completed
+                </span>
+              </>
+            )}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </Link>
+  );
+}
+
+/*
+ * ==========================================================
+ * LEARNING SUMMARY
+ * ==========================================================
+ */
+
+function LearningSummary({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-5">
+
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-cyan-600 shadow-sm">
+        {icon}
+      </div>
+
+      <div>
+
+        <h3 className="font-black text-slate-900">
+          {title}
+        </h3>
+
+        <p className="mt-1 text-sm leading-6 text-slate-500">
+          {description}
+        </p>
+
+      </div>
+
+    </div>
+  );
+}
+
+/*
+ * ==========================================================
+ * PAGE ARCHITECTURE
+ * ==========================================================
+ *
+ * This lesson page is intentionally database-driven.
+ *
+ * - Course comes from Prisma.
+ * - Lessons come from Prisma.
+ * - Enrollment controls lesson access.
+ * - LessonProgress controls completion state.
+ * - Course progress is calculated from completed lessons
+ *   and synchronized with the Enrollment record.
+ * - Video uses lesson.videoUrl.
+ * - Notes use lesson.notesUrl.
+ * - Previous/Next navigation uses the course lesson order.
+ * - CompleteLessonButton updates the existing
+ *   /api/lesson-progress endpoint.
+ *
+ * This keeps the learning experience synchronized with
+ * the ICU Learning Portal database.
+ * ==========================================================
+ */

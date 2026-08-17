@@ -34,6 +34,7 @@ model User {
   payments       Payment[]
   lessonProgress LessonProgress[]
   quizAttempts   QuizAttempt[]
+  passwordResetTokens PasswordResetToken[]
 }
 
 model Course {
@@ -270,4 +271,23 @@ model PaymentWebhookEvent {
 
   createdAt   DateTime  @default(now())
   processedAt DateTime?
+}
+
+model PasswordResetToken {
+  id String @id @default(cuid())
+
+  userId String
+
+  tokenHash String @unique
+
+  expiresAt DateTime
+
+  usedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }

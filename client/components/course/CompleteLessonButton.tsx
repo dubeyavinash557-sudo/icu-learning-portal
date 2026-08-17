@@ -20,47 +20,89 @@ export default function CompleteLessonButton({
   const [loading, setLoading] = useState(false);
 
   const completeLesson = async () => {
+    if (loading || isCompleted) {
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const res = await fetch("/api/lesson-progress", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          lessonId,
-        }),
-      });
+      const response = await fetch(
+        "/api/lesson-progress",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            lessonId,
+          }),
+        }
+      );
 
-      const data = await res.json();
+      let data: {
+        success?: boolean;
+        message?: string;
+        progress?: number;
+        completedLessons?: number;
+        totalLessons?: number;
+        courseCompleted?: boolean;
+      } = {};
 
-      console.log(data);
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
-      if (res.ok) {
+      if (!response.ok) {
+        alert(
+          data.message ||
+            "Unable to complete this lesson."
+        );
 
-  if (nextLessonUrl) {
+        return;
+      }
 
-    router.push(nextLessonUrl);
+      /*
+       * Course completed
+       */
+      if (data.courseCompleted) {
+        router.refresh();
 
-    router.refresh();
+        alert(
+          "🎉 Congratulations! Course Completed."
+        );
 
-  } else {
+        return;
+      }
 
-    router.refresh();
+      /*
+       * Move to next lesson
+       */
+      if (nextLessonUrl) {
+        router.push(nextLessonUrl);
+        return;
+      }
 
-    alert("🎉 Congratulations! Course Completed.");
+      /*
+       * No next lesson available
+       */
+      router.refresh();
 
-  }
-
-} else {
-
-  alert(data.message);
-
-}
+      alert(
+        data.message ||
+          "Lesson completed successfully."
+      );
     } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
+      console.error(
+        "COMPLETE LESSON ERROR:",
+        error
+      );
+
+      alert(
+        "Something went wrong while completing the lesson. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -68,21 +110,23 @@ export default function CompleteLessonButton({
 
   return (
     <button
+      type="button"
       onClick={completeLesson}
       disabled={loading || isCompleted}
-      className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition disabled:opacity-50 ${
-  isCompleted
-    ? "bg-gray-500"
-    : "bg-green-600 hover:bg-green-700"
-}`}
+      aria-busy={loading}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${
+        isCompleted
+          ? "bg-slate-500"
+          : "bg-green-600 hover:bg-green-700"
+      }`}
     >
       <CheckCircle2 size={18} />
 
       {loading
-  ? "Completing..."
-  : isCompleted
-  ? "Completed"
-  : "Mark as Complete"}
+        ? "Completing..."
+        : isCompleted
+          ? "Completed"
+          : "Mark as Complete"}
     </button>
   );
 }

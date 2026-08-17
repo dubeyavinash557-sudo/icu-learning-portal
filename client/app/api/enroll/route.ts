@@ -6,10 +6,6 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
 
-    console.log("========== ENROLL API ==========");
-    console.log("SESSION:", session);
-    console.log("SESSION EMAIL:", session?.user?.email);
-
     if (!session?.user?.email) {
       return NextResponse.json(
         {
@@ -21,16 +17,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
+    let body: unknown;
 
-    console.log("REQUEST BODY:", body);
-
-    const { courseId } = body;
-
-    if (!courseId) {
+    try {
+      body = await req.json();
+    } catch {
       return NextResponse.json(
         {
-          message: "Course ID is required",
+          message: "Invalid request body.",
         },
         {
           status: 400,
@@ -38,18 +32,42 @@ export async function POST(req: Request) {
       );
     }
 
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      !("courseId" in body) ||
+      typeof body.courseId !== "string" ||
+      !body.courseId
+    ) {
+      return NextResponse.json(
+        {
+          message: "Course ID is required.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const courseId = body.courseId;
+
+    /*
+     * Find authenticated user.
+     */
     const user = await prisma.user.findUnique({
       where: {
         email: session.user.email,
       },
+      select: {
+        id: true,
+        email: true,
+      },
     });
-
-    console.log("DATABASE USER:", user);
 
     if (!user) {
       return NextResponse.json(
         {
-          message: "User not found",
+          message: "User not found.",
         },
         {
           status: 404,
@@ -57,18 +75,29 @@ export async function POST(req: Request) {
       );
     }
 
+    /*
+     * Find course.
+     *
+     * IMPORTANT:
+     * Enrollment through this endpoint is ONLY
+     * allowed for genuinely free courses.
+     */
     const course = await prisma.course.findUnique({
       where: {
         id: courseId,
       },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        isPremium: true,
+      },
     });
-
-    console.log("COURSE:", course);
 
     if (!course) {
       return NextResponse.json(
         {
-          message: "Course not found",
+          message: "Course not found.",
         },
         {
           status: 404,
@@ -76,47 +105,96 @@ export async function POST(req: Request) {
       );
     }
 
-    const alreadyEnrolled = await prisma.enrollment.findFirst({
-      where: {
-        userId: user.id,
-        courseId: course.id,
-      },
-    });
-
-    console.log("ALREADY ENROLLED:", alreadyEnrolled);
-
-    if (alreadyEnrolled) {
+    /*
+     * SECURITY CHECK
+     *
+     * Paid courses must ONLY be unlocked through
+     * the Razorpay payment verification flow.
+     *
+     * A course is considered free only when:
+     *
+     * price === 0
+     * AND
+     * isPremium === false
+     */
+    if (
+      course.isPremium ||
+      !Number.isFinite(course.price) ||
+      course.price !== 0
+    ) {
       return NextResponse.json(
         {
-          message: "Already enrolled",
+          message:
+            "This course requires payment before enrollment.",
         },
         {
-          status: 409,
+          status: 403,
         }
       );
     }
 
-    const enrollment = await prisma.enrollment.create({
-      data: {
-        userId: user.id,
-        courseId: course.id,
-        progress: 0,
-        completed: false,
-      },
-    });
+    /*
+     * Use upsert so concurrent requests cannot
+     * accidentally create duplicate enrollments.
+     */
+    const enrollment =
+      await prisma.enrollment.upsert({
+        where: {
+          userId_courseId: {
+            userId: user.id,
+            courseId: course.id,
+          },
+        },
+        update: {},
+        create: {
+          userId: user.id,
+          courseId: course.id,
+          progress: 0,
+          completed: false,
+        },
+      });
 
-    console.log("ENROLLMENT CREATED:", enrollment);
+    /*
+     * Keep the course student count synchronized.
+     *
+     * We only increment when the enrollment was
+     * newly created.
+     */
+    const existingEnrollment =
+      await prisma.enrollment.findUnique({
+        where: {
+          id: enrollment.id,
+        },
+        select: {
+          enrolledAt: true,
+        },
+      });
+
+    /*
+     * The enrollment record already existed when
+     * upsert returned it. We intentionally do not
+     * modify course.students here because the course
+     * page calculates the live count from enrollments.
+     */
 
     return NextResponse.json({
       success: true,
-      message: "Enrollment successful",
+      alreadyEnrolled:
+        Boolean(existingEnrollment) &&
+        enrollment.enrolledAt.getTime() <
+          Date.now(),
+      message: "Enrollment successful.",
+      enrollmentId: enrollment.id,
     });
   } catch (error) {
-    console.error("ENROLL API ERROR:", error);
+    console.error(
+      "FREE COURSE ENROLLMENT ERROR:",
+      error
+    );
 
     return NextResponse.json(
       {
-        message: "Internal Server Error",
+        message: "Internal Server Error.",
       },
       {
         status: 500,
