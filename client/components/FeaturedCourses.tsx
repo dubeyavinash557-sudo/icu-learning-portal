@@ -1,20 +1,15 @@
 import Link from "next/link";
-import Image from "next/image";
 
-type Course = {
-  id: string;
-  title: string;
-  slug: string;
-  price: number;
-  image: string;
-  instructor: string;
-  rating: number;
-  students: number;
-  duration: number;
-  language: string;
-  level: string;
-  isPremium: boolean;
-};
+import {
+  ArrowRight,
+  Award,
+  CheckCircle2,
+  GraduationCap,
+  PlayCircle,
+  Sparkles,
+} from "lucide-react";
+
+import CourseCard, { type Course } from "./CourseCard";
 
 interface FeaturedCoursesProps {
   courses: Course[];
@@ -24,180 +19,480 @@ export default function FeaturedCourses({
   courses,
 }: FeaturedCoursesProps) {
   return (
-    <section className="bg-slate-50 px-6 py-20 md:px-10">
-      <div className="mx-auto max-w-7xl">
+    <section
+      className="
+        relative
+        overflow-hidden
+        border-y
+        border-slate-200/80
+        bg-gradient-to-b
+        from-white
+        via-slate-50
+        to-white
+        py-20
+        md:py-24
+      "
+    >
+      {/* =====================================================
+          BACKGROUND DECORATION
+      ===================================================== */}
 
-        {/* Section Header */}
-        <div className="mb-12 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700">
-              🎓 Professional Courses
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -left-40
+          top-20
+          h-80
+          w-80
+          rounded-full
+          bg-cyan-400/10
+          blur-3xl
+        "
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -right-40
+          bottom-0
+          h-96
+          w-96
+          rounded-full
+          bg-blue-500/10
+          blur-3xl
+        "
+      />
+
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        {/* ===================================================
+            SECTION HEADER
+        =================================================== */}
+
+        <div className="mb-12 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            {/* Eyebrow */}
+
+            <div
+              className="
+                mb-5
+                inline-flex
+                items-center
+                gap-2
+                rounded-full
+                border
+                border-cyan-200
+                bg-cyan-50
+                px-4
+                py-2
+                text-xs
+                font-black
+                uppercase
+                tracking-[0.14em]
+                text-cyan-700
+              "
+            >
+              <GraduationCap size={16} />
+
+              Professional Learning
             </div>
 
-            <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl">
-              Featured Courses
+            {/* Heading */}
+
+            <h2
+              className="
+                text-3xl
+                font-black
+                tracking-tight
+                text-slate-950
+                sm:text-4xl
+                md:text-5xl
+              "
+            >
+              Master Critical Care
+
+              <span className="block text-blue-700">
+                With Professional Courses
+              </span>
             </h2>
 
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-              Build practical ICU and critical care skills with structured
-              courses designed for nurses, healthcare professionals and
-              medical learners.
+            {/* Description */}
+
+            <p
+              className="
+                mt-5
+                max-w-2xl
+                text-base
+                leading-8
+                text-slate-600
+                sm:text-lg
+              "
+            >
+              Structured ICU and critical-care learning designed to
+              help healthcare learners build practical knowledge
+              through lessons, video learning, study resources and
+              assessments.
             </p>
+
+            {/* Trust Points */}
+
+            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
+              <TrustPoint
+                icon={<CheckCircle2 size={16} />}
+                text="Structured curriculum"
+              />
+
+              <TrustPoint
+                icon={<PlayCircle size={16} />}
+                text="Video-based learning"
+              />
+
+              <TrustPoint
+                icon={<Award size={16} />}
+                text="Course certificates"
+              />
+            </div>
           </div>
+
+          {/* View All Courses */}
 
           <Link
             href="/courses"
-            className="inline-flex w-fit items-center rounded-xl border border-slate-300 bg-white px-6 py-3 font-bold text-slate-700 shadow-sm transition hover:border-blue-400 hover:text-blue-700 hover:shadow-md"
+            className="
+              group
+              inline-flex
+              w-fit
+              shrink-0
+              items-center
+              gap-2
+              rounded-2xl
+              border
+              border-slate-300
+              bg-white
+              px-6
+              py-3.5
+              text-sm
+              font-black
+              text-slate-800
+              shadow-sm
+              transition-all
+              duration-300
+              hover:-translate-y-0.5
+              hover:border-blue-400
+              hover:text-blue-700
+              hover:shadow-lg
+              focus:outline-none
+              focus:ring-2
+              focus:ring-blue-500
+              focus:ring-offset-2
+            "
           >
-            View All Courses
-            <span className="ml-2">→</span>
+            Explore All Courses
+
+            <ArrowRight
+              size={18}
+              className="
+                transition-transform
+                duration-300
+                group-hover:translate-x-1
+              "
+            />
           </Link>
         </div>
 
-        {/* Courses */}
+        {/* ===================================================
+            COURSE GRID
+        =================================================== */}
+
         {courses.length === 0 ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-lg">
-            <div className="text-5xl">📚</div>
-
-            <h3 className="mt-5 text-2xl font-bold text-slate-900">
-              No Courses Available
-            </h3>
-
-            <p className="mt-3 text-slate-500">
-              Please add courses from the database.
-            </p>
-          </div>
+          <EmptyCourses />
         ) : (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-6
+              sm:grid-cols-2
+              xl:grid-cols-4
+            "
+          >
             {courses.map((course) => (
-              <article
+              <CourseCard
                 key={course.id}
-                className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl"
-              >
-
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={course.image}
-                    alt={course.title}
-                    fill
-                    className="object-cover transition duration-500 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-
-                  {/* Image overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
-
-                  {/* Premium Badge */}
-                  {course.isPremium && (
-                    <div className="absolute left-4 top-4 rounded-full bg-blue-700 px-3 py-1.5 text-xs font-bold text-white shadow-lg">
-                      ⭐ PREMIUM
-                    </div>
-                  )}
-
-                  {/* Level */}
-                  <div className="absolute right-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-700 shadow-lg">
-                    {course.level}
-                  </div>
-
-                  {/* Rating */}
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 shadow-lg">
-                    <span className="text-yellow-500">★</span>
-
-                    <span className="text-sm font-bold text-slate-800">
-                      {course.rating}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6">
-
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-700">
-                    {course.instructor}
-                  </p>
-
-                  <h3 className="mt-2 line-clamp-2 min-h-[56px] text-xl font-extrabold leading-7 text-slate-900">
-                    {course.title}
-                  </h3>
-
-                  {/* Course information */}
-                  <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-
-                    <div className="rounded-xl bg-slate-50 p-3">
-                      <p className="text-xs text-slate-500">
-                        Students
-                      </p>
-
-                      <p className="mt-1 font-bold text-slate-800">
-                        {course.students.toLocaleString()}+
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-slate-50 p-3">
-                      <p className="text-xs text-slate-500">
-                        Duration
-                      </p>
-
-                      <p className="mt-1 font-bold text-slate-800">
-                        {course.duration} min
-                      </p>
-                    </div>
-
-                  </div>
-
-                  {/* Language */}
-                  <div className="mt-4 flex items-center justify-between text-sm">
-                    <span className="text-slate-500">
-                      Language
-                    </span>
-
-                    <span className="font-bold text-slate-700">
-                      {course.language}
-                    </span>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="my-5 border-t border-slate-100" />
-
-                  {/* Price + buttons */}
-                  <div className="flex items-end justify-between gap-3">
-
-                    <div>
-                      <p className="text-xs text-slate-500">
-                        Course Price
-                      </p>
-
-                      <p className="mt-1 text-2xl font-extrabold text-blue-700">
-                        ₹{course.price.toLocaleString("en-IN")}
-                      </p>
-                    </div>
-
-                    <Link
-                      href={`/courses/${course.slug}`}
-                      className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-700/20 transition hover:bg-blue-800 hover:shadow-lg"
-                    >
-                      View Course
-                    </Link>
-
-                  </div>
-
-                  {/* Enroll */}
-                  <Link
-                    href={`/courses/${course.slug}`}
-                    className="mt-4 flex w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-700 hover:text-white"
-                  >
-                    Enroll Now
-                    <span className="ml-2">→</span>
-                  </Link>
-
-                </div>
-              </article>
+                course={course}
+              />
             ))}
           </div>
         )}
 
+        {/* ===================================================
+            BOTTOM CTA
+        =================================================== */}
+
+        {courses.length > 0 && (
+          <div
+            className="
+              mt-12
+              overflow-hidden
+              rounded-[2rem]
+              border
+              border-slate-800
+              bg-slate-950
+              shadow-2xl
+            "
+          >
+            <div
+              className="
+                relative
+                flex
+                flex-col
+                gap-7
+                px-6
+                py-8
+                sm:px-8
+                lg:flex-row
+                lg:items-center
+                lg:justify-between
+                lg:px-10
+              "
+            >
+              {/* Decorative glow */}
+
+              <div
+                className="
+                  pointer-events-none
+                  absolute
+                  -right-20
+                  -top-32
+                  h-72
+                  w-72
+                  rounded-full
+                  bg-cyan-500/10
+                  blur-3xl
+                "
+              />
+
+              {/* CTA Content */}
+
+              <div className="relative flex items-start gap-4">
+                <div
+                  className="
+                    flex
+                    h-12
+                    w-12
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    bg-cyan-500/10
+                    text-cyan-300
+                    ring-1
+                    ring-cyan-400/20
+                  "
+                >
+                  <Sparkles size={22} />
+                </div>
+
+                <div>
+                  <p
+                    className="
+                      text-xs
+                      font-black
+                      uppercase
+                      tracking-[0.16em]
+                      text-cyan-300
+                    "
+                  >
+                    Build Your Learning Path
+                  </p>
+
+                  <h3
+                    className="
+                      mt-1
+                      text-xl
+                      font-black
+                      text-white
+                      sm:text-2xl
+                    "
+                  >
+                    Choose your next critical-care skill.
+                  </h3>
+
+                  <p
+                    className="
+                      mt-2
+                      max-w-2xl
+                      text-sm
+                      leading-6
+                      text-slate-400
+                    "
+                  >
+                    Explore ICU Nursing, Ventilator, ECG, ABG and
+                    other professional learning resources.
+                  </p>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+
+              <Link
+                href="/courses"
+                className="
+                  relative
+                  inline-flex
+                  shrink-0
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-xl
+                  bg-white
+                  px-6
+                  py-3.5
+                  text-sm
+                  font-black
+                  text-slate-950
+                  transition-all
+                  duration-300
+                  hover:-translate-y-0.5
+                  hover:bg-cyan-50
+                  hover:shadow-xl
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-cyan-400
+                  focus:ring-offset-2
+                  focus:ring-offset-slate-950
+                "
+              >
+                Browse Courses
+
+                <ArrowRight size={17} />
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </section>
+  );
+}
+
+/* ============================================================
+   TRUST POINT
+   ============================================================ */
+
+function TrustPoint({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-emerald-600">
+        {icon}
+      </span>
+
+      <span
+        className="
+          text-xs
+          font-bold
+          text-slate-600
+        "
+      >
+        {text}
+      </span>
+    </div>
+  );
+}
+
+/* ============================================================
+   EMPTY COURSES
+   ============================================================ */
+
+function EmptyCourses() {
+  return (
+    <div
+      className="
+        overflow-hidden
+        rounded-[2rem]
+        border
+        border-dashed
+        border-slate-300
+        bg-white
+        px-6
+        py-16
+        text-center
+        shadow-sm
+      "
+    >
+      <div
+        className="
+          mx-auto
+          flex
+          h-20
+          w-20
+          items-center
+          justify-center
+          rounded-3xl
+          bg-cyan-50
+          text-cyan-700
+        "
+      >
+        <GraduationCap size={36} />
+      </div>
+
+      <h3
+        className="
+          mt-6
+          text-2xl
+          font-black
+          text-slate-950
+        "
+      >
+        Courses Are Being Prepared
+      </h3>
+
+      <p
+        className="
+          mx-auto
+          mt-3
+          max-w-lg
+          text-sm
+          leading-7
+          text-slate-500
+        "
+      >
+        Professional ICU and critical-care courses will appear
+        here once they are published to the learning platform.
+      </p>
+
+      <Link
+        href="/courses"
+        className="
+          mt-7
+          inline-flex
+          items-center
+          gap-2
+          rounded-xl
+          bg-blue-700
+          px-6
+          py-3
+          text-sm
+          font-black
+          text-white
+          transition
+          hover:bg-blue-800
+          focus:outline-none
+          focus:ring-2
+          focus:ring-blue-500
+          focus:ring-offset-2
+        "
+      >
+        Explore Courses
+
+        <ArrowRight size={17} />
+      </Link>
+    </div>
   );
 }

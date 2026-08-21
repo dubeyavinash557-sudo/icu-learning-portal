@@ -2,10 +2,10 @@ import Link from "next/link";
 import {
   Activity,
   ArrowRight,
+  CheckCircle2,
+  Droplets,
   HeartPulse,
   Wind,
-  Droplets,
-  CheckCircle2,
 } from "lucide-react";
 
 const topics = [
@@ -22,7 +22,7 @@ const topics = [
       "PEEP & FiO₂",
       "Alarm Management",
     ],
-    iconBox: "bg-blue-100 text-blue-700",
+    iconBox: "bg-blue-50 text-blue-700 border-blue-100",
   },
   {
     title: "ECG Mastery",
@@ -37,7 +37,7 @@ const topics = [
       "Arrhythmias",
       "STEMI Recognition",
     ],
-    iconBox: "bg-red-100 text-red-600",
+    iconBox: "bg-rose-50 text-rose-700 border-rose-100",
   },
   {
     title: "ABG Analysis",
@@ -52,37 +52,38 @@ const topics = [
       "HCO₃⁻ Analysis",
       "ICU Case Studies",
     ],
-    iconBox: "bg-emerald-100 text-emerald-700",
+    iconBox: "bg-emerald-50 text-emerald-700 border-emerald-100",
   },
 ];
 
 export default function CriticalCareVisuals() {
   return (
-    <section className="relative overflow-hidden bg-slate-950 py-20">
-      {/* Background decoration */}
-      <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-blue-600/10 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl" />
+    <section className="relative overflow-hidden bg-slate-50 py-20 md:py-24">
+      {/* Soft clinical background accents */}
+      <div className="pointer-events-none absolute left-0 top-0 h-72 w-72 rounded-full bg-blue-100/50 blur-3xl" />
+
+      <div className="pointer-events-none absolute bottom-0 right-0 h-80 w-80 rounded-full bg-cyan-100/50 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-6 md:px-10">
-        {/* Header */}
+        {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-500/10 px-4 py-2 text-sm font-bold text-blue-300">
-            <Activity size={16} />
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-extrabold uppercase tracking-wider text-blue-700">
+            <Activity size={16} strokeWidth={2.2} />
             Critical Care Skills
           </div>
 
-          <h2 className="mt-5 text-4xl font-extrabold tracking-tight text-white md:text-5xl">
+          <h2 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">
             Master the Skills That Matter in the ICU
           </h2>
 
-          <p className="mt-5 text-lg leading-8 text-slate-400">
+          <p className="mt-5 text-base leading-7 text-slate-600 md:text-lg md:leading-8">
             Develop practical knowledge in mechanical ventilation, ECG
             interpretation and ABG analysis through structured professional
             learning.
           </p>
         </div>
 
-        {/* Cards */}
+        {/* Skill Cards */}
         <div className="mt-12 grid gap-7 md:grid-cols-2 lg:grid-cols-3">
           {topics.map((topic) => {
             const Icon = topic.icon;
@@ -90,32 +91,39 @@ export default function CriticalCareVisuals() {
             return (
               <article
                 key={topic.title}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur transition duration-300 hover:-translate-y-2 hover:border-blue-400/30 hover:bg-white/[0.09]"
+                className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
               >
-                {/* Top glow */}
-                <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-blue-500/10 blur-2xl transition group-hover:bg-blue-500/20" />
+                {/* Card accent */}
+                <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-blue-50 opacity-80 transition-transform duration-500 group-hover:scale-125" />
 
                 {/* Icon */}
                 <div
-                  className={`relative flex h-16 w-16 items-center justify-center rounded-2xl ${topic.iconBox}`}
+                  className={`relative flex h-16 w-16 items-center justify-center rounded-2xl border ${topic.iconBox} transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600`}
                 >
-                  <Icon size={30} strokeWidth={2.2} />
+                  <Icon
+                    size={30}
+                    strokeWidth={1.9}
+                    aria-hidden="true"
+                  />
                 </div>
 
                 {/* Badge */}
-                <div className="mt-7 inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-bold tracking-wider text-slate-400">
+                <div className="mt-7 w-fit rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[11px] font-extrabold tracking-wider text-slate-600">
                   {topic.badge}
                 </div>
 
-                <h3 className="mt-4 text-2xl font-extrabold text-white">
+                {/* Title */}
+                <h3 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-950">
                   {topic.title}
                 </h3>
 
-                <p className="mt-2 font-semibold text-blue-300">
+                {/* Subtitle */}
+                <p className="mt-2 font-semibold text-blue-700">
                   {topic.subtitle}
                 </p>
 
-                <p className="mt-4 min-h-[96px] text-sm leading-7 text-slate-400">
+                {/* Description */}
+                <p className="mt-4 min-h-[96px] text-sm leading-7 text-slate-600">
                   {topic.description}
                 </p>
 
@@ -124,35 +132,49 @@ export default function CriticalCareVisuals() {
                   {topic.points.map((point) => (
                     <div
                       key={point}
-                      className="flex items-center gap-3 text-sm text-slate-300"
+                      className="flex items-center gap-3 text-sm font-medium text-slate-700"
                     >
                       <CheckCircle2
                         size={17}
-                        className="shrink-0 text-emerald-400"
+                        strokeWidth={2}
+                        className="shrink-0 text-emerald-600"
                       />
-                      {point}
+
+                      <span>{point}</span>
                     </div>
                   ))}
                 </div>
 
-                {/* Button */}
+                {/* CTA */}
                 <Link
                   href={topic.href}
-                  className="mt-7 flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 font-bold text-slate-900 transition hover:bg-blue-50"
+                  className="mt-7 flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white shadow-md shadow-blue-700/15 transition-all duration-200 hover:bg-blue-800 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                   Explore Course
-                  <ArrowRight size={18} />
+
+                  <ArrowRight
+                    size={18}
+                    strokeWidth={2}
+                    className="transition-transform duration-200 group-hover:translate-x-0.5"
+                  />
                 </Link>
               </article>
             );
           })}
         </div>
 
-        {/* Bottom trust strip */}
-        <div className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] px-6 py-5 text-center">
-          <p className="text-sm font-medium text-slate-400">
-            Structured learning • Practical ICU knowledge • Professional
-            course pathway
+        {/* Professional Trust Strip */}
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-6 py-5 text-center shadow-sm md:flex-row">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+            <CheckCircle2 size={21} strokeWidth={2} />
+          </div>
+
+          <p className="text-sm font-semibold text-slate-600">
+            Structured learning
+            <span className="mx-2 text-slate-300">•</span>
+            Practical ICU knowledge
+            <span className="mx-2 text-slate-300">•</span>
+            Professional course pathway
           </p>
         </div>
       </div>

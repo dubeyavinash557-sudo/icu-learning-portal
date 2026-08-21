@@ -14,7 +14,7 @@ const plans = [
     price: "₹0",
     period: "forever",
     description:
-      "Explore ICU learning resources and get started with essential critical care knowledge.",
+      "Get started with selected ICU learning resources and explore the platform before upgrading to a complete professional learning plan.",
     popular: false,
     icon: Sparkles,
     button: "Get Started",
@@ -27,46 +27,54 @@ const plans = [
       "Student account",
     ],
   },
+
   {
     name: "Premium",
     subtitle: "For serious ICU learners",
-    price: "₹999",
+    price: "₹4,999",
     period: "/ year",
     description:
-      "Access structured professional courses and premium learning resources for continuous ICU education.",
+      "Access the professional ICU course library with structured learning, clinical resources, assessments, progress tracking and certificates.",
     popular: true,
     icon: Crown,
     button: "Choose Premium",
     href: "/register?plan=premium",
     features: [
-      "Premium ICU courses",
-      "Ventilator learning content",
-      "ECG & ABG resources",
-      "Premium PDF notes",
-      "Course assessments",
+      "Full Premium ICU course library",
+      "ICU Nursing professional courses",
+      "Mechanical Ventilation learning",
+      "ECG & ABG masterclasses",
+      "ICU emergency & critical care content",
+      "Premium PDF notes and resources",
+      "Course assessments and quizzes",
       "Learning progress tracking",
       "Completion certificates",
     ],
   },
+
   {
     name: "Professional",
-    subtitle: "For advanced learners",
-    price: "₹1,999",
+    subtitle: "For advanced healthcare learners",
+    price: "₹9,999",
     period: "/ year",
     description:
-      "A complete learning experience for healthcare professionals who want deeper critical care training.",
+      "A complete professional ICU learning experience for healthcare professionals seeking advanced critical care education, case-based learning and deeper clinical preparation.",
     popular: false,
     icon: ShieldCheck,
     button: "Choose Professional",
     href: "/register?plan=professional",
     features: [
-      "Everything in Premium",
-      "Advanced critical care courses",
+      "Everything included in Premium",
+      "Advanced critical care programs",
       "Advanced ICU case studies",
-      "Complete notes library",
-      "Advanced assessments",
+      "Neuro ICU learning resources",
+      "Cardiac ICU & hemodynamic training",
+      "Sepsis, shock & multiorgan failure",
+      "Complete professional notes library",
+      "Advanced assessments and quizzes",
+      "ICU interview & clinical viva preparation",
       "Priority learning resources",
-      "Professional certificates",
+      "Professional completion certificates",
     ],
   },
 ];
@@ -74,16 +82,26 @@ const plans = [
 export default function Pricing() {
   return (
     <section className="relative overflow-hidden bg-slate-50 py-20">
-      {/* Background decoration */}
+      {/* =====================================================
+          BACKGROUND DECORATION
+      ===================================================== */}
+
       <div className="absolute left-0 top-20 h-80 w-80 rounded-full bg-blue-100/50 blur-3xl" />
-      <div className="absolute right-0 bottom-10 h-80 w-80 rounded-full bg-purple-100/40 blur-3xl" />
+
+      <div className="absolute bottom-10 right-0 h-80 w-80 rounded-full bg-purple-100/40 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-6 md:px-10">
-        {/* Header */}
+
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
+
         <div className="mx-auto max-w-3xl text-center">
+
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700">
             <Crown size={16} />
-            Premium Learning Plans
+
+            Professional ICU Learning Plans
           </div>
 
           <h2 className="text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl">
@@ -91,14 +109,21 @@ export default function Pricing() {
           </h2>
 
           <p className="mt-5 text-lg leading-8 text-slate-600">
-            Start free or choose a premium plan to unlock structured ICU
-            learning, professional resources and certificates.
+            Start with free resources or unlock a complete professional
+            ICU learning experience with structured courses, clinical
+            resources, assessments and certificates.
           </p>
+
         </div>
 
-        {/* Pricing cards */}
+        {/* =====================================================
+            PRICING CARDS
+        ===================================================== */}
+
         <div className="mt-14 grid gap-8 lg:grid-cols-3">
+
           {plans.map((plan) => {
+
             const Icon = plan.icon;
 
             return (
@@ -110,15 +135,23 @@ export default function Pricing() {
                     : "border-slate-200"
                 }`}
               >
-                {/* Popular badge */}
+
+                {/* =================================================
+                    MOST POPULAR BADGE
+                ================================================= */}
+
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-blue-700 px-5 py-2 text-xs font-extrabold uppercase tracking-wider text-white shadow-lg">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-blue-700 px-5 py-2 text-xs font-extrabold uppercase tracking-wider text-white shadow-lg">
                     Most Popular
                   </div>
                 )}
 
-                {/* Icon + title */}
+                {/* =================================================
+                    ICON + VALUE BADGE
+                ================================================= */}
+
                 <div className="flex items-start justify-between">
+
                   <div
                     className={`flex h-14 w-14 items-center justify-center rounded-2xl ${
                       plan.popular
@@ -134,7 +167,12 @@ export default function Pricing() {
                       Best Value
                     </span>
                   )}
+
                 </div>
+
+                {/* =================================================
+                    PLAN TITLE
+                ================================================= */}
 
                 <h3 className="mt-7 text-2xl font-extrabold text-slate-900">
                   {plan.name}
@@ -144,13 +182,18 @@ export default function Pricing() {
                   {plan.subtitle}
                 </p>
 
-                <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-600">
+                <p className="mt-4 min-h-[96px] text-sm leading-6 text-slate-600">
                   {plan.description}
                 </p>
 
-                {/* Price */}
+                {/* =================================================
+                    PRICE
+                ================================================= */}
+
                 <div className="mt-7 border-b border-slate-100 pb-7">
+
                   <div className="flex items-end gap-2">
+
                     <span className="text-4xl font-extrabold text-slate-900">
                       {plan.price}
                     </span>
@@ -158,10 +201,15 @@ export default function Pricing() {
                     <span className="mb-1 text-sm font-medium text-slate-500">
                       {plan.period}
                     </span>
+
                   </div>
+
                 </div>
 
-                {/* Button */}
+                {/* =================================================
+                    CTA BUTTON
+                ================================================= */}
+
                 <Link
                   href={plan.href}
                   className={`mt-7 flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 font-bold transition ${
@@ -171,47 +219,77 @@ export default function Pricing() {
                   }`}
                 >
                   {plan.button}
+
                   <ArrowRight size={18} />
                 </Link>
 
-                {/* Features */}
+                {/* =================================================
+                    FEATURES
+                ================================================= */}
+
                 <div className="mt-8">
+
                   <p className="text-sm font-extrabold text-slate-900">
                     What's included
                   </p>
 
                   <ul className="mt-5 space-y-3">
+
                     {plan.features.map((feature) => (
+
                       <li
                         key={feature}
                         className="flex items-start gap-3 text-sm text-slate-600"
                       >
+
                         <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700">
-                          <Check size={13} strokeWidth={3} />
+                          <Check
+                            size={13}
+                            strokeWidth={3}
+                          />
                         </span>
 
                         <span>{feature}</span>
+
                       </li>
+
                     ))}
+
                   </ul>
+
                 </div>
+
               </article>
             );
+
           })}
+
         </div>
 
-        {/* Trust strip */}
+        {/* =====================================================
+            VALUE / TRUST STRIP
+        ===================================================== */}
+
         <div className="mt-12 flex flex-col items-center justify-center gap-4 rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm sm:flex-row">
-          <ShieldCheck className="text-green-600" size={24} />
+
+          <ShieldCheck
+            className="shrink-0 text-green-600"
+            size={24}
+          />
 
           <p className="text-sm font-medium text-slate-600">
-            Secure learning experience • Structured courses • Progress
-            tracking • Completion certificates
+            Structured ICU courses • Clinical learning resources •
+            Progress tracking • Assessments • Completion certificates
           </p>
+
         </div>
 
-        {/* Bottom CTA */}
+        {/* =====================================================
+            BOTTOM CTA
+        ===================================================== */}
+
         <div className="mt-12 text-center">
+
           <p className="text-sm text-slate-500">
             Not sure which plan is right for you?
           </p>
@@ -220,10 +298,13 @@ export default function Pricing() {
             href="/courses"
             className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700 hover:text-blue-800"
           >
-            Explore Courses First
+            Explore Professional Courses First
+
             <ArrowRight size={17} />
           </Link>
+
         </div>
+
       </div>
     </section>
   );
