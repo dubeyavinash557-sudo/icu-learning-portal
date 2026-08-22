@@ -1,113 +1,132 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 import razorpay from "@/lib/razorpay";
 
+export const runtime = "nodejs";
+
+type VerifyBody = {
+  courseId?: unknown;
+  razorpayOrderId?: unknown;
+  razorpayPaymentId?: unknown;
+  razorpaySignature?: unknown;
+};
+
+type RazorpayPayment = {
+  id?: unknown;
+  order_id?: unknown;
+  amount?: unknown;
+  currency?: unknown;
+  status?: unknown;
+  method?: unknown;
+  captured?: unknown;
+};
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function rupeesToPaise(amount: unknown): number | null {
+  const rupees = Number(amount);
+
+  if (!Number.isFinite(rupees) || rupees <= 0) {
+    return null;
+  }
+
+  const paise = Math.round(rupees * 100);
+
+  if (!Number.isSafeInteger(paise) || paise <= 0) {
+    return null;
+  }
+
+  return paise;
+}
+
+function safeCompare(expected: string, received: string): boolean {
+  const expectedBuffer = Buffer.from(expected, "utf8");
+  const receivedBuffer = Buffer.from(received, "utf8");
+
+  if (expectedBuffer.length !== receivedBuffer.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+}
+
+function verifyCheckoutSignature(
+  orderId: string,
+  paymentId: string,
+  signature: string,
+  secret: string
+): boolean {
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(`${orderId}|${paymentId}`, "utf8")
+    .digest("hex");
+
+  return safeCompare(expected, signature);
+}
+
+function responseError(message: string, status = 400) {
+  return NextResponse.json(
+    {
+      success: false,
+      message,
+    },
+    { status }
+  );
+}
+
+async function parseBody(request: Request): Promise<VerifyBody | null> {
+  try {
+    const parsed = (await request.json()) as unknown;
+
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      return null;
+    }
+
+    return parsed as VerifyBody;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth();
 
     if (!session?.user?.email) {
-      return NextResponse.json(
-        {
-          message: "Unauthorized.",
-        },
-        {
-          status: 401,
-        }
-      );
+      return responseError("Unauthorized.", 401);
     }
 
-    let body: unknown;
-
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json(
-        {
-          message: "Invalid request body.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
+    const body = await parseBody(request);
 
     if (
-      typeof body !== "object" ||
-      body === null
+      !body ||
+      !isNonEmptyString(body.courseId) ||
+      !isNonEmptyString(body.razorpayOrderId) ||
+      !isNonEmptyString(body.razorpayPaymentId) ||
+      !isNonEmptyString(body.razorpaySignature)
     ) {
-      return NextResponse.json(
-        {
-          message: "Invalid payment data.",
-        },
-        {
-          status: 400,
-        }
-      );
+      return responseError("Incomplete payment verification data.");
     }
 
-    const data = body as Record<
-      string,
-      unknown
-    >;
+    const courseId = body.courseId.trim();
+    const razorpayOrderId = body.razorpayOrderId.trim();
+    const razorpayPaymentId = body.razorpayPaymentId.trim();
+    const razorpaySignature = body.razorpaySignature.trim();
 
-    const courseId =
-      typeof data.courseId === "string"
-        ? data.courseId
-        : "";
+    const keySecret = process.env.RAZORPAY_KEY_SECRET?.trim();
 
-    const razorpayOrderId =
-      typeof data.razorpayOrderId === "string"
-        ? data.razorpayOrderId
-        : "";
-
-    const razorpayPaymentId =
-      typeof data.razorpayPaymentId === "string"
-        ? data.razorpayPaymentId
-        : "";
-
-    const razorpaySignature =
-      typeof data.razorpaySignature === "string"
-        ? data.razorpaySignature
-        : "";
-
-    if (
-      !courseId ||
-      !razorpayOrderId ||
-      !razorpayPaymentId ||
-      !razorpaySignature
-    ) {
-      return NextResponse.json(
-        {
-          message:
-            "Incomplete payment verification data.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    const secret =
-      process.env.RAZORPAY_KEY_SECRET;
-
-    if (!secret) {
-      console.error(
-        "RAZORPAY_KEY_SECRET is missing."
-      );
-
-      return NextResponse.json(
-        {
-          message:
-            "Payment gateway is not configured.",
-        },
-        {
-          status: 500,
-        }
-      );
+    if (!keySecret) {
+      console.error("RAZORPAY_KEY_SECRET is missing.");
+      return responseError("Payment gateway is not configured.", 500);
     }
 
     const user = await prisma.user.findUnique({
@@ -116,423 +135,298 @@ export async function POST(request: Request) {
       },
       select: {
         id: true,
-        email: true,
       },
     });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          message: "User not found.",
-        },
-        {
-          status: 404,
-        }
-      );
+      return responseError("User not found.", 404);
     }
 
-    /*
-     * IMPORTANT:
-     *
-     * We find the payment using the order ID
-     * stored by OUR server.
-     */
-    const payment =
-      await prisma.payment.findUnique({
-        where: {
-          razorpayOrderId,
-        },
-      });
+    const payment = await prisma.payment.findUnique({
+      where: {
+        razorpayOrderId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        courseId: true,
+        amount: true,
+        status: true,
+        paymentMethod: true,
+        transactionId: true,
+        razorpayOrderId: true,
+        razorpayPaymentId: true,
+        razorpaySignature: true,
+      },
+    });
 
     if (!payment) {
-      return NextResponse.json(
-        {
-          message:
-            "Payment order not found.",
-        },
-        {
-          status: 404,
-        }
-      );
+      return responseError("Payment order not found.", 404);
     }
 
-    /*
-     * Ensure the payment belongs to
-     * the currently authenticated user.
-     */
     if (payment.userId !== user.id) {
-      return NextResponse.json(
-        {
-          message: "Access denied.",
-        },
-        {
-          status: 403,
-        }
-      );
+      return responseError("Access denied.", 403);
     }
 
-    /*
-     * Ensure the payment belongs to
-     * the requested course.
-     */
     if (payment.courseId !== courseId) {
-      return NextResponse.json(
-        {
-          message:
-            "Course does not match payment.",
-        },
-        {
-          status: 400,
-        }
-      );
+      return responseError("Course does not match payment.");
     }
 
-    /*
-     * If this payment was already successfully
-     * processed, return success instead of
-     * creating duplicate enrollment.
-     */
+    if (payment.razorpayOrderId !== razorpayOrderId) {
+      return responseError("Payment order verification failed.");
+    }
+
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        isPremium: true,
+      },
+    });
+
+    if (!course || !course.isPremium) {
+      return responseError("Paid course not found.", 404);
+    }
+
+    const expectedAmountInPaise = rupeesToPaise(course.price);
+    const paymentAmountInPaise = rupeesToPaise(payment.amount);
+
     if (
-      payment.status.toUpperCase() ===
-        "SUCCESS" &&
-      payment.razorpayPaymentId ===
-        razorpayPaymentId
+      expectedAmountInPaise === null ||
+      paymentAmountInPaise === null ||
+      expectedAmountInPaise !== paymentAmountInPaise
     ) {
-      return NextResponse.json({
-        success: true,
-        message:
-          "Payment was already verified.",
+      console.error("Local payment amount mismatch.", {
+        paymentId: payment.id,
       });
+
+      return responseError("Payment amount verification failed.", 409);
     }
 
-    /*
-     * Prevent a different Razorpay payment ID
-     * from being attached to an already completed
-     * payment record.
-     */
     if (
       payment.razorpayPaymentId &&
-      payment.razorpayPaymentId !==
-        razorpayPaymentId
+      payment.razorpayPaymentId !== razorpayPaymentId
     ) {
-      return NextResponse.json(
-        {
-          message:
-            "Payment record has already been processed.",
-        },
-        {
-          status: 409,
-        }
+      return responseError(
+        "Payment record has already been processed.",
+        409
       );
     }
 
-    /*
-     * Fetch the course from our database.
-     *
-     * This lets us verify the server-side price.
-     */
-    const course =
-      await prisma.course.findUnique({
-        where: {
-          id: courseId,
-        },
-        select: {
-          id: true,
-          title: true,
-          price: true,
-        },
+    if (
+      !verifyCheckoutSignature(
+        razorpayOrderId,
+        razorpayPaymentId,
+        razorpaySignature,
+        keySecret
+      )
+    ) {
+      console.error("Invalid Razorpay checkout signature.", {
+        paymentId: payment.id,
       });
 
-    if (!course) {
-      return NextResponse.json(
-        {
-          message: "Course not found.",
-        },
-        {
-          status: 404,
-        }
+      return responseError("Payment signature verification failed.");
+    }
+
+    let razorpayPayment: RazorpayPayment;
+
+    try {
+      razorpayPayment = (await razorpay.payments.fetch(
+        razorpayPaymentId
+      )) as RazorpayPayment;
+    } catch (error) {
+      console.error("Unable to fetch Razorpay payment.", error);
+      return responseError(
+        "Unable to confirm payment status with Razorpay.",
+        502
       );
     }
 
-    /*
-     * The payment amount stored in our database
-     * must match the current course price.
-     *
-     * We do NOT trust the frontend price.
-     */
-    if (payment.amount !== course.price) {
-      console.error(
-        "PAYMENT AMOUNT MISMATCH",
-        {
-          paymentId: payment.id,
-          paymentAmount: payment.amount,
-          coursePrice: course.price,
-        }
-      );
+    if (
+      !isNonEmptyString(razorpayPayment.id) ||
+      razorpayPayment.id !== razorpayPaymentId ||
+      !isNonEmptyString(razorpayPayment.order_id) ||
+      razorpayPayment.order_id !== razorpayOrderId
+    ) {
+      return responseError("Razorpay payment verification failed.");
+    }
 
-      return NextResponse.json(
-        {
-          message:
-            "Payment amount does not match the course price.",
-        },
-        {
-          status: 400,
-        }
+    const razorpayAmount = Number(razorpayPayment.amount);
+
+    if (
+      !Number.isSafeInteger(razorpayAmount) ||
+      razorpayAmount <= 0 ||
+      razorpayAmount !== expectedAmountInPaise
+    ) {
+      return responseError("Razorpay payment amount mismatch.");
+    }
+
+    if (
+      !isNonEmptyString(razorpayPayment.currency) ||
+      razorpayPayment.currency.toUpperCase() !== "INR"
+    ) {
+      return responseError("Unsupported payment currency.");
+    }
+
+    const paymentCaptured =
+      razorpayPayment.status === "captured" ||
+      razorpayPayment.captured === true;
+
+    if (!paymentCaptured) {
+      return responseError(
+        "Payment is not captured yet. Course access will be granted after capture.",
+        409
       );
     }
 
-    /*
-     * Generate the expected HMAC signature.
-     *
-     * IMPORTANT:
-     * Razorpay's signature is:
-     *
-     * HMAC_SHA256(
-     *   order_id + "|" + payment_id,
-     *   key_secret
-     * )
-     */
-    const generatedSignature =
-      crypto
-        .createHmac(
-          "sha256",
-          secret
-        )
-        .update(
-          `${razorpayOrderId}|${razorpayPaymentId}`
-        )
-        .digest("hex");
+    const paymentMethod = isNonEmptyString(razorpayPayment.method)
+      ? razorpayPayment.method.trim()
+      : "razorpay";
 
-    /*
-     * timingSafeEqual throws when the buffers
-     * have different lengths.
-     *
-     * Therefore check length first.
-     */
-    const generatedBuffer =
-      Buffer.from(
-        generatedSignature,
-        "utf8"
-      );
-
-    const receivedBuffer =
-      Buffer.from(
-        razorpaySignature,
-        "utf8"
-      );
-
-    const signaturesMatch =
-      generatedBuffer.length ===
-        receivedBuffer.length &&
-      crypto.timingSafeEqual(
-        generatedBuffer,
-        receivedBuffer
-      );
-
-    if (!signaturesMatch) {
-      await prisma.payment.update({
+    const result = await prisma.$transaction(async (tx) => {
+      const currentPayment = await tx.payment.findUnique({
         where: {
           id: payment.id,
         },
-        data: {
-          status: "FAILED",
+        select: {
+          id: true,
+          userId: true,
+          courseId: true,
+          amount: true,
+          status: true,
+          paymentMethod: true,
+          transactionId: true,
+          razorpayOrderId: true,
+          razorpayPaymentId: true,
+          razorpaySignature: true,
         },
       });
 
-      return NextResponse.json(
-        {
-          message:
-            "Payment signature verification failed.",
+      if (!currentPayment || !currentPayment.courseId) {
+        throw new Error("PAYMENT_NOT_FOUND");
+      }
+
+      if (
+        currentPayment.userId !== user.id ||
+        currentPayment.courseId !== courseId ||
+        currentPayment.razorpayOrderId !== razorpayOrderId
+      ) {
+        throw new Error("PAYMENT_MAPPING_MISMATCH");
+      }
+
+      if (
+        currentPayment.razorpayPaymentId &&
+        currentPayment.razorpayPaymentId !== razorpayPaymentId
+      ) {
+        throw new Error("PAYMENT_ID_CONFLICT");
+      }
+
+      const currentAmount = rupeesToPaise(currentPayment.amount);
+
+      if (
+        currentAmount === null ||
+        currentAmount !== expectedAmountInPaise
+      ) {
+        throw new Error("PAYMENT_AMOUNT_MISMATCH");
+      }
+
+      let finalPayment;
+
+      if (currentPayment.status.toUpperCase() === "SUCCESS") {
+        finalPayment = currentPayment;
+      } else {
+        finalPayment = await tx.payment.update({
+          where: {
+            id: currentPayment.id,
+          },
+          data: {
+            status: "SUCCESS",
+            paymentMethod,
+            transactionId: razorpayPaymentId,
+            razorpayPaymentId,
+            razorpaySignature,
+          },
+          select: {
+            id: true,
+            amount: true,
+            status: true,
+            paymentMethod: true,
+            transactionId: true,
+            razorpayOrderId: true,
+            razorpayPaymentId: true,
+            razorpaySignature: true,
+          },
+        });
+      }
+
+      const enrollment = await tx.enrollment.upsert({
+        where: {
+          userId_courseId: {
+            userId: user.id,
+            courseId,
+          },
         },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    /*
-     * Optional additional Razorpay verification.
-     *
-     * Fetch the payment from Razorpay so that
-     * the server can confirm the payment is linked
-     * to the expected order and amount.
-     */
-    let razorpayPayment;
-
-    try {
-      razorpayPayment =
-        await razorpay.payments.fetch(
-          razorpayPaymentId
-        );
-    } catch (razorpayError) {
-      console.error(
-        "RAZORPAY PAYMENT FETCH ERROR:",
-        razorpayError
-      );
-
-      return NextResponse.json(
-        {
-          message:
-            "Unable to confirm payment status with Razorpay.",
+        update: {},
+        create: {
+          userId: user.id,
+          courseId,
+          progress: 0,
+          completed: false,
         },
-        {
-          status: 502,
-        }
-      );
-    }
-
-    /*
-     * Confirm Razorpay payment belongs to
-     * the expected order.
-     */
-    if (
-      razorpayPayment.order_id !==
-      razorpayOrderId
-    ) {
-      return NextResponse.json(
-        {
-          message:
-            "Razorpay payment does not belong to this order.",
+        select: {
+          id: true,
+          progress: true,
+          completed: true,
         },
-        {
-          status: 400,
-        }
-      );
-    }
+      });
 
-    /*
-     * Confirm amount.
-     *
-     * Razorpay returns amount in paise.
-     */
-    const expectedAmountInPaise =
-      Math.round(course.price * 100);
-
-    if (
-      razorpayPayment.amount !==
-      expectedAmountInPaise
-    ) {
-      return NextResponse.json(
-        {
-          message:
-            "Razorpay payment amount does not match the course price.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    /*
-     * Currency should be INR for our courses.
-     */
-    if (
-      razorpayPayment.currency !==
-      "INR"
-    ) {
-      return NextResponse.json(
-        {
-          message:
-            "Unsupported payment currency.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    /*
-     * Do not unlock a course unless payment
-     * is captured.
-     *
-     * Razorpay distinguishes authorized and
-     * captured payments.
-     */
-    if (
-      razorpayPayment.status !==
-      "captured"
-    ) {
-      return NextResponse.json(
-        {
-          message:
-            `Payment is not captured yet. Current status: ${razorpayPayment.status}`,
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    /*
-     * Everything has passed verification.
-     *
-     * Update Payment + create Enrollment
-     * atomically.
-     */
-    const result =
-      await prisma.$transaction(
-        async (tx) => {
-          const updatedPayment =
-            await tx.payment.update({
-              where: {
-                id: payment.id,
-              },
-              data: {
-                status: "SUCCESS",
-                paymentMethod: "razorpay",
-                razorpayPaymentId,
-                razorpaySignature,
-                transactionId:
-                  razorpayPaymentId,
-              },
-            });
-
-          const enrollment =
-            await tx.enrollment.upsert({
-              where: {
-                userId_courseId: {
-                  userId: user.id,
-                  courseId,
-                },
-              },
-              update: {},
-              create: {
-                userId: user.id,
-                courseId,
-                progress: 0,
-                completed: false,
-              },
-            });
-
-          return {
-            paymentId:
-              updatedPayment.id,
-            enrollmentId:
-              enrollment.id,
-          };
-        }
-      );
-
-    return NextResponse.json({
-      success: true,
-      message:
-        "Payment verified successfully. Course unlocked.",
-      ...result,
+      return {
+        payment: finalPayment,
+        enrollment,
+        alreadyProcessed:
+          currentPayment.status.toUpperCase() === "SUCCESS",
+      };
     });
-  } catch (error) {
-    console.error(
-      "VERIFY RAZORPAY PAYMENT ERROR:",
-      error
-    );
 
     return NextResponse.json(
       {
-        message:
-          "Unable to verify payment.",
+        success: true,
+        message: result.alreadyProcessed
+          ? "Payment was already verified. Course access is active."
+          : "Payment verified successfully. Course unlocked.",
+        payment: {
+          id: result.payment.id,
+          status: result.payment.status,
+          amount: result.payment.amount,
+          paymentMethod: result.payment.paymentMethod,
+          transactionId: result.payment.transactionId,
+          razorpayOrderId: result.payment.razorpayOrderId,
+          razorpayPaymentId: result.payment.razorpayPaymentId,
+        },
+        course: {
+          id: course.id,
+          title: course.title,
+          price: course.price,
+        },
+        enrollment: {
+          id: result.enrollment.id,
+          progress: result.enrollment.progress,
+          completed: result.enrollment.completed,
+        },
+        alreadyProcessed: result.alreadyProcessed,
       },
-      {
-        status: 500,
-      }
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("VERIFY RAZORPAY PAYMENT ERROR:", error);
+
+    return responseError(
+      "Unable to verify payment. Please contact support if money was deducted.",
+      500
     );
   }
 }

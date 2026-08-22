@@ -21,18 +21,22 @@ type Props = {
 
 type CreateOrderResponse = {
   success?: boolean;
+  message?: string;
+  keyId?: string;
   orderId?: string;
   amount?: number;
   currency?: string;
-  keyId?: string;
   paymentId?: string;
   alreadyPurchased?: boolean;
-  message?: string;
+  alreadyEnrolled?: boolean;
 };
 
 type VerifyResponse = {
   success?: boolean;
   message?: string;
+  paymentId?: string;
+  enrollmentId?: string;
+  alreadyProcessed?: boolean;
 };
 
 type RazorpayResponse = {
@@ -58,14 +62,26 @@ type RazorpayOptions = {
   modal?: {
     ondismiss?: () => void;
   };
-  handler: (response: RazorpayResponse) => void;
+  handler: (
+    response: RazorpayResponse
+  ) => void | Promise<void>;
 };
 
 declare global {
   interface Window {
-    Razorpay: new (options: RazorpayOptions) => {
+    Razorpay?: new (
+      options: RazorpayOptions
+    ) => {
       open: () => void;
     };
+  }
+}
+
+async function readJson<T>(response: Response): Promise<T> {
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return {} as T;
   }
 }
 
@@ -80,10 +96,43 @@ export default function BuyNowButton({
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [scriptReady, setScriptReady] = useState(false);
   const [error, setError] = useState("");
 
-  const handleBuyNow = async () => {
+  async function verifyPayment(response: RazorpayResponse) {
+    const verifyResponse = await fetch("/api/payments/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      body: JSON.stringify({
+        courseId,
+        razorpayOrderId: response.razorpay_order_id,
+        razorpayPaymentId: response.razorpay_payment_id,
+        razorpaySignature: response.razorpay_signature,
+      }),
+    });
+
+    const verifyData =
+      await readJson<VerifyResponse>(verifyResponse);
+
+    if (!verifyResponse.ok || !verifyData.success) {
+      throw new Error(
+        verifyData.message ||
+          "Payment verification failed. Please contact support if money was deducted."
+      );
+    }
+
+    router.push(`/courses/${courseId}`);
+    router.refresh();
+  }
+
+  async function handleBuyNow() {
+    if (loading) {
+      return;
+    }
+
     setError("");
 
     if (!isLoggedIn) {
@@ -92,21 +141,22 @@ export default function BuyNowButton({
           `/courses/${courseId}`
         )}`
       );
-
       return;
     }
 
-    if (!scriptLoaded || !window.Razorpay) {
+    if (
+      !scriptReady ||
+      typeof window === "undefined" ||
+      !window.Razorpay
+    ) {
       setError(
-        "Payment system is still loading. Please try again in a moment."
+        "Payment system is loading. Please wait a few seconds and try again."
       );
-
       return;
     }
 
-    if (!price || price <= 0) {
-      setError("Invalid course price.");
-
+    if (!Number.isFinite(price) || price <= 0) {
+      setError("This course has an invalid price.");
       return;
     }
 
@@ -120,6 +170,7 @@ export default function BuyNowButton({
           headers: {
             "Content-Type": "application/json",
           },
+          cache: "no-store",
           body: JSON.stringify({
             courseId,
           }),
@@ -127,29 +178,44 @@ export default function BuyNowButton({
       );
 
       const orderData =
-        (await orderResponse.json()) as CreateOrderResponse;
+        await readJson<CreateOrderResponse>(orderResponse);
+
+      if (
+        orderData.alreadyPurchased ||
+        orderData.alreadyEnrolled
+      ) {
+        router.push(`/courses/${courseId}`);
+        router.refresh();
+        return;
+      }
 
       if (!orderResponse.ok) {
-        if (orderData.alreadyPurchased) {
-          router.push(`/courses/${courseId}`);
-          router.refresh();
-          return;
-        }
-
         throw new Error(
           orderData.message ||
-            "Unable to create payment order."
+            "Unable to create the payment order."
         );
       }
 
       if (
+        !orderData.success ||
+        !orderData.keyId ||
         !orderData.orderId ||
+        !Number.isSafeInteger(orderData.amount) ||
         !orderData.amount ||
-        !orderData.currency ||
-        !orderData.keyId
+        orderData.amount <= 0 ||
+        orderData.currency !== "INR"
       ) {
         throw new Error(
-          "Invalid payment order received from server."
+          orderData.message ||
+            "Invalid payment order received from server."
+        );
+      }
+
+      const RazorpayCheckout = window.Razorpay;
+
+      if (!RazorpayCheckout) {
+        throw new Error(
+          "Unable to load Razorpay Checkout. Please try again."
         );
       }
 
@@ -176,46 +242,12 @@ export default function BuyNowButton({
           },
         },
 
-        handler: async (
-          response: RazorpayResponse
-        ) => {
+        handler: async (response: RazorpayResponse) => {
           try {
-            setError("");
-
-            const verifyResponse = await fetch(
-              "/api/payments/verify",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  courseId,
-                  razorpayOrderId:
-                    response.razorpay_order_id,
-                  razorpayPaymentId:
-                    response.razorpay_payment_id,
-                  razorpaySignature:
-                    response.razorpay_signature,
-                }),
-              }
-            );
-
-            const verifyData =
-              (await verifyResponse.json()) as VerifyResponse;
-
-            if (!verifyResponse.ok) {
-              throw new Error(
-                verifyData.message ||
-                  "Payment verification failed."
-              );
-            }
-
-            router.push(`/courses/${courseId}`);
-            router.refresh();
+            await verifyPayment(response);
           } catch (verificationError) {
             console.error(
-              "PAYMENT VERIFICATION ERROR:",
+              "RAZORPAY PAYMENT VERIFICATION ERROR:",
               verificationError
             );
 
@@ -230,15 +262,10 @@ export default function BuyNowButton({
         },
       };
 
-      const razorpay =
-        new window.Razorpay(options);
-
+      const razorpay = new RazorpayCheckout(options);
       razorpay.open();
     } catch (paymentError) {
-      console.error(
-        "RAZORPAY CHECKOUT ERROR:",
-        paymentError
-      );
+      console.error("RAZORPAY CHECKOUT ERROR:", paymentError);
 
       setError(
         paymentError instanceof Error
@@ -248,19 +275,22 @@ export default function BuyNowButton({
 
       setLoading(false);
     }
-  };
+  }
 
   return (
     <>
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="afterInteractive"
-        onLoad={() => {
-          setScriptLoaded(true);
+        onReady={() => {
+          if (window.Razorpay) {
+            setScriptReady(true);
+          }
         }}
         onError={() => {
+          setScriptReady(false);
           setError(
-            "Unable to load Razorpay payment system."
+            "Unable to load Razorpay payment system. Please check your internet connection and try again."
           );
         }}
       />
