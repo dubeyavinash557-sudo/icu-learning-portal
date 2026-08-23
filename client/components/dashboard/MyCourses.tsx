@@ -1,238 +1,395 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-
 import {
+  AlertCircle,
   ArrowRight,
-  Star,
+  Award,
+  BookOpen,
+  CheckCircle2,
   Clock3,
-  BadgeCheck,
-  Crown,
+  Loader2,
+  PlayCircle,
+  RefreshCw,
 } from "lucide-react";
 
-type Course = {
+type NextLesson = {
   id: string;
+  title: string;
+  lessonOrder: number;
+};
+
+type Certificate = {
+  id: string;
+  certificateNo: string;
+  issuedAt: string;
+};
+
+type EnrolledCourse = {
+  id: string;
+  enrolledAt: string;
   progress: number;
   completed: boolean;
-
+  totalLessons: number;
+  completedLessons: number;
+  remainingLessons: number;
+  nextLesson: NextLesson | null;
+  certificate: Certificate | null;
   course: {
     id: string;
     title: string;
-    image: string;
-    rating: number;
-    lessons: any[];
+    description: string;
+    instructor: string;
+    duration: number;
+    language: string;
+    level: string;
   };
 };
 
-const colors = [
-  "from-blue-500 to-cyan-500",
-  "from-emerald-500 to-green-500",
-  "from-purple-500 to-pink-500",
-  "from-orange-500 to-amber-500",
-  "from-rose-500 to-red-500",
-];
+type MyCoursesResponse = {
+  success?: boolean;
+  courses?: EnrolledCourse[];
+  message?: string;
+};
+
+function safeProgress(value: number) {
+  return Math.min(100, Math.max(0, value));
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not available";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
 
 export default function MyCourses() {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<
+    EnrolledCourse[]
+  >([]);
+
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function loadCourses() {
       try {
-        const res = await fetch("/api/my-courses");
+        setLoading(true);
+        setError("");
 
-        if (!res.ok) {
-          throw new Error("Failed to load courses");
+        const response = await fetch("/api/my-courses", {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        const data =
+          (await response.json()) as MyCoursesResponse;
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message || "Unable to load your courses."
+          );
         }
 
-        const data = await res.json();
+        setCourses(
+          Array.isArray(data.courses)
+            ? data.courses
+            : []
+        );
+      } catch (requestError) {
+        if (controller.signal.aborted) {
+          return;
+        }
 
-        setCourses(data);
-      } catch (error) {
-        console.error(error);
+        console.error(
+          "MY COURSES LOAD ERROR:",
+          requestError
+        );
+
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Unable to load your courses."
+        );
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
 
-    loadCourses();
-  }, []);
+    void loadCourses();
+
+    return () => controller.abort();
+  }, [retryKey]);
 
   if (loading) {
     return (
-      <section className="rounded-3xl bg-white p-8 shadow-xl">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <Loader2
+              size={22}
+              className="animate-spin"
+            />
+          </div>
 
-        <h2 className="text-3xl font-bold">
-          My Courses
-        </h2>
+          <div>
+            <h2 className="text-2xl font-black text-slate-950">
+              My Courses
+            </h2>
 
-        <p className="mt-6 text-gray-500">
-          Loading courses...
-        </p>
+            <p className="mt-1 text-sm text-slate-600">
+              Loading your enrolled courses…
+            </p>
+          </div>
+        </div>
 
+        <div className="mt-7 grid gap-4 lg:grid-cols-2">
+          {[1, 2].map((item) => (
+            <div
+              key={item}
+              className="animate-pulse rounded-2xl border border-slate-200 p-5"
+            >
+              <div className="h-5 w-2/3 rounded bg-slate-200" />
+              <div className="mt-4 h-4 w-full rounded bg-slate-100" />
+              <div className="mt-2 h-4 w-4/5 rounded bg-slate-100" />
+              <div className="mt-7 h-3 w-full rounded bg-slate-100" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col gap-5 rounded-2xl border border-red-200 bg-red-50 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <AlertCircle
+              size={22}
+              className="mt-0.5 shrink-0 text-red-700"
+            />
+
+            <div>
+              <h2 className="font-black text-red-950">
+                Unable to load your courses
+              </h2>
+
+              <p className="mt-1 text-sm leading-6 text-red-800">
+                {error}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() =>
+              setRetryKey((value) => value + 1)
+            }
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-red-700 px-4 py-3 text-sm font-bold text-white transition hover:bg-red-800"
+          >
+            <RefreshCw size={17} />
+            Try again
+          </button>
+        </div>
       </section>
     );
   }
 
   if (courses.length === 0) {
     return (
-      <section className="rounded-3xl bg-white p-8 shadow-xl">
+      <section className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
+          <BookOpen size={27} />
+        </div>
 
-        <h2 className="text-3xl font-bold">
-          My Courses
+        <h2 className="mt-5 text-2xl font-black text-slate-950">
+          No enrolled courses yet
         </h2>
 
-        <p className="mt-6 text-gray-500">
-          You are not enrolled in any course yet.
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-slate-600">
+          Explore ICU Learning Portal courses and enrol in a
+          program to begin your structured learning journey.
         </p>
 
+        <Link
+          href="/courses"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-800"
+        >
+          Explore Courses
+          <ArrowRight size={17} />
+        </Link>
       </section>
     );
   }
 
   return (
-    <section className="rounded-3xl bg-white p-8 shadow-xl">
-
-      <div className="mb-8 flex items-center justify-between">
-
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-700">
+            Learning Library
+          </p>
 
-          <h2 className="text-3xl font-bold text-slate-900">
+          <h2 className="mt-2 text-2xl font-black text-slate-950 sm:text-3xl">
             My Courses
           </h2>
 
-          <p className="mt-2 text-slate-500">
-            Continue your enrolled ICU learning programs.
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Your enrolled courses and current lesson progress.
           </p>
-
         </div>
 
-        <button className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700 transition">
-          View All
-        </button>
-
+        <Link
+          href="/courses"
+          className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 transition hover:text-blue-900"
+        >
+          Browse all courses
+          <ArrowRight size={16} />
+        </Link>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-5 lg:grid-cols-2">
+        {courses.map((item) => {
+          const progress = safeProgress(item.progress);
 
-        {courses.map((item, index) => {
-
-          const totalLessons = item.course.lessons.length;
-
-          const completedLessons = Math.round(
-            (item.progress / 100) * totalLessons
-          );
-
-          const remainingLessons =
-            totalLessons - completedLessons;
+          const continueHref = item.nextLesson
+            ? `/courses/${item.course.id}/lesson/${item.nextLesson.id}`
+            : `/courses/${item.course.id}`;
 
           return (
-
-            <div
+            <article
               key={item.id}
-              className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="flex flex-col rounded-2xl border border-slate-200 p-5 transition hover:border-cyan-300 hover:shadow-md"
             >
-
-              <div className="flex flex-col lg:flex-row">
-
-                <img
-                  src={item.course.image}
-                  alt={item.course.title}
-                  className="h-52 w-full object-cover lg:w-72"
-                />
-
-                <div className="flex flex-1 flex-col justify-between p-6">
-
-                  <div>
-
-                    <div className="mb-3 flex flex-wrap items-center gap-3">
-
-                      <span className="flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-sm font-semibold text-yellow-700">
-                        <Crown size={16} />
-                        Premium
-                      </span>
-
-                      <span className="flex items-center gap-1 text-amber-500">
-                        <Star size={16} fill="currentColor" />
-                        {item.course.rating}
-                      </span>
-
-                    </div>
-
-                    <h3 className="text-2xl font-bold text-slate-900">
-                      {item.course.title}
-                    </h3>
-
-                    <p className="mt-3 text-slate-500">
-                      {completedLessons} / {totalLessons} Lessons Completed
-                    </p>
-
-                    <div className="mt-3 flex flex-wrap gap-6 text-sm text-slate-500">
-
-                      <div className="flex items-center gap-2">
-                        <Clock3 size={16} />
-                        {remainingLessons} Lessons Remaining
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <BadgeCheck size={16} />
-                        {item.completed
-                          ? "Certificate Earned"
-                          : "Certificate Locked"}
-                      </div>
-
-                    </div>
-
-                    <div className="mt-6">
-                                            <div className="mb-2 flex justify-between text-sm font-semibold">
-
-                        <span>Progress</span>
-
-                        <span>{item.progress}%</span>
-
-                      </div>
-
-                      <div className="h-3 overflow-hidden rounded-full bg-slate-200">
-
-                        <div
-                          className={`h-full rounded-full bg-gradient-to-r ${
-                            colors[index % colors.length]
-                          }`}
-                          style={{
-                            width: `${item.progress}%`,
-                          }}
-                        />
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                  <div className="mt-6">
-
-                    <button className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
-
-                      Continue Learning
-
-                      <ArrowRight size={18} />
-
-                    </button>
-
-                  </div>
-
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
+                  <BookOpen size={23} />
                 </div>
 
+                <div className="min-w-0">
+                  <h3 className="text-lg font-black leading-6 text-slate-950">
+                    {item.course.title}
+                  </h3>
+
+                  <p className="mt-1 text-xs font-semibold text-slate-500">
+                    {item.course.instructor} ·{" "}
+                    {item.course.language} ·{" "}
+                    {item.course.level}
+                  </p>
+                </div>
               </div>
 
-            </div>
+              <p className="mt-5 line-clamp-2 text-sm leading-6 text-slate-600">
+                {item.course.description}
+              </p>
 
+              <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-slate-600">
+                <span className="inline-flex items-center gap-1.5">
+                  <BookOpen
+                    size={15}
+                    className="text-blue-700"
+                  />
+                  {item.completedLessons}/{item.totalLessons}{" "}
+                  lessons
+                </span>
+
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock3
+                    size={15}
+                    className="text-cyan-700"
+                  />
+                  {item.remainingLessons} remaining
+                </span>
+              </div>
+
+              <div className="mt-6">
+                <div className="mb-2 flex items-center justify-between text-sm font-bold">
+                  <span>Course progress</span>
+                  <span className="text-blue-700">
+                    {progress}%
+                  </span>
+                </div>
+
+                <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-700"
+                    style={{
+                      width: `${progress}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {item.nextLesson && !item.completed && (
+                <div className="mt-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-700">
+                    Next lesson
+                  </p>
+
+                  <p className="mt-1 text-sm font-bold text-slate-950">
+                    Lesson {item.nextLesson.lessonOrder}:{" "}
+                    {item.nextLesson.title}
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-5">
+                {item.certificate ? (
+                  <div className="text-xs font-semibold text-emerald-700">
+                    <span className="inline-flex items-center gap-1">
+                      <Award size={15} />
+                      Certificate issued
+                    </span>
+
+                    <p className="mt-1 text-slate-500">
+                      {formatDate(item.certificate.issuedAt)}
+                    </p>
+                  </div>
+                ) : item.completed ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-700">
+                    <Clock3 size={15} />
+                    Certificate processing
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                    <CheckCircle2 size={15} />
+                    Complete all lessons for certificate
+                  </span>
+                )}
+
+                <Link
+                  href={continueHref}
+                  className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 transition hover:text-blue-900"
+                >
+                  {item.completed
+                    ? "Review course"
+                    : "Continue learning"}
+                  {item.completed ? (
+                    <ArrowRight size={16} />
+                  ) : (
+                    <PlayCircle size={17} />
+                  )}
+                </Link>
+              </div>
+            </article>
           );
-
         })}
-
       </div>
-
     </section>
   );
 }
