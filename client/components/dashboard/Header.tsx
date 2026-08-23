@@ -1,36 +1,48 @@
 "use client";
 
-import {
-  Bell,
-  Search,
-  CalendarDays,
-  Crown,
-  LogOut,
-  Moon,
-  Sun,
-} from "lucide-react";
-
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import {
+  CalendarDays,
+  HeartPulse,
+  LogOut,
+  Moon,
+  Sun,
+  UserRound,
+} from "lucide-react";
 
-import { student } from "@/data/dashboard";
+type HeaderProps = {
+  fullName?: string;
+};
 
-export default function Header() {
+function getGreeting(hour: number) {
+  if (hour < 12) {
+    return "Good morning";
+  }
+
+  if (hour < 17) {
+    return "Good afternoon";
+  }
+
+  return "Good evening";
+}
+
+export default function Header({
+  fullName,
+}: HeaderProps) {
   const { theme, setTheme } = useTheme();
 
   const [mounted, setMounted] = useState(false);
-  const [currentDate, setCurrentDate] = useState("");
-  const [currentTime, setCurrentTime] = useState("");
+  const [dateLabel, setDateLabel] = useState("");
   const [greeting, setGreeting] = useState("");
 
   useEffect(() => {
-    setMounted(true);
-
-    const updateDateTime = () => {
+    const updateHeaderDate = () => {
       const now = new Date();
 
-      setCurrentDate(
+      setDateLabel(
         now.toLocaleDateString("en-IN", {
           weekday: "long",
           day: "numeric",
@@ -39,30 +51,18 @@ export default function Header() {
         })
       );
 
-      setCurrentTime(
-        now.toLocaleTimeString("en-IN", {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        })
-      );
-
-      const hour = now.getHours();
-
-      setGreeting(
-        hour < 12
-          ? "Good Morning ☀️"
-          : hour < 17
-          ? "Good Afternoon 🌤️"
-          : "Good Evening 🌙"
-      );
+      setGreeting(getGreeting(now.getHours()));
     };
 
-    updateDateTime();
+    setMounted(true);
+    updateHeaderDate();
 
-    const interval = setInterval(updateDateTime, 1000);
+    const interval = window.setInterval(
+      updateHeaderDate,
+      60_000
+    );
 
-    return () => clearInterval(interval);
+    return () => window.clearInterval(interval);
   }, []);
 
   async function handleLogout() {
@@ -75,216 +75,75 @@ export default function Header() {
     setTheme(theme === "dark" ? "light" : "dark");
   }
 
+  const displayName = fullName?.trim() || "Student";
+  const initial = displayName.charAt(0).toUpperCase();
+
   return (
-    <header
-      className="
-        mb-8 rounded-3xl
-        border border-slate-200
-        bg-white
-        shadow-xl
-        transition-colors
-        dark:border-slate-800
-        dark:bg-slate-900
-      "
-    >
-      <div className="flex flex-col items-center justify-between gap-6 p-6 lg:flex-row">
+    <header className="border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+      <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-10">
+        <div className="flex min-w-0 items-center gap-3">
+          <Link
+            href="/dashboard"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-white shadow-lg shadow-blue-700/20"
+            aria-label="Open dashboard"
+          >
+            <HeartPulse size={23} />
+          </Link>
 
-        {/* LEFT SIDE */}
-        <div>
-          <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-            ICU Learning Portal
-          </p>
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-cyan-700 dark:text-cyan-400">
+              ICU Learning Portal
+            </p>
 
-          <h1 className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">
-            {greeting || "Welcome"}, {student.name}
-          </h1>
+            <h1 className="mt-1 truncate text-xl font-black tracking-tight text-slate-950 dark:text-white sm:text-2xl">
+              {greeting || "Welcome"}, {displayName}
+            </h1>
 
-          <p className="mt-2 text-slate-500 dark:text-slate-400">
-            Continue your ICU learning journey today.
-          </p>
-
-          <div className="mt-4 flex flex-wrap items-center gap-5 text-sm text-slate-500 dark:text-slate-400">
-
-            {/* DATE */}
-            <div className="flex items-center gap-2">
-              <CalendarDays size={16} />
-              {currentDate || "Loading date..."}
-            </div>
-
-            {/* TIME */}
-            <div>
-              🕒 {currentTime || "--:--"}
-            </div>
-
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
+              <CalendarDays size={15} />
+              {dateLabel || "Loading date..."}
+            </p>
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="flex flex-wrap items-center gap-4">
-
-          {/* SEARCH */}
-          <div
-            className="
-              flex min-w-[260px] items-center gap-3
-              rounded-xl
-              bg-slate-100
-              px-4 py-3
-              dark:bg-slate-800
-            "
+        <div className="flex items-center gap-3 self-end lg:self-auto">
+          <Link
+            href="/profile"
+            className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:text-blue-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-blue-700 dark:hover:text-blue-300"
           >
-            <Search
-              size={18}
-              className="text-slate-400"
-            />
-
-            <input
-              type="text"
-              placeholder="Search courses..."
-              className="
-                w-full bg-transparent
-                text-slate-900
-                outline-none
-                placeholder:text-slate-400
-                dark:text-white
-              "
-            />
-          </div>
-
-          {/* NOTIFICATION */}
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="
-              relative rounded-xl
-              bg-slate-100 p-3
-              transition
-              hover:bg-slate-200
-              dark:bg-slate-800
-              dark:hover:bg-slate-700
-            "
-          >
-            <Bell
-              size={22}
-              className="text-slate-700 dark:text-slate-200"
-            />
-
-            <span
-              className="
-                absolute -right-1 -top-1
-                flex h-5 w-5
-                items-center justify-center
-                rounded-full
-                bg-red-600
-                text-xs font-bold
-                text-white
-              "
-            >
-              3
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-xs font-black text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+              {initial}
             </span>
-          </button>
 
-          {/* DARK MODE */}
+            <span className="hidden sm:inline">Profile</span>
+            <UserRound
+              size={17}
+              className="sm:hidden"
+            />
+          </Link>
+
           <button
             type="button"
             onClick={toggleTheme}
-            aria-label="Toggle dark mode"
-            className="
-              rounded-xl
-              bg-slate-100
-              p-3
-              text-slate-700
-              transition
-              hover:bg-slate-200
-              dark:bg-slate-800
-              dark:text-yellow-300
-              dark:hover:bg-slate-700
-            "
+            disabled={!mounted}
+            aria-label="Toggle colour theme"
+            className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             {mounted && theme === "dark" ? (
-              <Sun size={22} />
+              <Sun size={19} />
             ) : (
-              <Moon size={22} />
+              <Moon size={19} />
             )}
           </button>
 
-          {/* PREMIUM */}
-          <div
-            className="
-              hidden items-center gap-2
-              rounded-full
-              bg-yellow-100
-              px-4 py-2
-              font-semibold
-              text-yellow-700
-              md:flex
-              dark:bg-yellow-900/30
-              dark:text-yellow-300
-            "
-          >
-            <Crown size={18} />
-            Premium
-          </div>
-
-          {/* STUDENT */}
-          <div
-            className="
-              flex items-center gap-3
-              rounded-xl
-              bg-slate-100
-              px-4 py-2
-              dark:bg-slate-800
-            "
-          >
-            <div className="relative">
-              <img
-                src="https://ui-avatars.com/api/?name=Student&background=2563eb&color=fff"
-                alt="Student"
-                className="h-11 w-11 rounded-full"
-              />
-
-              <span
-                className="
-                  absolute bottom-0 right-0
-                  h-3 w-3
-                  rounded-full
-                  border-2
-                  border-white
-                  bg-green-500
-                  dark:border-slate-800
-                "
-              />
-            </div>
-
-            <div>
-              <h3 className="font-bold text-slate-800 dark:text-white">
-                {student.name}
-              </h3>
-
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                ICU Student
-              </p>
-            </div>
-          </div>
-
-          {/* LOGOUT */}
           <button
             type="button"
             onClick={handleLogout}
-            aria-label="Logout"
-            className="
-              rounded-xl
-              bg-red-500
-              px-4 py-3
-              text-white
-              shadow-sm
-              transition
-              hover:bg-red-600
-              hover:shadow-md
-            "
+            aria-label="Sign out"
+            className="rounded-xl bg-slate-950 p-2.5 text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
           >
-            <LogOut size={18} />
+            <LogOut size={19} />
           </button>
-
         </div>
       </div>
     </header>
