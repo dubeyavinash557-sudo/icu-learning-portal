@@ -46,3 +46,9 @@ next-env.d.ts
 *.zip
 node_modules/
 
+
+node_modules/
+*.zip
+.next/
+out/
+
