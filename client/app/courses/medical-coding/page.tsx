@@ -4,87 +4,107 @@ export default function MedicalCodingPage() {
   return (
     <CourseLandingPage
       course={{
-        title: "Medical Coding Professional Course",
-        shortTitle: "Medical Coding",
+        title: "Medical Coding Professional Master Course",
+        shortTitle: "Medical Coding Professional",
         category: "Healthcare • Medical Coding",
+
         description:
-          "Build a structured foundation in medical coding, healthcare terminology, ICD-10-CM, CPT and HCPCS with practical coding-oriented learning.",
+          "Build job-oriented medical coding knowledge through a structured professional curriculum covering medical terminology, anatomy and physiology, ICD-10-CM, CPT, HCPCS and coding workflow.",
+
         longDescription:
-          "A professional learning pathway designed for healthcare learners who want to understand medical coding concepts and coding workflows.",
+          "A premium, structured medical coding learning pathway for healthcare professionals and learners who want to develop practical coding knowledge, strengthen documentation understanding and prepare for coding-focused career opportunities.",
+
         instructor: "ICU Learning Portal Faculty",
+
         level: "Beginner to Intermediate",
-        duration: "15+ Hours",
+        duration: "20+ Hours",
         lessons: 60,
+
         students: "1,000+",
         rating: 4.8,
+
         price: "₹3,999",
         originalPrice: "₹5,999",
+
         isPremium: true,
         accent: "violet",
 
         modules: [
           {
-            title: "Medical Terminology",
+            title: "Medical Terminology & Clinical Foundations",
             description:
-              "Build a strong foundation in healthcare terminology, anatomy and common clinical terms.",
+              "Develop essential healthcare terminology, anatomy and physiology vocabulary required for understanding clinical documentation and coding concepts.",
             lessons: 12,
           },
+
           {
-            title: "ICD-10-CM Fundamentals",
+            title: "ICD-10-CM Diagnosis Coding",
             description:
-              "Understand ICD-10-CM structure, conventions and diagnosis coding concepts.",
+              "Learn ICD-10-CM structure, conventions, chapter organisation, code selection principles and diagnosis coding workflow.",
             lessons: 18,
           },
+
           {
-            title: "CPT Coding Fundamentals",
+            title: "CPT Procedure & Service Coding",
             description:
-              "Learn the basic concepts behind CPT procedure and service coding.",
+              "Understand CPT code categories, procedure terminology and foundational principles for identifying and understanding coded services.",
             lessons: 15,
           },
+
           {
-            title: "HCPCS & Coding Workflow",
+            title: "HCPCS & Healthcare Coding Workflow",
             description:
-              "Understand HCPCS concepts and how coding fits into healthcare workflows.",
+              "Build an understanding of HCPCS concepts and how coding information moves through documentation, review and healthcare billing workflows.",
             lessons: 10,
           },
+
           {
-            title: "Coding Practice & Review",
+            title: "Coding Practice, Review & Assessment",
             description:
-              "Apply concepts through structured examples, practice questions and revision.",
+              "Strengthen coding knowledge through structured examples, practice questions, revision exercises and assessment-based learning.",
             lessons: 5,
           },
         ],
 
         learningOutcomes: [
-          "Understand core medical terminology.",
-          "Build foundational anatomy and physiology vocabulary.",
-          "Understand ICD-10-CM coding structure.",
-          "Learn fundamental diagnosis coding concepts.",
-          "Understand CPT coding fundamentals.",
-          "Understand HCPCS coding concepts.",
-          "Develop a structured coding workflow.",
-          "Practise coding concepts through assessment-based learning.",
+          "Understand essential medical terminology used in clinical documentation.",
+          "Build foundational anatomy and physiology vocabulary for coding practice.",
+          "Understand the structure and organisation of ICD-10-CM.",
+          "Apply fundamental diagnosis coding concepts and coding conventions.",
+          "Understand the core principles of CPT procedure and service coding.",
+          "Build foundational knowledge of HCPCS coding concepts.",
+          "Understand documentation-to-code workflow and coding review principles.",
+          "Analyse structured coding examples and practice questions.",
+          "Develop systematic medical coding study and revision habits.",
+          "Prepare for coding-focused assessments and career-oriented learning.",
         ],
 
         practicalSkills: [
           "Medical terminology recognition",
-          "ICD-10-CM navigation",
+          "Anatomy and physiology terminology review",
+          "Clinical documentation reading",
+          "ICD-10-CM codebook navigation",
           "Diagnosis-code identification",
-          "CPT terminology",
+          "ICD-10-CM convention awareness",
+          "CPT terminology recognition",
           "HCPCS fundamentals",
-          "Coding documentation review",
+          "Documentation review principles",
           "Coding workflow understanding",
-          "Practice-question analysis",
+          "Coding example analysis",
+          "Practice-question interpretation",
         ],
 
         includes: [
-          "60 structured lessons",
-          "Medical coding modules",
-          "ICD-10-CM learning",
-          "CPT fundamentals",
-          "HCPCS fundamentals",
-          "Coding revision resources",
-          "Practice assessments",
+          "60 structured professional lessons",
+          "Medical terminology learning modules",
+          "Anatomy and physiology foundations",
+          "ICD-10-CM structured learning",
+          "Diagnosis coding fundamentals",
+          "CPT coding fundamentals",
+          "HCPCS coding fundamentals",
+          "Coding workflow education",
+          "Practice examples and assessments",
+          "Revision-focused learning resources",
           "Progress tracking",
           "Course completion pathway",
           "Certificate eligibility after completion",

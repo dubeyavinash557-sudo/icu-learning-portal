@@ -5,7 +5,9 @@ export default function ABGPage() {
     <CourseLandingPage
       course={{
         title: "ABG Analysis Master Course",
+
         shortTitle: "ABG Analysis",
+
         category: "Critical Care • ABG & Acid–Base",
 
         description:
@@ -37,29 +39,37 @@ export default function ABGPage() {
         modules: [
           {
             title: "ABG Fundamentals",
+
             description:
               "Understand ABG indications, arterial sampling principles, normal values, report components and the clinical purpose of arterial blood gas testing.",
+
             lessons: 8,
           },
 
           {
             title: "Acid–Base Balance",
+
             description:
               "Build a strong foundation in pH, PaCO₂, HCO₃⁻, bicarbonate buffering and the physiological principles behind acid–base disorders.",
+
             lessons: 10,
           },
 
           {
             title: "Step-by-Step ABG Interpretation",
+
             description:
               "Learn a structured method for analysing pH, respiratory status, metabolic status, compensation and oxygenation without relying on guesswork.",
+
             lessons: 12,
           },
 
           {
             title: "Clinical ABG Case Practice",
+
             description:
               "Apply the interpretation framework to ICU-oriented clinical scenarios and develop confidence in identifying common acid–base patterns.",
+
             lessons: 10,
           },
         ],

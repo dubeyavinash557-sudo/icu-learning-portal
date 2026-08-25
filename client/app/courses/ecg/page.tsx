@@ -7,79 +7,105 @@ export default function ECGPage() {
         title: "ECG Interpretation Master Course",
         shortTitle: "ECG Interpretation",
         category: "Critical Care • Cardiac",
+
         description:
-          "Build a systematic approach to ECG interpretation, rhythm recognition and emergency cardiac assessment for critical-care learning.",
+          "A structured premium ECG learning program covering 12-lead ECG fundamentals, waveform analysis, intervals, rhythm interpretation and clinically important emergency ECG patterns.",
+
         longDescription:
-          "Learn ECG fundamentals, cardiac rhythms, intervals, waveform interpretation and clinically important emergency patterns.",
+          "Designed as a professional critical-care learning pathway for healthcare learners who want to develop a systematic approach to ECG interpretation, cardiac rhythm recognition and emergency cardiac assessment.",
+
         instructor: "ICU Learning Portal Faculty",
+
         level: "Intermediate",
+
         duration: "10+ Hours",
+
         lessons: 45,
+
         students: "1,500+",
+
         rating: 4.9,
+
         price: "₹2,499",
+
         originalPrice: "₹3,499",
+
+        // All courses are premium.
         isPremium: true,
+
         accent: "blue",
 
         modules: [
           {
-            title: "ECG Fundamentals",
+            title: "ECG Fundamentals & 12-Lead Basics",
             description:
-              "Understand ECG equipment, paper, calibration, leads and recording principles.",
+              "Learn ECG equipment, ECG paper, calibration, standard leads, electrode placement and the principles of accurate 12-lead ECG recording.",
             lessons: 8,
           },
+
           {
-            title: "Waveforms & Intervals",
+            title: "Waveforms, Intervals & ECG Measurements",
             description:
-              "Study P wave, PR interval, QRS complex, ST segment and T wave.",
+              "Understand P waves, PR interval, QRS complex, QT interval, ST segment and T waves with a structured measurement approach.",
             lessons: 10,
           },
+
           {
-            title: "Rhythm Interpretation",
+            title: "Cardiac Rhythm Interpretation",
             description:
-              "Develop a structured method for identifying common cardiac rhythms.",
+              "Develop a systematic method for assessing rate, rhythm, P waves, conduction and QRS morphology while recognising common cardiac rhythms.",
             lessons: 15,
           },
+
           {
             title: "Emergency ECG Recognition",
             description:
-              "Review clinically important emergency patterns and critical rhythm recognition.",
+              "Study important emergency ECG patterns and recognition principles for clinically significant rhythm and ST-segment abnormalities.",
             lessons: 12,
           },
         ],
 
         learningOutcomes: [
-          "Understand ECG recording fundamentals.",
-          "Identify normal ECG waves and intervals.",
-          "Calculate heart rate using common methods.",
-          "Analyse rhythm regularity and cardiac rate.",
-          "Recognise common arrhythmias.",
-          "Understand clinically important ST-segment changes.",
-          "Build a systematic ECG interpretation approach.",
-          "Practise ECG interpretation through clinical examples.",
+          "Understand professional ECG recording fundamentals.",
+          "Apply correct 12-lead ECG electrode-placement principles.",
+          "Identify normal ECG waves, intervals and segment characteristics.",
+          "Calculate heart rate using standard ECG methods.",
+          "Assess rhythm regularity and cardiac rate systematically.",
+          "Recognise common cardiac arrhythmias and conduction abnormalities.",
+          "Understand clinically important ST-segment and T-wave changes.",
+          "Develop a structured step-by-step ECG interpretation workflow.",
+          "Differentiate important normal and abnormal ECG patterns.",
+          "Apply ECG interpretation principles to clinical examples and case-based learning.",
         ],
 
         practicalSkills: [
           "12-lead ECG recording principles",
-          "Electrode placement",
+          "Electrode placement and lead identification",
+          "ECG paper and calibration assessment",
           "Heart-rate calculation",
-          "Rhythm analysis",
-          "Waveform identification",
-          "Interval assessment",
+          "Rhythm regularity assessment",
+          "P-wave and QRS analysis",
+          "PR and QT interval assessment",
+          "ST-segment evaluation",
           "Arrhythmia recognition",
           "Emergency ECG pattern recognition",
+          "Systematic ECG interpretation",
+          "Case-based ECG practice",
         ],
 
         includes: [
-          "Structured ECG video lessons",
-          "ECG interpretation notes",
-          "Rhythm practice",
-          "Clinical examples",
-          "Knowledge assessments",
-          "Progress tracking",
-          "Completion pathway",
+          "45 structured ECG lessons",
+          "Premium ECG video learning modules",
+          "Professional ECG interpretation notes",
+          "12-lead ECG learning resources",
+          "Rhythm recognition practice",
+          "Clinical ECG examples",
+          "Case-based learning exercises",
+          "Knowledge assessments and quizzes",
+          "Learning progress tracking",
+          "Structured course completion pathway",
           "Certificate eligibility after completion",
+          "Premium learning access through ICU Learning Portal",
         ],
       }}
     />
