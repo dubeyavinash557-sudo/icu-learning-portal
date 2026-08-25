@@ -1,7 +1,5 @@
 "use client";
 
-import { student } from "@/data/dashboard";
-
 import {
   Award,
   Flame,
@@ -13,7 +11,27 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-export default function StudentProfile() {
+type StudentProfileProps = {
+  fullName: string;
+  email: string;
+  hospital: string;
+  qualification: string;
+  experience: string;
+  isPremium: boolean;
+  streak: number;
+  overallProgress: number;
+};
+
+export default function StudentProfile({
+  fullName,
+  email,
+  hospital,
+  qualification,
+  experience,
+  isPremium,
+  streak,
+  overallProgress,
+}: StudentProfileProps) {
   return (
     <div
       className="
@@ -72,7 +90,7 @@ export default function StudentProfile() {
 
           {/* Name */}
           <h2 className="mt-4 text-center text-2xl font-bold">
-            {student.name}
+            {fullName}
           </h2>
 
           {/* Email */}
@@ -80,31 +98,56 @@ export default function StudentProfile() {
             <Mail size={16} />
 
             <span className="break-all">
-              {student.email}
+              {email}
             </span>
           </p>
 
           {/* Membership */}
-          <div
-            className="
-              mt-4
-              inline-flex
-              items-center
-              gap-2
-              rounded-full
-              bg-yellow-400
-              px-4
-              py-2
-              text-sm
-              font-bold
-              text-yellow-900
-              shadow-lg
-            "
-          >
-            <Crown size={18} />
+          {isPremium && (
+            <div
+              className="
+                mt-4
+                inline-flex
+                items-center
+                gap-2
+                rounded-full
+                bg-yellow-400
+                px-4
+                py-2
+                text-sm
+                font-bold
+                text-yellow-900
+                shadow-lg
+              "
+            >
+              <Crown size={18} />
 
-            {student.membership} Member
-          </div>
+              Premium Member
+            </div>
+          )}
+
+          {!isPremium && (
+            <div
+              className="
+                mt-4
+                inline-flex
+                items-center
+                gap-2
+                rounded-full
+                bg-white/20
+                px-4
+                py-2
+                text-sm
+                font-bold
+                text-white
+                shadow-lg
+                ring-1
+                ring-white/20
+              "
+            >
+              Student Member
+            </div>
+          )}
         </div>
       </div>
 
@@ -113,31 +156,31 @@ export default function StudentProfile() {
         <InfoRow
           icon={<Hospital size={18} />}
           label="Hospital"
-          value={student.hospital}
+          value={hospital}
         />
 
         <InfoRow
           icon={<GraduationCap size={18} />}
           label="Qualification"
-          value="GNM Nursing"
+          value={qualification}
         />
 
         <InfoRow
           icon={<Award size={18} />}
           label="ICU Experience"
-          value={student.experience}
+          value={experience}
         />
 
         <InfoRow
           icon={<Flame size={18} />}
           label="Learning Streak"
-          value={`🔥 ${student.streak} Days`}
+          value={`${streak} Days`}
         />
 
         <InfoRow
           icon={<TrendingUp size={18} />}
-          label="Overall Rank"
-          value="Top 5%"
+          label="Overall Progress"
+          value={`${overallProgress}%`}
         />
 
         {/* Course Progress */}
@@ -148,7 +191,7 @@ export default function StudentProfile() {
             </span>
 
             <span className="text-slate-900 dark:text-white">
-              78%
+              {overallProgress}%
             </span>
           </div>
 
@@ -165,7 +208,6 @@ export default function StudentProfile() {
             <div
               className="
                 h-full
-                w-[78%]
                 rounded-full
                 bg-gradient-to-r
                 from-blue-600
@@ -173,6 +215,9 @@ export default function StudentProfile() {
                 transition-all
                 duration-500
               "
+              style={{
+                width: `${overallProgress}%`,
+              }}
             />
           </div>
         </div>

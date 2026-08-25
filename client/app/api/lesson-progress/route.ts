@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     if (!session?.user?.email) {
       return NextResponse.json(
         {
-          message: "Unauthorized",
+          message: "Unauthorized.",
         },
         {
           status: 401,
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const lessonId = body.lessonId.trim();
 
     // --------------------------------------------------
-    // 3. Find User
+    // 3. Find Authenticated User
     // --------------------------------------------------
 
     const user = await prisma.user.findUnique({
@@ -116,8 +116,12 @@ export async function POST(req: Request) {
       );
     }
 
+    const course = lesson.course;
+
     // --------------------------------------------------
     // 5. Verify Enrollment
+    //
+    // Enrollment alone is NOT enough for paid courses.
     // --------------------------------------------------
 
     const enrollment =
@@ -125,15 +129,24 @@ export async function POST(req: Request) {
         where: {
           userId_courseId: {
             userId: user.id,
-            courseId: lesson.courseId,
+            courseId: course.id,
           },
+        },
+        select: {
+          id: true,
+          userId: true,
+          courseId: true,
+          progress: true,
+          completed: true,
+          enrolledAt: true,
         },
       });
 
     if (!enrollment) {
       return NextResponse.json(
         {
-          message: "Course not enrolled.",
+          message:
+            "You are not enrolled in this course.",
         },
         {
           status: 403,
@@ -142,11 +155,181 @@ export async function POST(req: Request) {
     }
 
     // --------------------------------------------------
-    // 6. Course Lesson Count
+    // 6. PAYMENT ACCESS CONTROL
+    //
+    // FREE COURSE:
+    //
+    // price === 0
+    // AND
+    // isPremium === false
+    //
+    // -> Payment is NOT required.
+    //
+    // PAID / PREMIUM COURSE:
+    //
+    // -> Successful payment is REQUIRED.
+    // --------------------------------------------------
+
+    const isFreeCourse =
+      course.price === 0 &&
+      course.isPremium === false;
+
+    if (!isFreeCourse) {
+      /*
+       * Paid/premium courses can only be accessed
+       * after a successful payment belonging to
+       * this authenticated user and this exact course.
+       */
+      const successfulPayment =
+        await prisma.payment.findFirst({
+          where: {
+            userId: user.id,
+            courseId: course.id,
+            status: "SUCCESS",
+          },
+          select: {
+            id: true,
+            amount: true,
+            status: true,
+            razorpayOrderId: true,
+            razorpayPaymentId: true,
+            transactionId: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
+
+      if (!successfulPayment) {
+        console.error(
+          "LESSON PROGRESS PAYMENT ACCESS DENIED:",
+          {
+            userId: user.id,
+            courseId: course.id,
+            lessonId: lesson.id,
+            reason:
+              "No successful payment found.",
+          }
+        );
+
+        return NextResponse.json(
+          {
+            message:
+              "Payment is required before accessing this course.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      // ------------------------------------------------
+      // 7. Verify Successful Payment Amount
+      // ------------------------------------------------
+      //
+      // The payment amount must match the current
+      // course price.
+      //
+      // Razorpay uses paise, therefore compare using
+      // integer paise values to avoid Float issues.
+      // ------------------------------------------------
+
+      const paymentAmountInPaise =
+        Math.round(
+          successfulPayment.amount * 100
+        );
+
+      const courseAmountInPaise =
+        Math.round(course.price * 100);
+
+      if (
+        !Number.isSafeInteger(
+          paymentAmountInPaise
+        ) ||
+        !Number.isSafeInteger(
+          courseAmountInPaise
+        ) ||
+        paymentAmountInPaise !==
+          courseAmountInPaise
+      ) {
+        console.error(
+          "LESSON PROGRESS PAYMENT AMOUNT MISMATCH:",
+          {
+            userId: user.id,
+            courseId: course.id,
+            paymentId:
+              successfulPayment.id,
+            paymentAmount:
+              successfulPayment.amount,
+            coursePrice:
+              course.price,
+          }
+        );
+
+        return NextResponse.json(
+          {
+            message:
+              "Payment amount does not match the course price.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      // ------------------------------------------------
+      // 8. Verify Payment Has Razorpay Transaction Data
+      // ------------------------------------------------
+      //
+      // SUCCESS payments created by our payment flow
+      // should have Razorpay transaction identifiers.
+      // ------------------------------------------------
+
+      if (
+        !successfulPayment.razorpayPaymentId &&
+        !successfulPayment.transactionId
+      ) {
+        console.error(
+          "LESSON PROGRESS PAYMENT TRANSACTION MISSING:",
+          {
+            userId: user.id,
+            courseId: course.id,
+            paymentId:
+              successfulPayment.id,
+          }
+        );
+
+        return NextResponse.json(
+          {
+            message:
+              "Payment verification is incomplete.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      console.log(
+        "LESSON PROGRESS PAYMENT VERIFIED:",
+        {
+          userId: user.id,
+          courseId: course.id,
+          lessonId: lesson.id,
+          paymentId:
+            successfulPayment.id,
+          razorpayPaymentId:
+            successfulPayment.razorpayPaymentId,
+        }
+      );
+    }
+
+    // --------------------------------------------------
+    // 9. Course Lesson Count
     // --------------------------------------------------
 
     const totalLessons =
-      lesson.course.lessons.length;
+      course.lessons.length;
 
     if (totalLessons === 0) {
       return NextResponse.json(
@@ -161,16 +344,9 @@ export async function POST(req: Request) {
     }
 
     // --------------------------------------------------
-    // 7. Mark Lesson as Completed
+    // 10. Mark Lesson as Completed
     //
-    // IMPORTANT:
-    // Use UPSERT instead of CREATE-only.
-    //
-    // If progress record does not exist:
-    //   -> create it
-    //
-    // If progress record already exists:
-    //   -> update it to completed=true
+    // UPSERT prevents duplicate progress records.
     // --------------------------------------------------
 
     await prisma.lessonProgress.upsert({
@@ -195,7 +371,7 @@ export async function POST(req: Request) {
     });
 
     // --------------------------------------------------
-    // 8. Count Completed Lessons
+    // 11. Count Completed Lessons
     // --------------------------------------------------
 
     const completedLessons =
@@ -204,19 +380,20 @@ export async function POST(req: Request) {
           userId: user.id,
           completed: true,
           lesson: {
-            courseId: lesson.courseId,
+            courseId: course.id,
           },
         },
       });
 
     // --------------------------------------------------
-    // 9. Calculate Course Progress
+    // 12. Calculate Course Progress
     // --------------------------------------------------
 
     const progress = Math.min(
       100,
       Math.round(
-        (completedLessons / totalLessons) * 100
+        (completedLessons / totalLessons) *
+          100
       )
     );
 
@@ -227,7 +404,7 @@ export async function POST(req: Request) {
       "LESSON PROGRESS:",
       {
         userId: user.id,
-        courseId: lesson.courseId,
+        courseId: course.id,
         lessonId: lesson.id,
         completedLessons,
         totalLessons,
@@ -237,14 +414,14 @@ export async function POST(req: Request) {
     );
 
     // --------------------------------------------------
-    // 10. Update Enrollment
+    // 13. Update Enrollment
     // --------------------------------------------------
 
     await prisma.enrollment.update({
       where: {
         userId_courseId: {
           userId: user.id,
-          courseId: lesson.courseId,
+          courseId: course.id,
         },
       },
 
@@ -255,7 +432,7 @@ export async function POST(req: Request) {
     });
 
     // --------------------------------------------------
-    // 11. Create Certificate When Course Completes
+    // 14. Create Certificate When Course Completes
     // --------------------------------------------------
 
     if (courseCompleted) {
@@ -263,7 +440,7 @@ export async function POST(req: Request) {
         await prisma.certificate.findFirst({
           where: {
             userId: user.id,
-            courseId: lesson.courseId,
+            courseId: course.id,
           },
           select: {
             id: true,
@@ -272,13 +449,16 @@ export async function POST(req: Request) {
         });
 
       if (!existingCertificate) {
+        const certificateNo =
+          `ICU-${Date.now()}-${user.id.slice(
+            -6
+          )}`;
+
         await prisma.certificate.create({
           data: {
             userId: user.id,
-            courseId: lesson.courseId,
-            certificateNo: `ICU-${Date.now()}-${user.id.slice(
-              -6
-            )}`,
+            courseId: course.id,
+            certificateNo,
           },
         });
 
@@ -286,13 +466,16 @@ export async function POST(req: Request) {
           "CERTIFICATE CREATED:",
           {
             userId: user.id,
-            courseId: lesson.courseId,
+            courseId: course.id,
+            certificateNo,
           }
         );
       } else {
         console.log(
           "CERTIFICATE ALREADY EXISTS:",
           {
+            userId: user.id,
+            courseId: course.id,
             certificateNo:
               existingCertificate.certificateNo,
           }
@@ -301,7 +484,7 @@ export async function POST(req: Request) {
     }
 
     // --------------------------------------------------
-    // 12. Success Response
+    // 15. Success Response
     // --------------------------------------------------
 
     return NextResponse.json({

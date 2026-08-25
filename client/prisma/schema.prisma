@@ -13,10 +13,10 @@ enum Role {
 }
 
 model User {
-  id            String @id @default(cuid())
+  id            String   @id @default(cuid())
   fullName      String
-  email         String @unique
-  mobile        String @unique
+  email         String   @unique
+  mobile        String   @unique
   qualification String
   hospital      String
   password      String
@@ -29,11 +29,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  enrollments    Enrollment[]
-  certificates   Certificate[]
-  payments       Payment[]
-  lessonProgress LessonProgress[]
-  quizAttempts   QuizAttempt[]
+  enrollments      Enrollment[]
+  certificates     Certificate[]
+  payments         Payment[]
+  lessonProgress   LessonProgress[]
+  quizAttempts     QuizAttempt[]
   passwordResetTokens PasswordResetToken[]
 }
 
@@ -44,21 +44,16 @@ model Course {
   slug        String @unique
   description String
 
-  image String
-
+  image      String
   instructor String
 
-  price Float
-
+  price    Float
   duration Int
 
   language String @default("Hindi")
-
-  level String @default("Beginner")
-
-  rating Float @default(5)
-
-  students Int @default(0)
+  level    String @default("Beginner")
+  rating   Float  @default(5)
+  students Int    @default(0)
 
   isPremium Boolean @default(true)
 
@@ -74,23 +69,22 @@ model Course {
 model Lesson {
   id String @id @default(cuid())
 
-  title String
-
+  title       String
   description String
-
-  videoUrl String
-
-  notesUrl String?
-
-  duration Int
-
+  videoUrl    String
+  notesUrl    String?
+  duration    Int
   lessonOrder Int
 
   createdAt DateTime @default(now())
 
   courseId String
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course Course @relation(
+    fields: [courseId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   progress LessonProgress[]
 }
@@ -98,19 +92,25 @@ model Lesson {
 model Enrollment {
   id String @id @default(cuid())
 
-  userId String
-
+  userId   String
   courseId String
 
-  progress Int @default(0)
-
+  progress  Int     @default(0)
   completed Boolean @default(false)
 
   enrolledAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course Course @relation(
+    fields: [courseId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   @@unique([userId, courseId])
 }
@@ -122,7 +122,6 @@ model Payment {
   courseId String?
 
   amount Float
-
   status String
 
   paymentMethod String?
@@ -135,34 +134,56 @@ model Payment {
 
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  course Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  course Course? @relation(
+    fields: [courseId],
+    references: [id],
+    onDelete: SetNull
+  )
 }
 
 model Certificate {
   id String @id @default(cuid())
 
-  userId String
-
+  userId   String
   courseId String
 
   certificateNo String @unique
 
   issuedAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course Course @relation(
+    fields: [courseId],
+    references: [id],
+    onDelete: Cascade
+  )
 }
 
 model Quiz {
-  id          String  @id @default(cuid())
+  id String @id @default(cuid())
+
   title       String
   description String?
-  courseId    String
 
-  course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+
+  course Course @relation(
+    fields: [courseId],
+    references: [id],
+    onDelete: Cascade
+  )
+
   questions    QuizQuestion[]
   quizAttempts QuizAttempt[]
 
@@ -171,7 +192,8 @@ model Quiz {
 }
 
 model QuizQuestion {
-  id     String @id @default(cuid())
+  id String @id @default(cuid())
+
   quizId String
 
   question String
@@ -187,9 +209,13 @@ model QuizQuestion {
 
   marks Int @default(1)
 
-  attemptAnswers QuizAttemptAnswer[]
+  quiz Quiz @relation(
+    fields: [quizId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  attemptAnswers QuizAttemptAnswer[]
 }
 
 model QuizAttempt {
@@ -198,17 +224,25 @@ model QuizAttempt {
   userId String
   quizId String
 
-  score Int
-  total Int
-
+  score      Int
+  total      Int
   percentage Float
 
   passed Boolean @default(false)
 
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  quiz Quiz @relation(
+    fields: [quizId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   answers QuizAttemptAnswer[]
 
@@ -228,9 +262,17 @@ model QuizAttemptAnswer {
 
   marks Int @default(0)
 
-  attempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  attempt QuizAttempt @relation(
+    fields: [attemptId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  question QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  question QuizQuestion @relation(
+    fields: [questionId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   @@unique([attemptId, questionId])
 }
@@ -238,8 +280,7 @@ model QuizAttemptAnswer {
 model LessonProgress {
   id String @id @default(cuid())
 
-  userId String
-
+  userId   String
   lessonId String
 
   completed Boolean @default(false)
@@ -248,9 +289,17 @@ model LessonProgress {
 
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
 
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(
+    fields: [lessonId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   @@unique([userId, lessonId])
 }
@@ -258,8 +307,7 @@ model LessonProgress {
 model PaymentWebhookEvent {
   id String @id @default(cuid())
 
-  eventId String @unique
-
+  eventId   String @unique
   eventType String
 
   razorpayOrderId   String?
@@ -269,7 +317,7 @@ model PaymentWebhookEvent {
 
   processed Boolean @default(false)
 
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime @default(now())
   processedAt DateTime?
 }
 
@@ -281,12 +329,15 @@ model PasswordResetToken {
   tokenHash String @unique
 
   expiresAt DateTime
-
-  usedAt DateTime?
+  usedAt    DateTime?
 
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
 
   @@index([userId])
   @@index([expiresAt])

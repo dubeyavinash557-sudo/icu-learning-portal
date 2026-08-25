@@ -1,84 +1,157 @@
 "use client";
 
-import { BookOpen, PlayCircle, TrendingUp } from "lucide-react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  PlayCircle,
+} from "lucide-react";
 
-type Props = {
-  courseTitle: string;
+type ContinueLearningProps = {
+  courseTitle?: string | null;
+  courseId: string | null;
+  nextLessonId: string | null;
+  nextLessonTitle?: string | null;
   progress: number;
   completedLessons: number;
   totalLessons: number;
 };
 
+function clampProgress(value: number) {
+  return Math.min(100, Math.max(0, value));
+}
+
 export default function ContinueLearning({
   courseTitle,
+  courseId,
+  nextLessonId,
+  nextLessonTitle,
   progress,
   completedLessons,
   totalLessons,
-}: Props) {
+}: ContinueLearningProps) {
+  const safeProgress = clampProgress(progress);
+
+  const safeCompletedLessons = Math.max(
+    0,
+    completedLessons
+  );
+
+  const safeTotalLessons = Math.max(0, totalLessons);
+
+  const remainingLessons = Math.max(
+    0,
+    safeTotalLessons - safeCompletedLessons
+  );
+
+  const hasCourse = Boolean(courseId);
+
+  const continueHref =
+    courseId && nextLessonId
+      ? `/courses/${courseId}/lesson/${nextLessonId}`
+      : courseId
+      ? `/courses/${courseId}`
+      : "/courses";
+
+  const isCompleted =
+    hasCourse &&
+    safeTotalLessons > 0 &&
+    safeCompletedLessons >= safeTotalLessons;
+
   return (
-    <section className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white shadow-xl">
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-
-        {/* Left */}
-        <div className="flex-1">
-          <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium">
-            <TrendingUp size={18} />
+        <div className="min-w-0 flex-1">
+          <div className="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-cyan-700">
+            <BookOpen size={15} />
             Continue Learning
-          </span>
+          </div>
 
-          <h2 className="mt-5 text-3xl font-bold">
-            {courseTitle}
+          <h2 className="mt-4 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+            {hasCourse
+              ? courseTitle || "Your enrolled course"
+              : "Start your learning journey"}
           </h2>
 
-          <p className="mt-3 max-w-2xl leading-7 text-blue-100">
-            Continue your learning journey and complete the remaining lessons.
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+            {hasCourse
+              ? isCompleted
+                ? "You have completed all available lessons in this course."
+                : nextLessonTitle
+                ? `Next lesson: ${nextLessonTitle}`
+                : "Continue from where you stopped."
+              : "Explore structured ICU courses and enrol in a programme that fits your learning goals."}
           </p>
 
-          <div className="mt-8">
-            <div className="mb-2 flex justify-between text-sm">
-              <span>Course Progress</span>
-              <span>{progress}%</span>
-            </div>
+          {hasCourse && (
+            <div className="mt-7 max-w-2xl">
+              <div className="mb-2 flex items-center justify-between gap-4 text-sm font-bold text-slate-700">
+                <span>Course progress</span>
 
-            <div className="h-3 w-full overflow-hidden rounded-full bg-white/20">
-              <div
-                className="h-full rounded-full bg-white transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+                <span>{safeProgress}%</span>
+              </div>
 
-            <div className="mt-3 flex justify-between text-sm text-blue-100">
-              <span>
-                {completedLessons} / {totalLessons} Lessons Completed
-              </span>
+              <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-700 transition-all duration-500"
+                  style={{
+                    width: `${safeProgress}%`,
+                  }}
+                />
+              </div>
 
-              <span>
-                {totalLessons - completedLessons} Lessons Remaining
-              </span>
+              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-slate-500 sm:text-sm">
+                <span>
+                  {safeCompletedLessons}/{safeTotalLessons}{" "}
+                  lessons completed
+                </span>
+
+                <span>
+                  {remainingLessons} lessons remaining
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Right */}
-        <div className="w-full rounded-3xl bg-white p-6 text-gray-900 shadow-2xl lg:w-96">
-          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100">
-            <BookOpen className="text-blue-600" size={32} />
+        <div className="w-full shrink-0 rounded-2xl border border-slate-200 bg-slate-50 p-5 lg:w-80">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-700 text-white">
+            {isCompleted ? (
+              <CheckCircle2 size={22} />
+            ) : (
+              <PlayCircle size={22} />
+            )}
           </div>
 
-          <h3 className="text-2xl font-bold">
-            Resume Course
+          <h3 className="mt-4 text-lg font-black text-slate-950">
+            {isCompleted
+              ? "Course completed"
+              : hasCourse
+              ? "Resume your course"
+              : "Choose a course"}
           </h3>
 
-          <p className="mt-2 text-gray-500">
-            Pick up where you left off and continue your learning.
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {isCompleted
+              ? "Review the course content or view your certificate status."
+              : hasCourse
+              ? "Open your next available lesson."
+              : "Browse the available ICU learning programmes."}
           </p>
 
-          <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700">
-            <PlayCircle size={20} />
-            Continue Learning
-          </button>
+          <Link
+            href={continueHref}
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-800"
+          >
+            {isCompleted
+              ? "Review Course"
+              : hasCourse
+              ? "Continue Learning"
+              : "Explore Courses"}
+            <ArrowRight size={17} />
+          </Link>
         </div>
-
       </div>
     </section>
   );

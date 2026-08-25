@@ -1,117 +1,87 @@
+import CourseLandingPage from "../_components/CourseLandingPage";
+
 export default function ECGPage() {
   return (
-    <main className="min-h-screen bg-gray-100 py-10">
-      <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8">
+    <CourseLandingPage
+      course={{
+        title: "ECG Interpretation Master Course",
+        shortTitle: "ECG Interpretation",
+        category: "Critical Care • Cardiac",
+        description:
+          "Build a systematic approach to ECG interpretation, rhythm recognition and emergency cardiac assessment for critical-care learning.",
+        longDescription:
+          "Learn ECG fundamentals, cardiac rhythms, intervals, waveform interpretation and clinically important emergency patterns.",
+        instructor: "ICU Learning Portal Faculty",
+        level: "Intermediate",
+        duration: "10+ Hours",
+        lessons: 45,
+        students: "1,500+",
+        rating: 4.9,
+        price: "₹2,499",
+        originalPrice: "₹3,499",
+        isPremium: true,
+        accent: "blue",
 
-        {/* Title */}
-        <h1 className="text-4xl font-bold text-blue-700 mb-4">
-          ECG Full Course
-        </h1>
+        modules: [
+          {
+            title: "ECG Fundamentals",
+            description:
+              "Understand ECG equipment, paper, calibration, leads and recording principles.",
+            lessons: 8,
+          },
+          {
+            title: "Waveforms & Intervals",
+            description:
+              "Study P wave, PR interval, QRS complex, ST segment and T wave.",
+            lessons: 10,
+          },
+          {
+            title: "Rhythm Interpretation",
+            description:
+              "Develop a structured method for identifying common cardiac rhythms.",
+            lessons: 15,
+          },
+          {
+            title: "Emergency ECG Recognition",
+            description:
+              "Review clinically important emergency patterns and critical rhythm recognition.",
+            lessons: 12,
+          },
+        ],
 
-        {/* Description */}
-        <p className="text-gray-700 text-lg mb-8">
-          Learn ECG Interpretation from Basic to Advanced with practical ICU nursing knowledge,
-          cardiac rhythms, ECG analysis, emergency ECG management and patient monitoring.
-        </p>
-        {/* Course Overview */}
-<section className="mb-8">
-  <h2 className="text-2xl font-semibold text-gray-800 mb-3">
-    📚 Course Overview
-  </h2>
+        learningOutcomes: [
+          "Understand ECG recording fundamentals.",
+          "Identify normal ECG waves and intervals.",
+          "Calculate heart rate using common methods.",
+          "Analyse rhythm regularity and cardiac rate.",
+          "Recognise common arrhythmias.",
+          "Understand clinically important ST-segment changes.",
+          "Build a systematic ECG interpretation approach.",
+          "Practise ECG interpretation through clinical examples.",
+        ],
 
-  <ul className="list-disc ml-6 text-gray-700 space-y-2">
-    <li>Introduction to ECG</li>
-    <li>Cardiac Anatomy & Physiology</li>
-    <li>ECG Paper and Leads</li>
-    <li>Heart Rate Calculation</li>
-    <li>Normal ECG Waveforms (P, QRS, T)</li>
-    <li>ECG Rhythm Interpretation</li>
-    <li>Common Arrhythmias</li>
-    <li>Emergency ECG Recognition</li>
-  </ul>
-</section>{/* ECG Modules */}
-<section className="mb-8">
-  <h2 className="text-2xl font-semibold text-gray-800 mb-3">
-    ❤️ ECG Modules
-  </h2>
+        practicalSkills: [
+          "12-lead ECG recording principles",
+          "Electrode placement",
+          "Heart-rate calculation",
+          "Rhythm analysis",
+          "Waveform identification",
+          "Interval assessment",
+          "Arrhythmia recognition",
+          "Emergency ECG pattern recognition",
+        ],
 
-  <div className="grid md:grid-cols-2 gap-4">
-
-    <div className="bg-blue-50 p-4 rounded-lg">
-      <h3 className="font-bold text-blue-700">
-        Module 1: ECG Basics
-      </h3>
-      <p className="text-gray-700">
-        Introduction, ECG machine, leads and paper.
-      </p>
-    </div>
-
-    <div className="bg-green-50 p-4 rounded-lg">
-      <h3 className="font-bold text-green-700">
-        Module 2: ECG Interpretation
-      </h3>
-      <p className="text-gray-700">
-        P Wave, PR Interval, QRS Complex, ST Segment and T Wave.
-      </p>
-    </div>
-
-    <div className="bg-yellow-50 p-4 rounded-lg">
-      <h3 className="font-bold text-yellow-700">
-        Module 3: Cardiac Rhythms
-      </h3>
-      <p className="text-gray-700">
-        Normal Sinus Rhythm, Bradycardia, Tachycardia and Arrhythmias.
-      </p>
-    </div>
-
-    <div className="bg-red-50 p-4 rounded-lg">
-      <h3 className="font-bold text-red-700">
-        Module 4: Emergency ECG
-      </h3>
-      <p className="text-gray-700">
-        STEMI, NSTEMI, Heart Block, VF, VT and ACLS ECG Recognition.
-      </p>
-    </div>
-
-  </div>
-</section>
-{/* Practical ECG Skills */}
-<section className="mb-8">
-
-  <h2 className="text-2xl font-semibold text-gray-800 mb-3">
-    🩺 Practical ECG Skills
-  </h2>
-
-  <ul className="list-disc ml-6 text-gray-700 space-y-2">
-    <li>12 Lead ECG Recording</li>
-    <li>ECG Electrode Placement</li>
-    <li>Heart Rate Calculation</li>
-    <li>Rhythm Analysis</li>
-    <li>ECG Interpretation Practice</li>
-    <li>Emergency ECG Recognition</li>
-  </ul>
-
-</section>
-{/* Buttons */}
-<div className="mt-8 text-center space-y-4">
-
-  <a
-    href="/pdfs/ecg-notes.pdf"
-    target="_blank"
-    className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
-  >
-    📄 Download ECG Notes PDF
-  </a>
-
-  <br />
-
-  <button className="bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800">
-    ▶ Start ECG Course
-  </button>
-
-</div>
-
-      </div>
-    </main>
+        includes: [
+          "Structured ECG video lessons",
+          "ECG interpretation notes",
+          "Rhythm practice",
+          "Clinical examples",
+          "Knowledge assessments",
+          "Progress tracking",
+          "Completion pathway",
+          "Certificate eligibility after completion",
+        ],
+      }}
+    />
   );
 }

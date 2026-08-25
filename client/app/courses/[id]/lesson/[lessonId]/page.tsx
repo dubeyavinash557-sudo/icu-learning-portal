@@ -29,16 +29,45 @@ type Props = {
   }>;
 };
 
-export default async function LessonPage({
-  params,
-}: Props) {
+export default async function LessonPage({ params }: Props) {
   const { id, lessonId } = await params;
 
-  /*
-   * ==========================================================
-   * 1. COURSE + LESSONS
-   * ==========================================================
-   */
+  // ==========================================================
+  // 1. AUTHENTICATION
+  // ==========================================================
+
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    redirect(
+      `/login?callbackUrl=${encodeURIComponent(
+        `/courses/${id}/lesson/${lessonId}`
+      )}`
+    );
+  }
+
+  // ==========================================================
+  // 2. CURRENT USER
+  // ==========================================================
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+    },
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // ==========================================================
+  // 3. COURSE + LESSONS
+  // ==========================================================
 
   const course = await prisma.course.findUnique({
     where: {
@@ -57,11 +86,9 @@ export default async function LessonPage({
     notFound();
   }
 
-  /*
-   * ==========================================================
-   * 2. CURRENT LESSON
-   * ==========================================================
-   */
+  // ==========================================================
+  // 4. CURRENT LESSON
+  // ==========================================================
 
   const lesson = course.lessons.find(
     (item) => item.id === lessonId
@@ -71,48 +98,27 @@ export default async function LessonPage({
     notFound();
   }
 
-  /*
-   * ==========================================================
-   * 3. AUTHENTICATION
-   * ==========================================================
-   */
+  // ==========================================================
+  // 5. DETERMINE FREE / PAID COURSE
+  //
+  // A course is genuinely free ONLY when:
+  //
+  // price === 0
+  // AND
+  // isPremium === false
+  //
+  // Everything else requires successful payment.
+  // ==========================================================
 
-  const session = await auth();
+  const isFreeCourse =
+    course.price === 0 &&
+    course.isPremium === false;
 
-  if (!session?.user?.email) {
-    redirect(
-      `/login?callbackUrl=${encodeURIComponent(
-        `/courses/${course.id}/lesson/${lesson.id}`
-      )}`
-    );
-  }
-
-  /*
-   * ==========================================================
-   * 4. CURRENT USER
-   * ==========================================================
-   */
-
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session.user.email,
-    },
-    select: {
-      id: true,
-      fullName: true,
-      email: true,
-    },
-  });
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  /*
-   * ==========================================================
-   * 5. ENROLLMENT
-   * ==========================================================
-   */
+  // ==========================================================
+  // 6. ENROLLMENT
+  //
+  // Enrollment is required for ALL courses.
+  // ==========================================================
 
   const enrollment =
     await prisma.enrollment.findUnique({
@@ -122,21 +128,230 @@ export default async function LessonPage({
           courseId: course.id,
         },
       },
+      select: {
+        id: true,
+        userId: true,
+        courseId: true,
+        progress: true,
+        completed: true,
+        enrolledAt: true,
+      },
     });
 
-  /*
-   * Only enrolled students can access lessons.
-   */
-
   if (!enrollment) {
+    console.warn(
+      "LESSON ACCESS DENIED - NO ENROLLMENT:",
+      {
+        userId: user.id,
+        courseId: course.id,
+        lessonId: lesson.id,
+      }
+    );
+
     redirect(`/courses/${course.id}`);
   }
 
-  /*
-   * ==========================================================
-   * 6. ALL LESSON PROGRESS
-   * ==========================================================
-   */
+  // ==========================================================
+  // 7. PAID COURSE PAYMENT SECURITY
+  //
+  // Enrollment alone is NEVER enough for a paid course.
+  //
+  // Paid course access requires:
+  //
+  // 1. Payment belongs to current user
+  // 2. Payment belongs to current course
+  // 3. Payment status = SUCCESS
+  // 4. Payment amount = current course price
+  // 5. Razorpay payment ID exists
+  // 6. Razorpay order ID exists
+  // ==========================================================
+
+  if (!isFreeCourse) {
+    const successfulPayment =
+      await prisma.payment.findFirst({
+        where: {
+          userId: user.id,
+          courseId: course.id,
+          status: "SUCCESS",
+          razorpayPaymentId: {
+            not: null,
+          },
+          razorpayOrderId: {
+            not: null,
+          },
+        },
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          razorpayOrderId: true,
+          razorpayPaymentId: true,
+          transactionId: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+    // --------------------------------------------------------
+    // NO SUCCESSFUL PAYMENT
+    // --------------------------------------------------------
+
+    if (!successfulPayment) {
+      console.error(
+        "LESSON PAGE PAYMENT ACCESS DENIED:",
+        {
+          userId: user.id,
+          courseId: course.id,
+          lessonId: lesson.id,
+          reason:
+            "No verified successful Razorpay payment found.",
+        }
+      );
+
+      redirect(`/courses/${course.id}`);
+    }
+
+    // --------------------------------------------------------
+    // VERIFY PAYMENT STATUS
+    // --------------------------------------------------------
+
+    if (
+      successfulPayment.status.toUpperCase() !==
+      "SUCCESS"
+    ) {
+      console.error(
+        "LESSON PAGE INVALID PAYMENT STATUS:",
+        {
+          userId: user.id,
+          courseId: course.id,
+          paymentId:
+            successfulPayment.id,
+          status:
+            successfulPayment.status,
+        }
+      );
+
+      redirect(`/courses/${course.id}`);
+    }
+
+    // --------------------------------------------------------
+    // VERIFY COURSE PRICE
+    //
+    // Payment amount is stored in INR.
+    // Razorpay amount is in paise.
+    // --------------------------------------------------------
+
+    const paymentAmountInPaise =
+      Math.round(
+        successfulPayment.amount * 100
+      );
+
+    const courseAmountInPaise =
+      Math.round(course.price * 100);
+
+    if (
+      !Number.isFinite(
+        successfulPayment.amount
+      ) ||
+      !Number.isSafeInteger(
+        paymentAmountInPaise
+      ) ||
+      !Number.isFinite(course.price) ||
+      !Number.isSafeInteger(
+        courseAmountInPaise
+      ) ||
+      paymentAmountInPaise !==
+        courseAmountInPaise
+    ) {
+      console.error(
+        "LESSON PAGE PAYMENT AMOUNT MISMATCH:",
+        {
+          userId: user.id,
+          courseId: course.id,
+          paymentId:
+            successfulPayment.id,
+          paymentAmount:
+            successfulPayment.amount,
+          coursePrice:
+            course.price,
+        }
+      );
+
+      redirect(`/courses/${course.id}`);
+    }
+
+    // --------------------------------------------------------
+    // VERIFY RAZORPAY IDENTIFIERS
+    // --------------------------------------------------------
+
+    if (
+      !successfulPayment.razorpayOrderId ||
+      !successfulPayment.razorpayPaymentId
+    ) {
+      console.error(
+        "LESSON PAGE RAZORPAY IDENTIFIERS MISSING:",
+        {
+          userId: user.id,
+          courseId: course.id,
+          paymentId:
+            successfulPayment.id,
+        }
+      );
+
+      redirect(`/courses/${course.id}`);
+    }
+
+    // --------------------------------------------------------
+    // VERIFY TRANSACTION ID
+    //
+    // Our successful verification/webhook flow stores
+    // Razorpay payment ID as transactionId.
+    // --------------------------------------------------------
+
+    if (
+      !successfulPayment.transactionId
+    ) {
+      console.error(
+        "LESSON PAGE TRANSACTION ID MISSING:",
+        {
+          userId: user.id,
+          courseId: course.id,
+          paymentId:
+            successfulPayment.id,
+          razorpayPaymentId:
+            successfulPayment.razorpayPaymentId,
+        }
+      );
+
+      redirect(`/courses/${course.id}`);
+    }
+
+    // --------------------------------------------------------
+    // FINAL PAYMENT ACCESS LOG
+    // --------------------------------------------------------
+
+    console.log(
+      "LESSON PAGE PAYMENT VERIFIED:",
+      {
+        userId: user.id,
+        courseId: course.id,
+        lessonId: lesson.id,
+        paymentId:
+          successfulPayment.id,
+        razorpayOrderId:
+          successfulPayment.razorpayOrderId,
+        razorpayPaymentId:
+          successfulPayment.razorpayPaymentId,
+        amount:
+          successfulPayment.amount,
+      }
+    );
+  }
+
+  // ==========================================================
+  // 8. ALL LESSON PROGRESS
+  // ==========================================================
 
   const lessonProgress =
     await prisma.lessonProgress.findMany({
@@ -158,29 +373,29 @@ export default async function LessonPage({
 
   lessonProgress.forEach((item) => {
     if (item.completed) {
-      completedLessonIds.add(item.lessonId);
+      completedLessonIds.add(
+        item.lessonId
+      );
     }
   });
 
-  /*
-   * ==========================================================
-   * 7. CURRENT LESSON COMPLETION
-   * ==========================================================
-   */
+  // ==========================================================
+  // 9. CURRENT LESSON COMPLETION
+  // ==========================================================
 
   const currentLessonProgress =
     lessonProgress.find(
-      (item) => item.lessonId === lesson.id
+      (item) =>
+        item.lessonId === lesson.id
     );
 
   const isCompleted =
-    currentLessonProgress?.completed ?? false;
+    currentLessonProgress?.completed ??
+    false;
 
-  /*
-   * ==========================================================
-   * 8. COURSE PROGRESS
-   * ==========================================================
-   */
+  // ==========================================================
+  // 10. COURSE PROGRESS
+  // ==========================================================
 
   const totalLessons =
     course.lessons.length;
@@ -188,81 +403,89 @@ export default async function LessonPage({
   const completedLessons =
     completedLessonIds.size;
 
-      const calculatedProgress =
+  const calculatedProgress =
     totalLessons > 0
       ? Math.round(
-          (completedLessons / totalLessons) * 100
+          (completedLessons /
+            totalLessons) *
+            100
         )
       : 0;
 
-  const enrollmentProgress = Math.min(
-    Math.max(enrollment.progress, 0),
-    100
-  );
-
-  const courseProgress = Math.min(
-    Math.max(
+  const enrollmentProgress =
+    Math.min(
       Math.max(
-        enrollmentProgress,
-        calculatedProgress
+        enrollment.progress,
+        0
       ),
+      100
+    );
+
+  const courseProgress =
+    Math.min(
+      Math.max(
+        Math.max(
+          enrollmentProgress,
+          calculatedProgress
+        ),
+        0
+      ),
+      100
+    );
+
+  const remainingLessons =
+    Math.max(
+      totalLessons -
+        completedLessons,
       0
-    ),
-    100
-  );
+    );
 
-  const remainingLessons = Math.max(
-    totalLessons - completedLessons,
-    0
-  );
-
-  /*
-   * ==========================================================
-   * 9. CURRENT LESSON INDEX
-   * ==========================================================
-   */
+  // ==========================================================
+  // 11. CURRENT LESSON INDEX
+  // ==========================================================
 
   const currentIndex =
     course.lessons.findIndex(
-      (item) => item.id === lesson.id
+      (item) =>
+        item.id === lesson.id
     );
 
   const previousLesson =
     currentIndex > 0
-      ? course.lessons[currentIndex - 1]
+      ? course.lessons[
+          currentIndex - 1
+        ]
       : null;
 
   const nextLesson =
-    currentIndex < totalLessons - 1
-      ? course.lessons[currentIndex + 1]
+    currentIndex <
+    totalLessons - 1
+      ? course.lessons[
+          currentIndex + 1
+        ]
       : null;
 
-  /*
-   * ==========================================================
-   * 10. COURSE COMPLETION
-   * ==========================================================
-   */
+  // ==========================================================
+  // 12. COURSE COMPLETION
+  // ==========================================================
 
   const courseCompleted =
     totalLessons > 0 &&
-    completedLessons >= totalLessons;
+    completedLessons >=
+      totalLessons;
 
-  /*
-   * ==========================================================
-   * 11. LESSON POSITION
-   * ==========================================================
-   */
+  // ==========================================================
+  // 13. LESSON POSITION
+  // ==========================================================
 
   const lessonNumber =
     currentIndex >= 0
       ? currentIndex + 1
       : lesson.lessonOrder;
 
-  /*
-   * ==========================================================
-   * 12. RENDER
-   * ==========================================================
-   */
+  // ==========================================================
+  // 14. RENDER
+  // ==========================================================
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -314,13 +537,16 @@ export default async function LessonPage({
             <div className="hidden items-center gap-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-bold text-blue-700 sm:flex">
               <BookOpen size={16} />
 
-              Lesson {lessonNumber} / {totalLessons}
+              Lesson {lessonNumber} /{" "}
+              {totalLessons}
             </div>
 
             <div className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-700">
               <CheckCircle2 size={16} />
 
-              <span>{courseProgress}%</span>
+              <span>
+                {courseProgress}%
+              </span>
             </div>
 
           </div>
@@ -379,7 +605,7 @@ export default async function LessonPage({
 
                   <div className="flex flex-wrap items-center gap-2">
 
-                                        <span className="inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-300 ring-1 ring-cyan-400/20">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs font-black uppercase tracking-wide text-cyan-300 ring-1 ring-cyan-400/20">
                       <GraduationCap size={14} />
                       Learning Module
                     </span>
@@ -437,7 +663,9 @@ export default async function LessonPage({
                       />
 
                       <span>
-                        Enrolled Access
+                        {isFreeCourse
+                          ? "Free Course Access"
+                          : "Paid Course Access"}
                       </span>
                     </div>
 
@@ -610,7 +838,7 @@ export default async function LessonPage({
               </section>
             )}
 
-                        {/* ===============================================
+            {/* ===============================================
                 COMPLETION + NAVIGATION
             =============================================== */}
 
@@ -782,12 +1010,16 @@ export default async function LessonPage({
               <div className="grid grid-cols-2 gap-px bg-slate-200">
 
                 <ProgressBox
-                  value={String(completedLessons)}
+                  value={String(
+                    completedLessons
+                  )}
                   label="Completed"
                 />
 
                 <ProgressBox
-                  value={String(remainingLessons)}
+                  value={String(
+                    remainingLessons
+                  )}
                   label="Remaining"
                 />
 
@@ -828,27 +1060,43 @@ export default async function LessonPage({
               <div className="max-h-[600px] overflow-y-auto p-3">
 
                 {course.lessons.map(
-                  (courseLesson, index) => {
+                  (
+                    courseLesson,
+                    index
+                  ) => {
                     const completed =
                       completedLessonIds.has(
                         courseLesson.id
                       );
 
                     const current =
-                      courseLesson.id === lesson.id;
+                      courseLesson.id ===
+                      lesson.id;
 
                     return (
                       <LessonSidebarItem
-                        key={courseLesson.id}
-                        courseId={course.id}
-                        lessonId={courseLesson.id}
+                        key={
+                          courseLesson.id
+                        }
+                        courseId={
+                          course.id
+                        }
+                        lessonId={
+                          courseLesson.id
+                        }
                         index={index}
-                        title={courseLesson.title}
+                        title={
+                          courseLesson.title
+                        }
                         duration={
                           courseLesson.duration
                         }
-                        completed={completed}
-                        current={current}
+                        completed={
+                          completed
+                        }
+                        current={
+                          current
+                        }
                       />
                     );
                   }
@@ -862,7 +1110,7 @@ export default async function LessonPage({
 
         </div>
 
-                {/* ==================================================
+        {/* ==================================================
             BOTTOM COURSE INFORMATION
         ================================================== */}
 
@@ -898,11 +1146,9 @@ export default async function LessonPage({
   );
 }
 
-/*
- * ==========================================================
- * LEARNING INFO
- * ==========================================================
- */
+// ==========================================================
+// LEARNING INFO
+// ==========================================================
 
 function LearningInfo({
   icon,
@@ -940,11 +1186,9 @@ function LearningInfo({
   );
 }
 
-/*
- * ==========================================================
- * PROGRESS BOX
- * ==========================================================
- */
+// ==========================================================
+// PROGRESS BOX
+// ==========================================================
 
 function ProgressBox({
   value,
@@ -968,11 +1212,9 @@ function ProgressBox({
   );
 }
 
-/*
- * ==========================================================
- * LESSON SIDEBAR ITEM
- * ==========================================================
- */
+// ==========================================================
+// LESSON SIDEBAR ITEM
+// ==========================================================
 
 function LessonSidebarItem({
   courseId,
@@ -1020,7 +1262,10 @@ function LessonSidebarItem({
           {completed ? (
             <CheckCircle2 size={18} />
           ) : (
-            String(index + 1).padStart(2, "0")
+            String(index + 1).padStart(
+              2,
+              "0"
+            )
           )}
 
         </div>
@@ -1077,11 +1322,9 @@ function LessonSidebarItem({
   );
 }
 
-/*
- * ==========================================================
- * LEARNING SUMMARY
- * ==========================================================
- */
+// ==========================================================
+// LEARNING SUMMARY
+// ==========================================================
 
 function LearningSummary({
   icon,
@@ -1114,27 +1357,3 @@ function LearningSummary({
     </div>
   );
 }
-
-/*
- * ==========================================================
- * PAGE ARCHITECTURE
- * ==========================================================
- *
- * This lesson page is intentionally database-driven.
- *
- * - Course comes from Prisma.
- * - Lessons come from Prisma.
- * - Enrollment controls lesson access.
- * - LessonProgress controls completion state.
- * - Course progress is calculated from completed lessons
- *   and synchronized with the Enrollment record.
- * - Video uses lesson.videoUrl.
- * - Notes use lesson.notesUrl.
- * - Previous/Next navigation uses the course lesson order.
- * - CompleteLessonButton updates the existing
- *   /api/lesson-progress endpoint.
- *
- * This keeps the learning experience synchronized with
- * the ICU Learning Portal database.
- * ==========================================================
- */

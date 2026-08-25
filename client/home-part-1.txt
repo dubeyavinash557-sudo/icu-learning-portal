@@ -1,0 +1,1949 @@
+﻿===== HOME INSPECTION PART 1 =====
+
+============================================================
+FILE: app\page.tsx
+============================================================
+import Navbar from "../components/layout/Navbar";
+import Hero from "../components/Hero";
+import Stats from "../components/Stats";
+import FeaturedCourses from "../components/FeaturedCourses";
+import CriticalCareVisuals from "../components/CriticalCareVisuals";
+import Experts from "../components/Experts";
+import VideoLearning from "../components/VideoLearning";
+import PremiumNotes from "../components/PremiumNotes";
+import LearningPathway from "../components/LearningPathway";
+import Certificates from "../components/Certificates";
+import Testimonials from "../components/Testimonials";
+import Pricing from "../components/Pricing";
+import About from "../components/About";
+import Footer from "../components/Footer";
+
+import { getCourses } from "@/lib/course";
+
+export default async function Home() {
+  const dbCourses = await getCourses();
+
+  const featuredCourses = dbCourses.map((course) => ({
+    id: course.id,
+    title: course.title,
+    slug: course.slug,
+    price: course.price,
+    image: course.image,
+    instructor: course.instructor,
+    rating: course.rating,
+    students: course.students,
+    duration: course.duration,
+    language: course.language,
+    level: course.level,
+    isPremium: course.isPremium,
+  }));
+
+  return (
+    <>
+      {/* =====================================================
+          GLOBAL NAVIGATION
+      ===================================================== */}
+
+      <Navbar />
+
+      <main>
+        {/* ===================================================
+            HERO
+        =================================================== */}
+
+        <Hero />
+
+        {/* ===================================================
+            PLATFORM TRUST & STATISTICS
+        =================================================== */}
+
+        <Stats />
+
+        {/* ===================================================
+            FEATURED PROFESSIONAL COURSES
+        =================================================== */}
+
+        <FeaturedCourses courses={featuredCourses} />
+
+        {/* ===================================================
+            CRITICAL CARE SKILLS
+        =================================================== */}
+
+        <CriticalCareVisuals />
+
+        {/* ===================================================
+            EXPERT EDUCATORS
+        =================================================== */}
+
+        <Experts />
+
+        {/* ===================================================
+            VIDEO LEARNING EXPERIENCE
+        =================================================== */}
+
+        <VideoLearning />
+
+        {/* ===================================================
+            PREMIUM NOTES & STUDY RESOURCES
+        =================================================== */}
+
+        <PremiumNotes />
+
+        {/* ===================================================
+            STRUCTURED LEARNING PATHWAY
+        =================================================== */}
+
+        <LearningPathway />
+
+        {/* ===================================================
+            PROFESSIONAL CERTIFICATION
+        =================================================== */}
+
+        <Certificates />
+
+        {/* ===================================================
+            STUDENT TESTIMONIALS & TRUST
+        =================================================== */}
+
+        <Testimonials />
+
+        {/* ===================================================
+            MEMBERSHIP & PRICING
+        =================================================== */}
+
+        <Pricing />
+
+        {/* ===================================================
+            WHY CHOOSE ICU LEARNING PORTAL
+        =================================================== */}
+
+        <About />
+      </main>
+
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
+
+      <Footer />
+    </>
+  );
+}
+
+============================================================
+FILE: components\layout\Navbar.tsx
+============================================================
+import Link from "next/link";
+import {
+  Activity,
+  ArrowRight,
+  BookOpenCheck,
+  ChevronDown,
+  Menu,
+  Stethoscope,
+} from "lucide-react";
+
+const navigation = [
+  {
+    label: "Home",
+    href: "/",
+  },
+  {
+    label: "Courses",
+    href: "/courses",
+  },
+  {
+    label: "Notes",
+    href: "/notes",
+  },
+  {
+    label: "Blog",
+    href: "/blog",
+  },
+  {
+    label: "Contact",
+    href: "/contact",
+  },
+];
+
+export default function Navbar() {
+  return (
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-xl">
+      <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+        <div className="flex h-[76px] items-center justify-between">
+          {/* =====================================================
+              BRAND
+          ===================================================== */}
+
+          <Link
+            href="/"
+            className="group flex items-center gap-3"
+            aria-label="ICU Learning Portal Home"
+          >
+            <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/20 transition duration-300 group-hover:shadow-md group-hover:shadow-blue-600/25">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-700" />
+
+              <Stethoscope
+                size={23}
+                strokeWidth={2.2}
+                className="relative"
+              />
+            </div>
+
+            <div className="hidden sm:block">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[17px] font-black tracking-tight text-slate-950">
+                  ICU
+                </span>
+
+                <span className="text-[17px] font-black tracking-tight text-blue-600">
+                  Learning Portal
+                </span>
+              </div>
+
+              <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-400">
+                Critical Care Education
+              </p>
+            </div>
+
+            <span className="text-base font-black text-blue-600 sm:hidden">
+              ICU Learning
+            </span>
+          </Link>
+
+          {/* =====================================================
+              DESKTOP NAVIGATION
+          ===================================================== */}
+
+          <nav
+            className="hidden items-center lg:flex"
+            aria-label="Main navigation"
+          >
+            <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50/80 p-1">
+              {navigation.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-full px-4 py-2.5 text-sm font-semibold text-slate-600 transition duration-200 hover:bg-white hover:text-blue-600 hover:shadow-sm"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </nav>
+
+          {/* =====================================================
+              DESKTOP ACTIONS
+          ===================================================== */}
+
+          <div className="hidden items-center gap-3 lg:flex">
+            <Link
+              href="/courses"
+              className="group inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-slate-600 transition hover:text-blue-600"
+            >
+              <BookOpenCheck
+                size={17}
+                className="text-blue-600"
+              />
+
+              Learning
+            </Link>
+
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white shadow-md shadow-blue-600/20 transition duration-300 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25"
+            >
+              Login
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          {/* =====================================================
+              MOBILE MENU
+          ===================================================== */}
+
+          <details className="relative lg:hidden">
+            <summary
+              className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-blue-200 hover:text-blue-600 [&::-webkit-details-marker]:hidden"
+              aria-label="Open navigation menu"
+            >
+              <Menu size={21} />
+            </summary>
+
+            <div className="absolute right-0 top-14 w-[calc(100vw-2.5rem)] max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/10">
+              {/* Mobile brand strip */}
+
+              <div className="mb-2 flex items-center gap-3 rounded-xl bg-slate-50 p-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
+                  <Activity size={19} />
+                </div>
+
+                <div>
+                  <p className="text-sm font-black text-slate-950">
+                    ICU Learning Portal
+                  </p>
+
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Critical Care Education
+                  </p>
+                </div>
+              </div>
+
+              {/* Mobile navigation */}
+
+              <div className="space-y-1">
+                {navigation.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    {item.label}
+
+                    <ChevronDown
+                      size={15}
+                      className="-rotate-90 text-slate-400"
+                    />
+                  </Link>
+                ))}
+              </div>
+
+              {/* Mobile CTA */}
+
+              <div className="mt-3 border-t border-slate-100 pt-3">
+                <Link
+                  href="/login"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-md shadow-blue-600/20 transition hover:bg-blue-700"
+                >
+                  Login to Learning Portal
+                  <ArrowRight size={17} />
+                </Link>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+============================================================
+FILE: components\Hero.tsx
+============================================================
+import Link from "next/link";
+import Image from "next/image";
+import {
+  Activity,
+  ArrowRight,
+  Award,
+  BookOpenCheck,
+  CheckCircle2,
+  PlayCircle,
+  ShieldCheck,
+  Stethoscope,
+  Users,
+} from "lucide-react";
+
+export default function Hero() {
+  return (
+    <section className="relative overflow-hidden bg-white">
+      {/* =========================================================
+          BACKGROUND
+      ========================================================= */}
+
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-40 top-0 h-[520px] w-[520px] rounded-full bg-blue-50 blur-3xl" />
+
+        <div className="absolute -right-40 top-20 h-[520px] w-[520px] rounded-full bg-cyan-50 blur-3xl" />
+
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage:
+              "linear-gradient(#2563eb 1px, transparent 1px), linear-gradient(90deg, #2563eb 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+          }}
+        />
+      </div>
+
+      {/* =========================================================
+          MAIN CONTAINER
+      ========================================================= */}
+
+      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 sm:px-6 sm:pb-20 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-20">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16">
+          {/* =====================================================
+              LEFT CONTENT
+          ===================================================== */}
+
+          <div className="max-w-2xl">
+            {/* Platform Badge */}
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-black uppercase tracking-[0.13em] text-blue-700">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
+              Professional Critical Care Learning
+            </div>
+
+            {/* Heading */}
+
+            <h1 className="mt-6 text-[2.8rem] font-black leading-[1.04] tracking-[-0.035em] text-slate-950 sm:text-5xl lg:text-[4.25rem]">
+              Build Stronger
+              <span className="block bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                ICU & Critical
+              </span>
+              <span className="block">Care Skills.</span>
+            </h1>
+
+            {/* Description */}
+
+            <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+              Learn ICU nursing, mechanical ventilation, ECG, ABG,
+              emergency care and critical-care concepts through structured
+              courses, practical lessons, revision resources and assessments.
+            </p>
+
+            {/* CTA */}
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/courses"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition duration-300 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/25"
+              >
+                Explore Courses
+                <ArrowRight
+                  size={18}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </Link>
+
+              <Link
+                href="/register"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-black text-slate-800 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-700 hover:shadow-md"
+              >
+                Start Learning
+                <ArrowRight
+                  size={18}
+                  className="transition-transform group-hover:translate-x-1"
+                />
+              </Link>
+            </div>
+
+            {/* Trust line */}
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3 text-xs font-semibold text-slate-500">
+              <div className="inline-flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-emerald-500" />
+                Structured learning
+              </div>
+
+              <div className="inline-flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-emerald-500" />
+                Practical ICU resources
+              </div>
+
+              <div className="inline-flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-emerald-500" />
+                Assessments & certificates
+              </div>
+            </div>
+
+            {/* =================================================
+                LEARNING ECOSYSTEM
+            ================================================= */}
+
+            <div className="mt-10 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
+              <LearningFeature
+                icon={<BookOpenCheck size={18} />}
+                title="Courses"
+                description="Structured"
+              />
+
+              <LearningFeature
+                icon={<PlayCircle size={18} />}
+                title="Video"
+                description="Practical"
+              />
+
+              <LearningFeature
+                icon={<Activity size={18} />}
+                title="Assessments"
+                description="Knowledge"
+              />
+
+              <LearningFeature
+                icon={<Award size={18} />}
+                title="Certificates"
+                description="Achievement"
+              />
+            </div>
+          </div>
+
+          {/* =====================================================
+              RIGHT VISUAL
+          ===================================================== */}
+
+          <div className="relative mx-auto w-full max-w-[590px] lg:ml-auto">
+            {/* Main visual frame */}
+
+            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-2 shadow-[0_30px_80px_rgba(15,23,42,0.16)]">
+              <div className="relative aspect-[4/4.35] overflow-hidden rounded-[1.55rem]">
+                <Image
+                  src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1400&q=85"
+                  alt="Healthcare professional learning in a clinical environment"
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+
+                {/* Image overlay */}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/15 to-transparent" />
+
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
+                  <div className="flex items-end justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">
+                        ICU Learning Portal
+                      </p>
+
+                      <h2 className="mt-2 max-w-sm text-2xl font-black leading-tight text-white sm:text-3xl">
+                        Learn critical care with a structured pathway.
+                      </h2>
+                    </div>
+
+                    <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-sm sm:flex">
+                      <Stethoscope size={21} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Clinical top bar */}
+
+              <div className="absolute left-7 right-7 top-7 rounded-2xl border border-white/10 bg-slate-950/70 p-3.5 shadow-xl backdrop-blur-md sm:left-8 sm:right-8 sm:top-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white">
+                      <Activity size={19} />
+                    </div>
+
+                    <div>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                        Learning Track
+                      </p>
+
+                      <p className="mt-0.5 text-sm font-black text-white">
+                        Critical Care Essentials
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">
+                    Professional
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* =================================================
+                FLOATING CARD - TOP RIGHT
+            ================================================= */}
+
+            <div className="absolute -right-3 top-20 hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:block lg:-right-8">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                  <ShieldCheck size={21} />
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Learning Standard
+                  </p>
+
+                  <p className="mt-0.5 text-sm font-black text-slate-900">
+                    Structured & Practical
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* =================================================
+                FLOATING CARD - BOTTOM LEFT
+            ================================================= */}
+
+            <div className="absolute -bottom-5 -left-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl sm:-left-8">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <Users size={20} />
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Built for
+                  </p>
+
+                  <p className="mt-0.5 text-sm font-black text-slate-900">
+                    Healthcare Learners
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* =================================================
+                SMALL VISUAL LABEL
+            ================================================= */}
+
+            <div className="absolute -bottom-8 right-4 hidden items-center gap-2 rounded-full border border-blue-100 bg-white px-4 py-2.5 text-xs font-bold text-blue-700 shadow-lg sm:flex">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              Learn at your own pace
+            </div>
+          </div>
+        </div>
+
+        {/* =====================================================
+            BOTTOM PLATFORM STRIP
+        ===================================================== */}
+
+        <div className="mt-16 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+          <div className="grid divide-y divide-slate-200 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+            <PlatformValue
+              icon={<BookOpenCheck size={19} />}
+              title="Structured Courses"
+              description="Follow clear learning paths from fundamentals to advanced topics."
+            />
+
+            <PlatformValue
+              icon={<Activity size={19} />}
+              title="Clinical Learning"
+              description="Build practical understanding of important ICU concepts."
+            />
+
+            <PlatformValue
+              icon={<Award size={19} />}
+              title="Learning Achievement"
+              description="Complete eligible programs and earn course certificates."
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =============================================================
+   LEARNING FEATURE
+============================================================= */
+
+function LearningFeature({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white/80 p-3.5 shadow-sm backdrop-blur-sm transition duration-300 hover:border-blue-200 hover:shadow-md">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+          {icon}
+        </div>
+
+        <div className="min-w-0">
+          <p className="text-xs font-black text-slate-900">{title}</p>
+
+          <p className="mt-0.5 text-[10px] font-medium text-slate-500">
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =============================================================
+   PLATFORM VALUE
+============================================================= */
+
+function PlatformValue({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-4 p-5 sm:p-6">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm ring-1 ring-slate-200">
+        {icon}
+      </div>
+
+      <div>
+        <h3 className="text-sm font-black text-slate-950">{title}</h3>
+
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+============================================================
+FILE: components\Stats.tsx
+============================================================
+import {
+  Award,
+  BookOpenCheck,
+  FileText,
+  GraduationCap,
+  ShieldCheck,
+  Video,
+} from "lucide-react";
+
+const platformFeatures = [
+  {
+    icon: GraduationCap,
+    value: "Structured",
+    label: "Learning Pathways",
+    description: "Beginner to advanced critical-care learning",
+  },
+  {
+    icon: BookOpenCheck,
+    value: "Professional",
+    label: "ICU Courses",
+    description: "Focused nursing and critical-care education",
+  },
+  {
+    icon: Video,
+    value: "Practical",
+    label: "Video Lessons",
+    description: "Learn concepts through structured lessons",
+  },
+  {
+    icon: FileText,
+    value: "Study",
+    label: "Notes & Resources",
+    description: "Revision material for focused learning",
+  },
+];
+
+const trustPoints = [
+  {
+    icon: ShieldCheck,
+    title: "Structured Learning",
+    description: "Organized course pathways",
+  },
+  {
+    icon: Award,
+    title: "Course Completion",
+    description: "Assessment-based learning",
+  },
+  {
+    icon: BookOpenCheck,
+    title: "Clinical Focus",
+    description: "ICU and critical-care concepts",
+  },
+];
+
+export default function Stats() {
+  return (
+    <section className="relative overflow-hidden border-y border-slate-200/80 bg-slate-50 py-16 sm:py-20">
+      {/* Background decoration */}
+      <div className="pointer-events-none absolute -left-32 top-10 h-72 w-72 rounded-full bg-blue-200/30 blur-3xl" />
+
+      <div className="pointer-events-none absolute -right-32 bottom-0 h-80 w-80 rounded-full bg-cyan-200/30 blur-3xl" />
+
+      {/* Subtle grid */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "linear-gradient(#1e3a8a 1px, transparent 1px), linear-gradient(90deg, #1e3a8a 1px, transparent 1px)",
+          backgroundSize: "42px 42px",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-7xl px-6 md:px-10">
+        {/* Section Header */}
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-[0.16em] text-blue-700 shadow-sm">
+            <ShieldCheck size={15} />
+            Professional Learning Platform
+          </div>
+
+          <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            Everything You Need to Learn
+            <span className="block text-blue-700">
+              Critical Care With Confidence
+            </span>
+          </h2>
+
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+            Build your ICU knowledge through structured courses, practical
+            lessons, study resources and assessment-focused learning.
+          </p>
+        </div>
+
+        {/* Feature Statistics */}
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {platformFeatures.map((feature) => {
+            const Icon = feature.icon;
+
+            return (
+              <article
+                key={feature.label}
+                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1.5 hover:border-blue-200 hover:shadow-xl"
+              >
+                {/* Card glow */}
+                <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-blue-50 opacity-0 blur-2xl transition duration-300 group-hover:opacity-100" />
+
+                <div className="relative flex items-start justify-between gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700 ring-1 ring-blue-100 transition duration-300 group-hover:bg-blue-700 group-hover:text-white">
+                    <Icon size={23} strokeWidth={2.2} />
+                  </div>
+
+                  <div className="flex h-7 items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 text-[10px] font-extrabold uppercase tracking-wider text-emerald-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Active
+                  </div>
+                </div>
+
+                <div className="relative mt-6">
+                  <p className="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+                    {feature.value}
+                  </p>
+
+                  <h3 className="mt-1.5 text-base font-extrabold text-blue-700">
+                    {feature.label}
+                  </h3>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    {feature.description}
+                  </p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        {/* Trust Strip */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="grid divide-y divide-slate-200 md:grid-cols-3 md:divide-x md:divide-y-0">
+            {trustPoints.map((point) => {
+              const Icon = point.icon;
+
+              return (
+                <div
+                  key={point.title}
+                  className="flex items-center gap-4 px-6 py-5"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+                    <Icon size={19} />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-extrabold text-slate-900">
+                      {point.title}
+                    </p>
+
+                    <p className="mt-0.5 text-xs text-slate-500">
+                      {point.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+============================================================
+FILE: components\FeaturedCourses.tsx
+============================================================
+import Link from "next/link";
+import Image from "next/image";
+
+import {
+  ArrowRight,
+  Award,
+  BookOpen,
+  CheckCircle2,
+  Clock3,
+  Crown,
+  Globe2,
+  GraduationCap,
+  PlayCircle,
+  Sparkles,
+  Star,
+  Users,
+} from "lucide-react";
+
+type Course = {
+  id: string;
+  title: string;
+  slug: string;
+  price: number;
+  image: string;
+  instructor: string;
+  rating: number;
+  students: number;
+  duration: number;
+  language: string;
+  level: string;
+  isPremium: boolean;
+};
+
+interface FeaturedCoursesProps {
+  courses: Course[];
+};
+
+export default function FeaturedCourses({
+  courses,
+}: FeaturedCoursesProps) {
+  return (
+    <section
+      className="
+        relative overflow-hidden
+        border-y
+        border-slate-200/80
+        bg-gradient-to-b
+        from-white
+        via-slate-50
+        to-white
+        py-20
+        dark:border-slate-800
+        dark:from-slate-950
+        dark:via-slate-900
+        dark:to-slate-950
+        md:py-24
+      "
+    >
+      {/* =====================================================
+          BACKGROUND DECORATION
+      ===================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -left-40
+          top-20
+          h-80
+          w-80
+          rounded-full
+          bg-cyan-400/10
+          blur-3xl
+          dark:bg-cyan-500/5
+        "
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -right-40
+          bottom-0
+          h-96
+          w-96
+          rounded-full
+          bg-blue-500/10
+          blur-3xl
+          dark:bg-blue-500/5
+        "
+      />
+
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+
+        {/* ===================================================
+            SECTION HEADER
+        =================================================== */}
+
+        <div className="mb-12 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+
+          <div className="max-w-3xl">
+
+            {/* Eyebrow */}
+
+            <div
+              className="
+                mb-5
+                inline-flex
+                items-center
+                gap-2
+                rounded-full
+                border
+                border-cyan-200
+                bg-cyan-50
+                px-4
+                py-2
+                text-xs
+                font-black
+                uppercase
+                tracking-[0.14em]
+                text-cyan-700
+                dark:border-cyan-500/20
+                dark:bg-cyan-500/10
+                dark:text-cyan-300
+              "
+            >
+              <GraduationCap size={16} />
+
+              Professional Learning
+            </div>
+
+            {/* Heading */}
+
+            <h2
+              className="
+                text-3xl
+                font-black
+                tracking-tight
+                text-slate-950
+                sm:text-4xl
+                md:text-5xl
+                dark:text-white
+              "
+            >
+              Master Critical Care
+              <span className="block text-blue-700 dark:text-cyan-400">
+                With Professional Courses
+              </span>
+            </h2>
+
+            {/* Description */}
+
+            <p
+              className="
+                mt-5
+                max-w-2xl
+                text-base
+                leading-8
+                text-slate-600
+                sm:text-lg
+                dark:text-slate-400
+              "
+            >
+              Structured ICU and critical-care learning designed to help
+              healthcare learners build practical knowledge through lessons,
+              video learning, study resources and assessments.
+            </p>
+
+            {/* Trust points */}
+
+            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
+
+              <TrustPoint
+                icon={<CheckCircle2 size={16} />}
+                text="Structured curriculum"
+              />
+
+              <TrustPoint
+                icon={<PlayCircle size={16} />}
+                text="Video-based learning"
+              />
+
+              <TrustPoint
+                icon={<Award size={16} />}
+                text="Course certificates"
+              />
+
+            </div>
+          </div>
+
+          {/* View all */}
+
+          <Link
+            href="/courses"
+            className="
+              group
+              inline-flex
+              w-fit
+              shrink-0
+              items-center
+              gap-2
+              rounded-2xl
+              border
+              border-slate-300
+              bg-white
+              px-6
+              py-3.5
+              text-sm
+              font-black
+              text-slate-800
+              shadow-sm
+              transition-all
+              duration-300
+              hover:-translate-y-0.5
+              hover:border-blue-400
+              hover:text-blue-700
+              hover:shadow-lg
+              dark:border-slate-700
+              dark:bg-slate-900
+              dark:text-slate-100
+              dark:hover:border-cyan-500
+              dark:hover:text-cyan-400
+            "
+          >
+            Explore All Courses
+
+            <ArrowRight
+              size={18}
+              className="
+                transition-transform
+                duration-300
+                group-hover:translate-x-1
+              "
+            />
+          </Link>
+        </div>
+
+        {/* ===================================================
+            COURSE GRID
+        =================================================== */}
+
+        {courses.length === 0 ? (
+          <EmptyCourses />
+        ) : (
+          <div
+            className="
+              grid
+              grid-cols-1
+              gap-6
+              sm:grid-cols-2
+              xl:grid-cols-4
+            "
+          >
+            {courses.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* ===================================================
+            BOTTOM CTA
+        =================================================== */}
+
+        {courses.length > 0 && (
+          <div
+            className="
+              mt-12
+              overflow-hidden
+              rounded-[2rem]
+              border
+              border-slate-800
+              bg-slate-950
+              shadow-2xl
+              dark:border-slate-700
+            "
+          >
+            <div
+              className="
+                relative
+                flex
+                flex-col
+                gap-7
+                px-6
+                py-8
+                sm:px-8
+                lg:flex-row
+                lg:items-center
+                lg:justify-between
+                lg:px-10
+              "
+            >
+              {/* Decorative glow */}
+
+              <div
+                className="
+                  pointer-events-none
+                  absolute
+                  -right-20
+                  -top-32
+                  h-72
+                  w-72
+                  rounded-full
+                  bg-cyan-500/10
+                  blur-3xl
+                "
+              />
+
+              <div className="relative flex items-start gap-4">
+
+                <div
+                  className="
+                    flex
+                    h-12
+                    w-12
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    bg-cyan-500/10
+                    text-cyan-300
+                    ring-1
+                    ring-cyan-400/20
+                  "
+                >
+                  <Sparkles size={22} />
+                </div>
+
+                <div>
+                  <p
+                    className="
+                      text-xs
+                      font-black
+                      uppercase
+                      tracking-[0.16em]
+                      text-cyan-300
+                    "
+                  >
+                    Build Your Learning Path
+                  </p>
+
+                  <h3
+                    className="
+                      mt-1
+                      text-xl
+                      font-black
+                      text-white
+                      sm:text-2xl
+                    "
+                  >
+                    Choose your next critical-care skill.
+                  </h3>
+
+                  <p
+                    className="
+                      mt-2
+                      max-w-2xl
+                      text-sm
+                      leading-6
+                      text-slate-400
+                    "
+                  >
+                    Explore ICU Nursing, Ventilator, ECG, ABG and other
+                    professional learning resources.
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                href="/courses"
+                className="
+                  relative
+                  inline-flex
+                  shrink-0
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-xl
+                  bg-white
+                  px-6
+                  py-3.5
+                  text-sm
+                  font-black
+                  text-slate-950
+                  transition-all
+                  duration-300
+                  hover:-translate-y-0.5
+                  hover:bg-cyan-50
+                  hover:shadow-xl
+                "
+              >
+                Browse Courses
+
+                <ArrowRight size={17} />
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/*
+ * ============================================================
+ * COURSE CARD
+ * ============================================================
+ */
+
+function CourseCard({
+  course,
+}: {
+  course: Course;
+}) {
+  return (
+    <article
+      className="
+        group
+        relative
+        flex
+        h-full
+        flex-col
+        overflow-hidden
+        rounded-[1.75rem]
+        border
+        border-slate-200
+        bg-white
+        shadow-sm
+        transition-all
+        duration-500
+        hover:-translate-y-2
+        hover:border-blue-200
+        hover:shadow-2xl
+        dark:border-slate-800
+        dark:bg-slate-900
+        dark:hover:border-cyan-500/30
+      "
+    >
+      {/* ==================================================
+          COURSE IMAGE
+      ================================================== */}
+
+      <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-800">
+
+        <Image
+          src={course.image}
+          alt={`${course.title} - ICU Learning Portal`}
+          fill
+          className="
+            object-cover
+            transition-transform
+            duration-700
+            ease-out
+            group-hover:scale-105
+          "
+          sizes="
+            (max-width: 640px) 100vw,
+            (max-width: 1280px) 50vw,
+            25vw
+          "
+        />
+
+        {/* Image overlay */}
+
+        <div
+          className="
+            absolute
+            inset-0
+            bg-gradient-to-t
+            from-slate-950/75
+            via-slate-950/10
+            to-transparent
+          "
+        />
+
+        {/* Premium badge */}
+
+        {course.isPremium && (
+          <div
+            className="
+              absolute
+              left-4
+              top-4
+              inline-flex
+              items-center
+              gap-1.5
+              rounded-full
+              border
+              border-yellow-300/30
+              bg-slate-950/80
+              px-3
+              py-1.5
+              text-[11px]
+              font-black
+              uppercase
+              tracking-wide
+              text-yellow-300
+              shadow-lg
+              backdrop-blur-md
+            "
+          >
+            <Crown size={13} />
+
+            Premium
+          </div>
+        )}
+
+        {/* Level */}
+
+        <div
+          className="
+            absolute
+            right-4
+            top-4
+            rounded-full
+            border
+            border-white/30
+            bg-white/90
+            px-3
+            py-1.5
+            text-[11px]
+            font-black
+            uppercase
+            tracking-wide
+            text-slate-800
+            shadow-lg
+            backdrop-blur-md
+          "
+        >
+          {course.level}
+        </div>
+
+        {/* Rating */}
+
+        <div
+          className="
+            absolute
+            bottom-4
+            left-4
+            inline-flex
+            items-center
+            gap-1.5
+            rounded-xl
+            border
+            border-white/20
+            bg-slate-950/75
+            px-3
+            py-2
+            text-white
+            shadow-lg
+            backdrop-blur-md
+          "
+        >
+          <Star
+            size={14}
+            className="fill-yellow-400 text-yellow-400"
+          />
+
+          <span className="text-sm font-black">
+            {course.rating.toFixed(1)}
+          </span>
+        </div>
+
+        {/* Course label */}
+
+        <div
+          className="
+            absolute
+            bottom-4
+            right-4
+            inline-flex
+            items-center
+            gap-1.5
+            rounded-xl
+            bg-blue-600/90
+            px-3
+            py-2
+            text-xs
+            font-black
+            text-white
+            shadow-lg
+            backdrop-blur-md
+          "
+        >
+          <BookOpen size={14} />
+
+          Course
+        </div>
+      </div>
+
+      {/* ==================================================
+          COURSE CONTENT
+      ================================================== */}
+
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+
+        {/* Instructor */}
+
+        <div className="flex items-center gap-2">
+
+          <div
+            className="
+              flex
+              h-7
+              w-7
+              items-center
+              justify-center
+              rounded-lg
+              bg-cyan-50
+              text-cyan-700
+              dark:bg-cyan-500/10
+              dark:text-cyan-300
+            "
+          >
+            <GraduationCap size={14} />
+          </div>
+
+          <p
+            className="
+              truncate
+              text-xs
+              font-black
+              uppercase
+              tracking-[0.12em]
+              text-cyan-700
+              dark:text-cyan-300
+            "
+          >
+            {course.instructor}
+          </p>
+        </div>
+
+        {/* Title */}
+
+        <h3
+          className="
+            mt-4
+            line-clamp-2
+            min-h-[3.5rem]
+            text-xl
+            font-black
+            leading-7
+            tracking-tight
+            text-slate-950
+            dark:text-white
+          "
+        >
+          {course.title}
+        </h3>
+
+        {/* Course metadata */}
+
+        <div className="mt-5 grid grid-cols-2 gap-2.5">
+
+          <CourseMeta
+            icon={<Users size={15} />}
+            label="Students"
+            value={`${course.students.toLocaleString("en-IN")}+`}
+          />
+
+          <CourseMeta
+            icon={<Clock3 size={15} />}
+            label="Duration"
+            value={formatDuration(course.duration)}
+          />
+
+          <CourseMeta
+            icon={<Globe2 size={15} />}
+            label="Language"
+            value={course.language}
+          />
+
+          <CourseMeta
+            icon={<Award size={15} />}
+            label="Outcome"
+            value="Certificate"
+          />
+
+        </div>
+
+        {/* Divider */}
+
+        <div className="my-5 h-px bg-slate-100 dark:bg-slate-800" />
+
+        {/* Price */}
+
+        <div className="flex items-end justify-between gap-3">
+
+          <div>
+            <p
+              className="
+                text-[11px]
+                font-bold
+                uppercase
+                tracking-wider
+                text-slate-400
+              "
+            >
+              Course Access
+            </p>
+
+            <div className="mt-1 flex items-baseline gap-1">
+
+              <span
+                className="
+                  text-2xl
+                  font-black
+                  text-slate-950
+                  dark:text-white
+                "
+              >
+                â‚¹{course.price.toLocaleString("en-IN")}
+              </span>
+
+            </div>
+          </div>
+
+          {course.isPremium && (
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-lg
+                bg-yellow-50
+                px-2.5
+                py-1.5
+                text-[10px]
+                font-black
+                uppercase
+                tracking-wide
+                text-yellow-700
+                dark:bg-yellow-500/10
+                dark:text-yellow-300
+              "
+            >
+              <Crown size={12} />
+
+              Premium
+            </div>
+          )}
+
+        </div>
+
+        {/* Actions */}
+
+        <div className="mt-5 space-y-2.5">
+
+          <Link
+            href={`/courses/${course.slug}`}
+            className="
+              group/button
+              flex
+              w-full
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+              bg-blue-700
+              px-5
+              py-3.5
+              text-sm
+              font-black
+              text-white
+              shadow-lg
+              shadow-blue-700/15
+              transition-all
+              duration-300
+              hover:bg-blue-800
+              hover:shadow-xl
+              dark:bg-cyan-600
+              dark:shadow-cyan-600/10
+              dark:hover:bg-cyan-500
+            "
+          >
+            View Course
+
+            <ArrowRight
+              size={17}
+              className="
+                transition-transform
+                duration-300
+                group-hover/button:translate-x-1
+              "
+            />
+          </Link>
+
+          <Link
+            href={`/courses/${course.slug}`}
+            className="
+              flex
+              w-full
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+              border
+              border-slate-200
+              bg-slate-50
+              px-5
+              py-3
+              text-sm
+              font-bold
+              text-slate-700
+              transition-all
+              duration-300
+              hover:border-blue-300
+              hover:bg-blue-50
+              hover:text-blue-700
+              dark:border-slate-700
+              dark:bg-slate-800
+              dark:text-slate-200
+              dark:hover:border-cyan-500/40
+              dark:hover:bg-cyan-500/10
+              dark:hover:text-cyan-300
+            "
+          >
+            <PlayCircle size={16} />
+
+            Start Learning
+          </Link>
+
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/*
+ * ============================================================
+ * COURSE META
+ * ============================================================
+ */
+
+function CourseMeta({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div
+      className="
+        min-w-0
+        rounded-xl
+        border
+        border-slate-100
+        bg-slate-50
+        px-3
+        py-2.5
+        dark:border-slate-800
+        dark:bg-slate-800/70
+      "
+    >
+      <div
+        className="
+          flex
+          items-center
+          gap-1.5
+          text-slate-400
+          dark:text-slate-500
+        "
+      >
+        {icon}
+
+        <span className="text-[10px] font-bold uppercase tracking-wide">
+          {label}
+        </span>
+      </div>
+
+      <p
+        className="
+          mt-1
+          truncate
+          text-xs
+          font-black
+          text-slate-800
+          dark:text-slate-200
+        "
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+/*
+ * ============================================================
+ * TRUST POINT
+ * ============================================================
+ */
+
+function TrustPoint({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+
+      <span className="text-emerald-600 dark:text-emerald-400">
+        {icon}
+      </span>
+
+      <span
+        className="
+          text-xs
+          font-bold
+          text-slate-600
+          dark:text-slate-400
+        "
+      >
+        {text}
+      </span>
+
+    </div>
+  );
+}
+
+/*
+ * ============================================================
+ * EMPTY STATE
+ * ============================================================
+ */
+
+function EmptyCourses() {
+  return (
+    <div
+      className="
+        overflow-hidden
+        rounded-[2rem]
+        border
+        border-dashed
+        border-slate-300
+        bg-white
+        px-6
+        py-16
+        text-center
+        shadow-sm
+        dark:border-slate-700
+        dark:bg-slate-900
+      "
+    >
+      <div
+        className="
+          mx-auto
+          flex
+          h-20
+          w-20
+          items-center
+          justify-center
+          rounded-3xl
+          bg-cyan-50
+          text-cyan-700
+          dark:bg-cyan-500/10
+          dark:text-cyan-300
+        "
+      >
+        <BookOpen size={36} />
+      </div>
+
+      <h3
+        className="
+          mt-6
+          text-2xl
+          font-black
+          text-slate-950
+          dark:text-white
+        "
+      >
+        Courses Are Being Prepared
+      </h3>
+
+      <p
+        className="
+          mx-auto
+          mt-3
+          max-w-lg
+          text-sm
+          leading-7
+          text-slate-500
+          dark:text-slate-400
+        "
+      >
+        Professional ICU and critical-care courses will appear here once
+        they are published to the learning platform.
+      </p>
+
+      <Link
+        href="/courses"
+        className="
+          mt-7
+          inline-flex
+          items-center
+          gap-2
+          rounded-xl
+          bg-blue-700
+          px-6
+          py-3
+          text-sm
+          font-black
+          text-white
+          transition
+          hover:bg-blue-800
+        "
+      >
+        Explore Courses
+
+        <ArrowRight size={17} />
+      </Link>
+    </div>
+  );
+}
+
+/*
+ * ============================================================
+ * DURATION FORMATTER
+ * ============================================================
+ */
+
+function formatDuration(minutes: number) {
+  if (!Number.isFinite(minutes) || minutes <= 0) {
+    return "â€”";
+  }
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (remainingMinutes === 0) {
+    return `${hours} hr`;
+  }
+
+  return `${hours}h ${remainingMinutes}m`;
+}
+
+============================================================
+FILE: lib\course.ts
+============================================================
+import prisma from "@/lib/prisma";
+
+export async function getCourses() {
+  return await prisma.course.findMany({
+    include: {
+      lessons: {
+        orderBy: {
+          lessonOrder: "asc",
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
+
+export async function getCourseBySlug(slug: string) {
+  return await prisma.course.findUnique({
+    where: {
+      slug,
+    },
+    include: {
+      lessons: {
+        orderBy: {
+          lessonOrder: "asc",
+        },
+      },
+    },
+  });
+}

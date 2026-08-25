@@ -1,120 +1,97 @@
+import CourseLandingPage from "../_components/CourseLandingPage";
+
 export default function VentilatorPage() {
   return (
-    <main className="min-h-screen bg-gray-100 py-10">
-      <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-8">
+    <CourseLandingPage
+      course={{
+        title: "Mechanical Ventilation Master Course",
+        shortTitle: "Mechanical Ventilation",
+        category: "Critical Care • Ventilator",
+        description:
+          "Learn mechanical ventilation from fundamentals to advanced concepts including modes, settings, alarms, airway care, monitoring and weaning.",
+        longDescription:
+          "A structured ventilator learning pathway designed to build conceptual understanding and practical ICU nursing knowledge.",
+        instructor: "ICU Learning Portal Faculty",
+        level: "Beginner to Advanced",
+        duration: "16+ Hours",
+        lessons: 80,
+        students: "2,400+",
+        rating: 4.9,
+        price: "₹3,499",
+        originalPrice: "₹4,999",
+        isPremium: true,
+        accent: "emerald",
 
-        {/* Title */}
-        <h1 className="text-4xl font-bold text-blue-700 mb-4">
-          Ventilator Full Course
-        </h1>
+        modules: [
+          {
+            title: "Mechanical Ventilation Fundamentals",
+            description:
+              "Understand indications, ventilator components and the basic principles of positive-pressure ventilation.",
+            lessons: 15,
+          },
+          {
+            title: "Ventilator Modes",
+            description:
+              "Study common volume-controlled, pressure-controlled and spontaneous ventilation modes.",
+            lessons: 20,
+          },
+          {
+            title: "Ventilator Settings",
+            description:
+              "Understand tidal volume, respiratory rate, FiO₂, PEEP, I:E ratio and other key parameters.",
+            lessons: 18,
+          },
+          {
+            title: "Alarms & Troubleshooting",
+            description:
+              "Develop a structured approach to common ventilator alarms and clinical assessment.",
+            lessons: 12,
+          },
+          {
+            title: "Airway Care & Weaning",
+            description:
+              "Learn airway-care principles, monitoring, suctioning and concepts related to ventilator weaning.",
+            lessons: 15,
+          },
+        ],
 
-        {/* Description */}
-        <p className="text-gray-700 text-lg mb-8">
-          Learn Mechanical Ventilation from Basic to Advanced with practical ICU
-          nursing knowledge, ventilator modes, settings, alarms and patient care.
-        </p>
+        learningOutcomes: [
+          "Understand the principles of mechanical ventilation.",
+          "Identify common indications for ventilatory support.",
+          "Understand commonly used ventilator modes.",
+          "Explain important ventilator settings.",
+          "Understand FiO₂, PEEP and tidal-volume concepts.",
+          "Develop a systematic ventilator-alarm assessment approach.",
+          "Understand airway and ET-tube care principles.",
+          "Understand basic ventilator weaning concepts.",
+        ],
 
-        {/* Course Overview */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-3">
-            📚 Course Overview
-          </h2>
+        practicalSkills: [
+          "Ventilator setup concepts",
+          "Mode identification",
+          "Ventilator-setting interpretation",
+          "Alarm assessment",
+          "Airway monitoring",
+          "ET-tube care principles",
+          "Suctioning principles",
+          "Humidification and filter care",
+          "Patient–ventilator assessment",
+          "Weaning readiness concepts",
+        ],
 
-          <ul className="list-disc ml-6 text-gray-700 space-y-2">
-            <li>Introduction to Mechanical Ventilation</li>
-            <li>Indications for Ventilator Support</li>
-            <li>Ventilator Components</li>
-            <li>Basic Ventilator Modes</li>
-            <li>Ventilator Settings</li>
-            <li>Patient Monitoring</li>
-            <li>Ventilator Alarms</li>
-            <li>Weaning from Ventilator</li>
-          </ul>
-        </section>
-
-        {/* Ventilator Modules */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-3">
-            🫁 Ventilator Modules
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-4">
-
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="font-bold text-blue-700">
-                Module 1: Ventilator Basics
-              </h3>
-              <p className="text-gray-700">
-                Introduction, indications and components of a ventilator.
-              </p>
-            </div>
-
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h3 className="font-bold text-green-700">
-                Module 2: Ventilator Modes
-              </h3>
-              <p className="text-gray-700">
-                Volume Control, Pressure Control, SIMV, CPAP and BiPAP.
-              </p>
-            </div>
-
-            <div className="bg-yellow-50 p-4 rounded-lg">
-              <h3 className="font-bold text-yellow-700">
-                Module 3: Ventilator Settings
-              </h3>
-              <p className="text-gray-700">
-                Tidal Volume, FiO₂, PEEP, Respiratory Rate and I:E Ratio.
-              </p>
-            </div>
-
-            <div className="bg-red-50 p-4 rounded-lg">
-              <h3 className="font-bold text-red-700">
-                Module 4: Nursing Care
-              </h3>
-              <p className="text-gray-700">
-                Suctioning, ET Tube Care, Alarm Management and Weaning.
-              </p>
-            </div>
-
-          </div>
-        </section>
-
-        {/* Practical Skills */}
-        <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-3">
-            🩺 Practical Ventilator Skills
-          </h2>
-
-          <ul className="list-disc ml-6 text-gray-700 space-y-2">
-            <li>Endotracheal Tube (ET Tube) Care</li>
-            <li>Tracheostomy Care</li>
-            <li>Suctioning Technique</li>
-            <li>Ventilator Alarm Troubleshooting</li>
-            <li>Humidifier &amp; HME Filter Care</li>
-            <li>Patient Monitoring and Documentation</li>
-          </ul>
-        </section>
-
-        {/* Buttons */}
-        <div className="mt-8 text-center space-y-4">
-
-          <a
-            href="/pdfs/ventilator-notes.pdf"
-            target="_blank"
-            className="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
-          >
-            📄 Download Ventilator Notes PDF
-          </a>
-
-          <br />
-
-          <button className="bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800">
-            ▶ Start Ventilator Course
-          </button>
-
-        </div>
-
-      </div>
-    </main>
+        includes: [
+          "80 structured lessons",
+          "Mechanical ventilation modules",
+          "Ventilator mode revision",
+          "Setting and alarm learning",
+          "Airway-care resources",
+          "Clinical case-based learning",
+          "Practice assessments",
+          "Progress tracking",
+          "Completion pathway",
+          "Certificate eligibility after completion",
+        ],
+      }}
+    />
   );
 }

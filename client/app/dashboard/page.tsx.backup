@@ -1,0 +1,498 @@
+import StudentProfile from "@/components/dashboard/StudentProfile";
+import QuickActions from "@/components/dashboard/QuickActions";
+import Header from "@/components/dashboard/Header";
+import Sidebar from "@/components/dashboard/Sidebar";
+import StatsCard from "@/components/dashboard/StatsCard";
+import LiveClasses from "@/components/dashboard/LiveClasses";
+import ContinueLearning from "@/components/dashboard/ContinueLearning";
+import ProgressChart from "@/components/dashboard/ProgressChart";
+import StudyPlan from "@/components/dashboard/StudyPlan";
+import MyCourses from "@/components/dashboard/MyCourses";
+import RecentActivity from "@/components/dashboard/RecentActivity";
+import Achievements from "@/components/dashboard/Achievements";
+import Notifications from "@/components/dashboard/Notifications";
+import LearningAnalytics from "@/components/dashboard/LearningAnalytics";
+import StudyCalendar from "@/components/dashboard/StudyCalendar";
+import RecentCertificate from "@/components/dashboard/RecentCertificate";
+
+import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
+
+import {
+  BookOpen,
+  CheckCircle2,
+  Clock3,
+  Award,
+} from "lucide-react";
+
+export default async function DashboardPage() {
+  // ==========================================================
+  // 1. AUTHENTICATION
+  // ==========================================================
+
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    redirect("/login");
+  }
+
+  // ==========================================================
+  // 2. LOAD CURRENT USER
+  // ==========================================================
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+    include: {
+      enrollments: {
+        include: {
+          course: {
+            include: {
+              lessons: {
+                orderBy: {
+                  lessonOrder: "asc",
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          enrolledAt: "desc",
+        },
+      },
+
+      lessonProgress: {
+        include: {
+          lesson: {
+            select: {
+              id: true,
+              title: true,
+              courseId: true,
+              lessonOrder: true,
+            },
+          },
+        },
+      },
+
+      certificates: {
+        include: {
+          course: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
+        },
+        orderBy: {
+          issuedAt: "desc",
+        },
+      },
+
+      quizAttempts: {
+        select: {
+          id: true,
+          quizId: true,
+          percentage: true,
+          passed: true,
+          createdAt: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // ==========================================================
+  // 3. BASIC COURSE STATISTICS
+  // ==========================================================
+
+  const totalCourses = user.enrollments.length;
+
+  const completedCourses = user.enrollments.filter(
+    (enrollment) => enrollment.completed
+  ).length;
+
+  const totalEnrolledLessons = user.enrollments.reduce(
+    (total, enrollment) =>
+      total + enrollment.course.lessons.length,
+    0
+  );
+
+  const completedLessons = user.lessonProgress.filter(
+    (progress) => progress.completed
+  ).length;
+
+  // ==========================================================
+  // 4. OVERALL LEARNING PROGRESS
+  //
+  // Calculate only against lessons from courses the student
+  // is actually enrolled in.
+  // ==========================================================
+
+  const enrolledCourseIds = new Set(
+    user.enrollments.map(
+      (enrollment) => enrollment.courseId
+    )
+  );
+
+  const completedEnrolledLessons =
+    user.lessonProgress.filter(
+      (progress) =>
+        progress.completed &&
+        enrolledCourseIds.has(progress.lesson.courseId)
+    ).length;
+
+  const overallProgress =
+    totalEnrolledLessons === 0
+      ? 0
+      : Math.min(
+          100,
+          Math.round(
+            (completedEnrolledLessons /
+              totalEnrolledLessons) *
+              100
+          )
+        );
+
+  // ==========================================================
+  // 5. QUIZ STATISTICS
+  // ==========================================================
+
+  const quizAttempts = user.quizAttempts;
+
+  const quizAverage =
+    quizAttempts.length === 0
+      ? 0
+      : Math.round(
+          quizAttempts.reduce(
+            (sum, attempt) =>
+              sum + attempt.percentage,
+            0
+          ) / quizAttempts.length
+        );
+
+  const passedQuizzes = quizAttempts.filter(
+    (attempt) => attempt.passed
+  ).length;
+
+  // ==========================================================
+  // 6. CERTIFICATES
+  // ==========================================================
+
+  const certificateCount =
+    user.certificates.length;
+
+  const latestCertificate =
+    user.certificates[0] ?? null;
+
+  // ==========================================================
+  // 7. CURRENT / CONTINUE LEARNING COURSE
+  //
+  // Prefer an incomplete course with the highest progress.
+  // If all courses are complete, use the most recently
+  // enrolled course.
+  // ==========================================================
+
+  const currentCourse =
+    [...user.enrollments]
+      .filter(
+        (enrollment) =>
+          !enrollment.completed
+      )
+      .sort(
+        (a, b) =>
+          b.progress - a.progress
+      )[0] ??
+    user.enrollments[0] ??
+    null;
+
+  // ==========================================================
+  // 8. CURRENT COURSE LESSON PROGRESS
+  // ==========================================================
+
+  let currentCourseCompletedLessons = 0;
+  let currentCourseTotalLessons = 0;
+  let currentCourseNextLessonId: string | null =
+    null;
+
+  if (currentCourse) {
+    currentCourseTotalLessons =
+      currentCourse.course.lessons.length;
+
+    const currentCourseLessonIds =
+      new Set(
+        currentCourse.course.lessons.map(
+          (lesson) => lesson.id
+        )
+      );
+
+    const completedCurrentLessons =
+      user.lessonProgress.filter(
+        (progress) =>
+          progress.completed &&
+          currentCourseLessonIds.has(
+            progress.lessonId
+          )
+      );
+
+    currentCourseCompletedLessons =
+      completedCurrentLessons.length;
+
+    const firstIncompleteLesson =
+      currentCourse.course.lessons.find(
+        (lesson) =>
+          !user.lessonProgress.some(
+            (progress) =>
+              progress.lessonId ===
+                lesson.id &&
+              progress.completed
+          )
+      );
+
+    currentCourseNextLessonId =
+      firstIncompleteLesson?.id ??
+      currentCourse.course.lessons[0]?.id ??
+      null;
+  }
+
+  // ==========================================================
+  // 9. DASHBOARD STATISTICS
+  // ==========================================================
+
+  const dashboardStats = [
+    {
+      title: "Enrolled Courses",
+      value: String(totalCourses),
+      icon: BookOpen,
+    },
+    {
+      title: "Completed Courses",
+      value: String(completedCourses),
+      icon: CheckCircle2,
+    },
+    {
+      title: "Lessons Completed",
+      value: String(completedLessons),
+      icon: Clock3,
+    },
+    {
+      title: "Quiz Average",
+      value: `${quizAverage}%`,
+      icon: Award,
+    },
+  ];
+
+  // ==========================================================
+  // 10. RENDER DASHBOARD
+  // ==========================================================
+
+  return (
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950">
+      <Header />
+
+      <div className="flex">
+        <Sidebar />
+
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
+          {/* ==================================================
+              WELCOME SECTION
+          ================================================== */}
+
+          <section className="mb-8">
+            <div className="overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-cyan-900 p-6 text-white shadow-xl sm:p-8 lg:p-10">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-3xl">
+                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-cyan-300">
+                    Student Dashboard
+                  </p>
+
+                  <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+                    Welcome back,{" "}
+                    {user.fullName}
+                  </h1>
+
+                  <p className="mt-4 max-w-2xl text-sm leading-7 text-blue-100 sm:text-base">
+                    Continue your ICU learning
+                    journey, track your progress,
+                    complete your courses and build
+                    your critical-care skills.
+                  </p>
+                </div>
+
+                <div className="shrink-0 rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur">
+                  <p className="text-xs font-bold uppercase tracking-wider text-blue-200">
+                    Overall Progress
+                  </p>
+
+                  <div className="mt-2 flex items-end gap-2">
+                    <span className="text-4xl font-black">
+                      {overallProgress}%
+                    </span>
+
+                    <span className="mb-1 text-sm text-blue-200">
+                      complete
+                    </span>
+                  </div>
+
+                  <div className="mt-3 h-2.5 w-48 overflow-hidden rounded-full bg-white/15">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-cyan-300 to-white transition-all duration-700"
+                      style={{
+                        width: `${overallProgress}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ==================================================
+              STATISTICS
+          ================================================== */}
+
+          <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {dashboardStats.map((item) => (
+              <StatsCard
+                key={item.title}
+                title={item.title}
+                value={item.value}
+                icon={item.icon}
+              />
+            ))}
+          </section>
+
+          {/* ==================================================
+              CONTINUE LEARNING
+          ================================================== */}
+
+          <section className="mb-8">
+            <ContinueLearning
+              courseTitle={
+                currentCourse?.course.title ??
+                "No Course Enrolled"
+              }
+              courseId={
+                currentCourse?.course.id ??
+                null
+              }
+              nextLessonId={
+                currentCourseNextLessonId
+              }
+              progress={
+                currentCourse?.progress ??
+                0
+              }
+              completedLessons={
+                currentCourseCompletedLessons
+              }
+              totalLessons={
+                currentCourseTotalLessons
+              }
+            />
+          </section>
+
+          {/* ==================================================
+              QUICK ACTIONS
+          ================================================== */}
+
+          <section className="mb-8">
+            <QuickActions />
+          </section>
+
+          {/* ==================================================
+              LEARNING ANALYTICS
+          ================================================== */}
+
+          <section className="mb-8">
+            <LearningAnalytics
+              totalCourses={totalCourses}
+              completedCourses={completedCourses}
+              completedLessons={completedLessons}
+              quizAverage={quizAverage}
+              passedQuizzes={passedQuizzes}
+              overallProgress={overallProgress}
+            />
+          </section>
+
+          {/* ==================================================
+              MY COURSES
+          ================================================== */}
+
+          <section className="mb-8">
+            <MyCourses />
+          </section>
+
+          {/* ==================================================
+              LIVE CLASSES
+          ================================================== */}
+
+          <section className="mb-8">
+            <LiveClasses />
+          </section>
+
+          {/* ==================================================
+              PROGRESS + STUDY PLAN
+          ================================================== */}
+
+          <section className="mb-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <ProgressChart />
+
+            <StudyPlan />
+          </section>
+
+          {/* ==================================================
+              STUDY CALENDAR
+          ================================================== */}
+
+          <section className="mb-8">
+            <StudyCalendar />
+          </section>
+
+          {/* ==================================================
+              RECENT ACTIVITY + ACHIEVEMENTS
+          ================================================== */}
+
+          <section className="mb-8 grid grid-cols-1 gap-8 xl:grid-cols-2">
+            <RecentActivity />
+
+            <Achievements />
+          </section>
+
+          {/* ==================================================
+              CERTIFICATE
+          ================================================== */}
+
+          <section className="mb-8">
+            <RecentCertificate
+              certificate={latestCertificate}
+            />
+          </section>
+
+          {/* ==================================================
+              NOTIFICATIONS
+          ================================================== */}
+
+          <section className="mb-8">
+            <Notifications />
+          </section>
+
+          {/* ==================================================
+              STUDENT PROFILE
+          ================================================== */}
+
+          <section>
+            <StudentProfile />
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}

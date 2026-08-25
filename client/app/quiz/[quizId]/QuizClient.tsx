@@ -1,222 +1,412 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
 
+interface QuizQuestion {
+  id: string;
+  question: string;
+  optionA: string;
+  optionB: string;
+  optionC: string;
+  optionD: string;
+}
+
 interface QuizClientProps {
-  quiz: any;
-  userId: string;
+  quiz: {
+    id: string;
+    title: string;
+    course: {
+      title: string;
+    };
+    questions: QuizQuestion[];
+  };
 }
 
 export default function QuizClient({
   quiz,
 }: QuizClientProps) {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const router = useRouter();
+
+  const [currentQuestion, setCurrentQuestion] =
+    useState(0);
 
   const [answers, setAnswers] = useState<
     Record<string, string>
   >({});
 
-    const router = useRouter();
+  const [submitting, setSubmitting] =
+    useState(false);
 
-const [submitting, setSubmitting] = useState(false);
+  const questions = quiz.questions;
 
-  const question = quiz.questions[currentQuestion];
+  // --------------------------------------------------
+  // Empty quiz protection
+  // --------------------------------------------------
+  if (questions.length === 0) {
+    return (
+      <main className="min-h-screen bg-slate-100 px-4 py-10">
+        <div className="mx-auto max-w-3xl">
+          <div className="rounded-3xl bg-white p-10 text-center shadow-xl">
+            <h1 className="text-2xl font-bold text-slate-900">
+              Quiz Unavailable
+            </h1>
 
-  const progress =
-    ((currentQuestion + 1) / quiz.questions.length) * 100;
+            <p className="mt-3 text-slate-500">
+              This quiz does not contain any questions yet.
+            </p>
 
-  function selectAnswer(answer: string) {
-    setAnswers({
-      ...answers,
-      [question.id]: answer,
-    });
+            <button
+              type="button"
+              onClick={() =>
+                router.push("/dashboard/quiz")
+              }
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+            >
+              <ArrowLeft size={18} />
+              Quiz Dashboard
+            </button>
+          </div>
+        </div>
+      </main>
+    );
   }
 
-  async function submitQuiz() {
-  try {
-    setSubmitting(true);
+  const question = questions[currentQuestion];
 
-    const response = await fetch("/api/quiz/submit", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        quizId: quiz.id,
-        answers,
-      }),
-    });
+  const progress =
+    ((currentQuestion + 1) / questions.length) * 100;
 
-    const data = await response.json();
+  const selectedAnswer = answers[question.id];
 
-    if (!response.ok) {
-      alert(data.error || "Quiz submit failed.");
+  // --------------------------------------------------
+  // Select answer
+  // --------------------------------------------------
+  function selectAnswer(answer: string) {
+    if (submitting) {
       return;
     }
 
-    router.push(`/quiz/${quiz.id}/result`);
-
-  } catch (error) {
-    console.error(error);
-    alert("Something went wrong.");
-  } finally {
-    setSubmitting(false);
+    setAnswers((previous) => ({
+      ...previous,
+      [question.id]: answer,
+    }));
   }
-}
+
+  // --------------------------------------------------
+  // Next question
+  // --------------------------------------------------
+  function goToNextQuestion() {
+    if (!selectedAnswer) {
+      return;
+    }
+
+    if (
+      currentQuestion <
+      questions.length - 1
+    ) {
+      setCurrentQuestion(
+        (previous) => previous + 1
+      );
+    }
+  }
+
+  // --------------------------------------------------
+  // Previous question
+  // --------------------------------------------------
+  function goToPreviousQuestion() {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(
+        (previous) => previous - 1
+      );
+    }
+  }
+
+  // --------------------------------------------------
+  // Submit quiz
+  // --------------------------------------------------
+  async function submitQuiz() {
+    if (submitting) {
+      return;
+    }
+
+    // Make sure every question has an answer.
+    const unansweredQuestion = questions.find(
+      (item) => !answers[item.id]
+    );
+
+    if (unansweredQuestion) {
+      const unansweredIndex =
+        questions.findIndex(
+          (item) =>
+            item.id === unansweredQuestion.id
+        );
+
+      setCurrentQuestion(unansweredIndex);
+
+      alert(
+        "Please answer all questions before submitting the quiz."
+      );
+
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const response = await fetch(
+        "/api/quiz/submit",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            quizId: quiz.id,
+            answers,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(
+          data?.error ||
+            "Quiz submission failed."
+        );
+
+        return;
+      }
+
+      router.push(
+        `/quiz/${quiz.id}/result`
+      );
+
+      router.refresh();
+    } catch (error) {
+      console.error(
+        "QUIZ_SUBMIT_CLIENT_ERROR:",
+        error
+      );
+
+      alert(
+        "Something went wrong while submitting the quiz."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const isLastQuestion =
+    currentQuestion ===
+    questions.length - 1;
 
   return (
-    <main className="min-h-screen bg-slate-100 p-8">
-
+    <main className="min-h-screen bg-slate-100 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
-
         {/* Header */}
-
         <div className="mb-8">
-
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
             {quiz.title}
           </h1>
 
           <p className="mt-2 text-slate-500">
             {quiz.course.title}
           </p>
-
         </div>
 
         {/* Progress */}
-
         <div className="mb-8">
-
-          <div className="mb-3 flex justify-between">
-
-            <span className="font-medium">
-              Question {currentQuestion + 1} of {quiz.questions.length}
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <span className="font-medium text-slate-700">
+              Question {currentQuestion + 1}{" "}
+              of {questions.length}
             </span>
 
             <span className="font-semibold text-blue-600">
               {Math.round(progress)}%
             </span>
-
           </div>
 
           <div className="h-3 overflow-hidden rounded-full bg-slate-200">
-
             <div
               className="h-full rounded-full bg-blue-600 transition-all duration-300"
               style={{
                 width: `${progress}%`,
               }}
             />
-
           </div>
-
         </div>
 
         {/* Question Card */}
+        <div className="rounded-3xl bg-white p-5 shadow-xl sm:p-8">
+          <div className="mb-8">
+            <p className="mb-3 text-sm font-semibold text-blue-600">
+              Question {currentQuestion + 1}
+            </p>
 
-        <div className="rounded-3xl bg-white p-8 shadow-xl">
+            <h2 className="text-xl font-bold leading-8 text-slate-900 sm:text-2xl">
+              {question.question}
+            </h2>
+          </div>
 
-          <h2 className="mb-8 text-2xl font-bold">
-
-            Q{currentQuestion + 1}. {question.question}
-
-          </h2>
-
+          {/* Options */}
           <div className="space-y-4">
-
             {[
               question.optionA,
               question.optionB,
               question.optionC,
               question.optionD,
-            ].map((option) => (
-              <label
-                key={option}
-                className={`flex cursor-pointer items-center gap-4 rounded-2xl border p-5 transition
+            ].map((option, index) => {
+              const isSelected =
+                selectedAnswer === option;
 
-${
-  answers[question.id] === option
-    ? "border-blue-600 bg-blue-50"
-    : "border-slate-200 hover:border-blue-400"
-}`}
-              >
+              const optionLetter =
+                String.fromCharCode(
+                  65 + index
+                );
 
-                <input
-                  type="radio"
-                  name={question.id}
-                  checked={answers[question.id] === option}
-                  onChange={() => selectAnswer(option)}
-                />
+              return (
+                <label
+                  key={`${question.id}-${option}`}
+                  className={`flex cursor-pointer items-center gap-4 rounded-2xl border p-4 transition sm:p-5 ${
+                    isSelected
+                      ? "border-blue-600 bg-blue-50 shadow-sm"
+                      : "border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name={question.id}
+                    value={option}
+                    checked={isSelected}
+                    disabled={submitting}
+                    onChange={() =>
+                      selectAnswer(option)
+                    }
+                    className="h-5 w-5 accent-blue-600"
+                  />
 
-                <span className="text-lg">
-                  {option}
-                </span>
+                  <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                      isSelected
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {optionLetter}
+                  </span>
 
-              </label>
-            ))}
+                  <span className="text-base font-medium text-slate-800 sm:text-lg">
+                    {option}
+                  </span>
 
+                  {isSelected && (
+                    <CheckCircle
+                      size={22}
+                      className="ml-auto shrink-0 text-blue-600"
+                    />
+                  )}
+                </label>
+              );
+            })}
           </div>
 
-                    {/* Navigation */}
-
-          <div className="mt-10 flex items-center justify-between">
-
+          {/* Navigation */}
+          <div className="mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {/* Previous */}
             <button
-              onClick={() =>
-                setCurrentQuestion((prev) => prev - 1)
+              type="button"
+              onClick={goToPreviousQuestion}
+              disabled={
+                currentQuestion === 0 ||
+                submitting
               }
-              disabled={currentQuestion === 0}
-              className="flex items-center gap-2 rounded-xl bg-slate-200 px-6 py-3 font-semibold transition hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ArrowLeft size={18} />
               Previous
             </button>
 
-            {currentQuestion < quiz.questions.length - 1 ? (
-
-                <button
-  onClick={() =>
-    setCurrentQuestion((prev) => prev + 1)
-  }
-  disabled={!answers[question.id]}
-  className={`flex items-center gap-2 rounded-xl px-6 py-3 font-semibold transition
-${
-  answers[question.id]
-    ? "bg-blue-600 text-white hover:bg-blue-700"
-    : "bg-slate-300 text-slate-500 cursor-not-allowed"
-}`}
->
-  Next
-  <ArrowRight size={18} />
-</button>
-
-            ) : (
-
+            {/* Next / Submit */}
+            {!isLastQuestion ? (
               <button
-  onClick={submitQuiz}
-  disabled={!answers[question.id] || submitting}
-  className={`rounded-xl px-8 py-3 font-semibold transition
-${
-  answers[question.id]
-    ? "bg-green-600 text-white hover:bg-green-700"
-    : "bg-slate-300 text-slate-500 cursor-not-allowed"
-}`}
->
-  {submitting ? "Submitting..." : "Submit Quiz"}
-</button>
-
+                type="button"
+                onClick={goToNextQuestion}
+                disabled={
+                  !selectedAnswer ||
+                  submitting
+                }
+                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+              >
+                Next
+                <ArrowRight size={18} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={submitQuiz}
+                disabled={
+                  !selectedAnswer ||
+                  submitting
+                }
+                className="flex items-center justify-center gap-2 rounded-xl bg-green-600 px-8 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2
+                      size={18}
+                      className="animate-spin"
+                    />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    Submit Quiz
+                    <CheckCircle size={18} />
+                  </>
+                )}
+              </button>
             )}
-
           </div>
-
         </div>
 
-      </div>
+        {/* Answer Progress */}
+        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-600">
+              Answered
+            </span>
 
+            <span className="text-sm font-bold text-blue-600">
+              {
+                Object.keys(answers).length
+              }{" "}
+              / {questions.length}
+            </span>
+          </div>
+
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
+            <div
+              className="h-full rounded-full bg-green-500 transition-all duration-300"
+              style={{
+                width: `${
+                  (Object.keys(answers).length /
+                    questions.length) *
+                  100
+                }%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
     </main>
   );
 }
