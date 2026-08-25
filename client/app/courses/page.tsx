@@ -21,7 +21,11 @@ import {
 import { getCourses } from "@/lib/course";
 
 export default async function CoursesPage() {
-  const courses = await getCourses();
+  const allCourses = await getCourses();
+
+  // Public course catalog intentionally exposes premium programs only.
+  // Free/demo courses are not shown on the public LMS catalog.
+  const courses = allCourses.filter((course) => course.isPremium);
 
   const totalCourses = courses.length;
 
@@ -29,12 +33,6 @@ export default async function CoursesPage() {
     (total, course) => total + course.lessons.length,
     0
   );
-
-  const premiumCourses = courses.filter(
-    (course) => course.isPremium
-  ).length;
-
-  const freeCourses = totalCourses - premiumCourses;
 
   const totalStudents = courses.reduce(
     (total, course) => total + Number(course.students || 0),
@@ -50,7 +48,9 @@ export default async function CoursesPage() {
       <section className="relative overflow-hidden bg-slate-950">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -left-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-cyan-500/10 blur-3xl" />
+
           <div className="absolute -right-40 top-0 h-[32rem] w-[32rem] rounded-full bg-blue-600/10 blur-3xl" />
+
           <div className="absolute bottom-[-15rem] left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-3xl" />
         </div>
 
@@ -74,16 +74,16 @@ export default async function CoursesPage() {
               </div>
 
               <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Professional ICU & Critical Care
+                Premium ICU & Critical Care
                 <span className="block bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
                   Learning Programs
                 </span>
               </h1>
 
               <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                Learn critical care concepts through structured courses,
-                video lessons, study resources, assessments and
-                progress-focused learning.
+                Build professional critical-care knowledge through structured
+                premium courses, video lessons, study resources, assessments,
+                progress tracking and certificate pathways.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -91,7 +91,7 @@ export default async function CoursesPage() {
                   href="#course-list"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-7 py-4 text-sm font-black text-white shadow-xl shadow-cyan-500/20 transition hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
                 >
-                  Browse Courses
+                  Browse Premium Courses
                   <ArrowRight size={18} />
                 </a>
 
@@ -105,8 +105,8 @@ export default async function CoursesPage() {
               </div>
 
               <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-slate-300">
-                <TrustItem label="Structured Courses" />
-                <TrustItem label="Video Lessons" />
+                <TrustItem label="Premium Courses" />
+                <TrustItem label="Structured Lessons" />
                 <TrustItem label="Progress Tracking" />
                 <TrustItem label="Certificates" />
               </div>
@@ -119,16 +119,16 @@ export default async function CoursesPage() {
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                   <div className="flex items-center gap-4">
                     <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300">
-                      <BookOpen size={27} />
+                      <Crown size={27} />
                     </div>
 
                     <div>
-                      <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">
-                        Learning Library
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">
+                        Premium Learning Library
                       </p>
 
                       <h2 className="mt-1 text-xl font-black text-white">
-                        Explore Your Learning Path
+                        Professional Course Collection
                       </h2>
                     </div>
                   </div>
@@ -137,7 +137,7 @@ export default async function CoursesPage() {
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <HeroStat
                     value={String(totalCourses)}
-                    label="Courses"
+                    label="Premium Courses"
                     icon={<BookOpen size={18} />}
                   />
 
@@ -148,13 +148,13 @@ export default async function CoursesPage() {
                   />
 
                   <HeroStat
-                    value={String(premiumCourses)}
-                    label="Premium"
+                    value="100%"
+                    label="Premium Access"
                     icon={<Crown size={18} />}
                   />
 
                   <HeroStat
-                    value={String(totalStudents)}
+                    value={totalStudents.toLocaleString("en-IN")}
                     label="Learners"
                     icon={<Users size={18} />}
                   />
@@ -168,12 +168,12 @@ export default async function CoursesPage() {
 
                     <div>
                       <p className="font-bold text-white">
-                        One place for your learning
+                        Secure premium learning
                       </p>
 
                       <p className="mt-1 text-sm leading-6 text-slate-400">
-                        Courses, lessons, assessments and learning
-                        resources are organized inside the LMS.
+                        Premium courses, lessons, resources and assessments are
+                        organized inside the ICU Learning Portal LMS.
                       </p>
                     </div>
                   </div>
@@ -184,7 +184,7 @@ export default async function CoursesPage() {
         </div>
       </section>
 
-      {/* =========================================================
+            {/* =========================================================
           CATALOG HEADER
       ========================================================== */}
 
@@ -194,33 +194,33 @@ export default async function CoursesPage() {
             <div>
               <div className="flex items-center gap-2 text-sm font-black text-blue-700">
                 <Sparkles size={16} />
-                Course Catalog
+                Premium Course Catalog
               </div>
 
               <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
-                Find Your Next Course
+                Professional Learning Programs
               </h2>
 
               <p className="mt-1 text-sm leading-6 text-slate-500">
-                Select a course to view its curriculum, lessons and learning
-                details.
+                Choose a premium program and access its structured curriculum,
+                lessons and learning pathway.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <CatalogStat
-                label="All Courses"
+                label="Premium Courses"
                 value={totalCourses}
               />
 
               <CatalogStat
-                label="Free"
-                value={freeCourses}
+                label="Lessons"
+                value={totalLessons}
               />
 
               <CatalogStat
-                label="Premium"
-                value={premiumCourses}
+                label="Learners"
+                value={totalStudents}
               />
             </div>
           </div>
@@ -238,27 +238,37 @@ export default async function CoursesPage() {
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-600">
-              Available Programs
+              Premium Programs
             </p>
 
             <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-              Choose a Course to Start Learning
+              Choose Your Critical Care Program
             </h2>
 
             <p className="mt-3 text-base leading-7 text-slate-600">
-              Explore ICU and critical care programs based on your current
-              learning goals, level and preferred course format.
+              Explore premium ICU and healthcare learning programs designed for
+              systematic study, practical understanding and long-term
+              professional development.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-              Learning Programs
-            </p>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-2">
+              <Crown
+                size={17}
+                className="text-amber-600"
+              />
 
-            <p className="mt-1 text-lg font-black text-slate-900">
-              {totalCourses} Available
-            </p>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-wider text-amber-700">
+                  Premium Library
+                </p>
+
+                <p className="mt-1 text-lg font-black text-slate-900">
+                  {totalCourses} Programs
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -284,17 +294,16 @@ export default async function CoursesPage() {
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
           <div className="max-w-3xl">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-600">
-              Learning Experience
+              Premium Learning Experience
             </p>
 
             <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-              Everything Organized Around Learning
+              Built Around Serious Learning
             </h2>
 
             <p className="mt-4 text-base leading-7 text-slate-600">
-              Each course is presented as a structured learning program so
-              students can move from lessons to practice and assessment in a
-              clear sequence.
+              Each premium program is organized as a structured LMS learning
+              experience rather than a simple downloadable-content page.
             </p>
           </div>
 
@@ -302,25 +311,53 @@ export default async function CoursesPage() {
             <FeatureCard
               icon={<Video size={23} />}
               title="Video Lessons"
-              description="Follow organized lessons designed for focused learning and revision."
+              description="Follow structured lessons designed for focused learning, revision and clinical understanding."
             />
 
             <FeatureCard
               icon={<FileText size={23} />}
-              title="Study Resources"
-              description="Access course learning resources where they are provided."
+              title="Premium Resources"
+              description="Access protected course resources and study material as part of your enrolled program."
             />
 
             <FeatureCard
               icon={<CheckCircle2 size={23} />}
               title="Assessments"
-              description="Use quizzes and questions to evaluate your understanding."
+              description="Use quizzes and learning checks to evaluate understanding across the curriculum."
             />
 
             <FeatureCard
               icon={<Award size={23} />}
               title="Certificates"
-              description="Eligible completed programs can support certificate-based learning outcomes."
+              description="Eligible learners can progress toward course completion and certificate issuance."
+            />
+          </div>
+        </div>
+      </section>
+
+            {/* =========================================================
+          PREMIUM VALUE SECTION
+      ========================================================== */}
+
+      <section className="bg-slate-50">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
+          <div className="grid gap-6 lg:grid-cols-3">
+            <ValueCard
+              icon={<GraduationCap size={22} />}
+              title="Professional Curriculum"
+              description="Course structures are organized into clear learning modules so students can progress systematically."
+            />
+
+            <ValueCard
+              icon={<ShieldCheck size={22} />}
+              title="Protected Course Access"
+              description="Premium learning content is intended for enrolled learners rather than public free access."
+            />
+
+            <ValueCard
+              icon={<Award size={22} />}
+              title="Learning Completion Path"
+              description="Progress, assessment and completion can connect to the portal's certificate workflow."
             />
           </div>
         </div>
@@ -335,26 +372,61 @@ export default async function CoursesPage() {
           <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-r from-blue-950 via-slate-900 to-cyan-950 p-7 shadow-2xl sm:p-10 lg:p-12">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-4 py-2 text-sm font-bold text-cyan-300">
-                  <GraduationCap size={16} />
-                  Start Your Learning Journey
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-sm font-bold text-amber-300">
+                  <Crown size={16} />
+                  Premium ICU Education
                 </div>
 
                 <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Build Your Critical Care Knowledge Step by Step
+                  Invest in Structured Critical Care Learning
                 </h2>
 
                 <p className="mt-4 text-base leading-7 text-slate-300">
-                  Select a course, review the curriculum and continue your
-                  learning through the ICU Learning Portal.
+                  Select a premium course, review the curriculum and continue
+                  through the ICU Learning Portal with protected learning
+                  access.
                 </p>
+
+                <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-slate-300">
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-400"
+                    />
+                    Premium Access
+                  </span>
+
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-400"
+                    />
+                    Structured Lessons
+                  </span>
+
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-400"
+                    />
+                    Progress Tracking
+                  </span>
+
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-400"
+                    />
+                    Certificate Pathway
+                  </span>
+                </div>
               </div>
 
               <Link
                 href="#course-list"
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-xl transition hover:bg-cyan-50 focus:outline-none focus:ring-2 focus:ring-white/50"
               >
-                View Courses
+                Explore Premium Courses
                 <ArrowRight size={18} />
               </Link>
             </div>
@@ -379,24 +451,24 @@ function CourseCard({
       ? course.price
       : Number(course.price);
 
-  const formattedPrice =
-    Number.isFinite(price) && price > 0
-      ? `₹${price.toLocaleString("en-IN")}`
-      : "Free";
-
   const students = Number(course.students || 0);
   const rating = Number(course.rating || 0);
   const lessons = course.lessons.length;
 
+  const formattedPrice =
+    Number.isFinite(price) && price > 0
+      ? `₹${price.toLocaleString("en-IN")}`
+      : "Premium Access";
+
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-2xl">
       {/* IMAGE */}
 
       <div className="relative h-56 overflow-hidden bg-slate-200">
         {course.image ? (
           <Image
             src={course.image}
-            alt={`${course.title} course`}
+            alt={`${course.title} premium course`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
             className="object-cover transition duration-500 group-hover:scale-105"
@@ -410,22 +482,15 @@ function CourseCard({
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent" />
 
-        {/* COURSE TYPE */}
+        {/* PREMIUM */}
 
         <div className="absolute left-4 top-4">
-          {course.isPremium ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-2 text-xs font-black text-amber-950 shadow-lg">
-              <Crown size={13} />
-              PREMIUM
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400 px-3 py-2 text-xs font-black text-emerald-950 shadow-lg">
-              <CheckCircle2 size={13} />
-              FREE
-            </span>
-          )}
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-2 text-xs font-black text-amber-950 shadow-lg">
+            <Crown size={13} />
+            PREMIUM
+          </span>
         </div>
 
         {/* LEVEL */}
@@ -497,19 +562,20 @@ function CourseCard({
 
         {/* COURSE VALUE */}
 
-        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
-              <PlayCircle size={17} />
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+              <Crown size={17} />
             </div>
 
             <div>
               <p className="text-sm font-black text-slate-800">
-                Structured learning
+                Premium learning access
               </p>
 
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                {lessons} lessons organized within this course.
+              <p className="mt-1 text-xs leading-5 text-slate-600">
+                Protected lessons, course resources, assessments and progress
+                tracking are available through enrollment.
               </p>
             </div>
           </div>
@@ -523,7 +589,7 @@ function CourseCard({
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-                Course Fee
+                Premium Course Fee
               </p>
 
               <p className="mt-1 text-2xl font-black text-blue-700">
@@ -546,7 +612,7 @@ function CourseCard({
             href={`/courses/${course.id}`}
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            View Course Details
+            View Course & Pricing
 
             <ArrowRight
               size={17}
@@ -654,7 +720,7 @@ function CatalogStat({
       </p>
 
       <p className="mt-1 text-xl font-black text-slate-900">
-        {value}
+        {value.toLocaleString("en-IN")}
       </p>
     </div>
   );
@@ -691,6 +757,36 @@ function FeatureCard({
 }
 
 /* ================================================================
+   VALUE CARD
+================================================================ */
+
+function ValueCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+        {icon}
+      </div>
+
+      <h3 className="mt-5 text-lg font-black text-slate-950">
+        {title}
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+/* ================================================================
    EMPTY COURSES
 ================================================================ */
 
@@ -698,22 +794,23 @@ function EmptyCourses() {
   return (
     <div className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
       <div className="mx-auto max-w-xl px-6 py-20 text-center sm:px-10">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-50 text-blue-700">
-          <BookOpen size={38} />
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-50 text-amber-600">
+          <Crown size={38} />
         </div>
 
         <h2 className="mt-6 text-2xl font-black text-slate-900">
-          No Courses Available
+          Premium Courses Are Being Prepared
         </h2>
 
         <p className="mt-3 text-base leading-7 text-slate-600">
-          There are currently no published courses in the learning
-          catalog.
+          No premium course is currently published in the catalog. Once a
+          premium program is published, it will appear here with its curriculum
+          and enrollment options.
         </p>
 
         <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-600">
           <GraduationCap size={17} />
-          Learning Catalog
+          ICU Learning Portal
         </div>
       </div>
     </div>

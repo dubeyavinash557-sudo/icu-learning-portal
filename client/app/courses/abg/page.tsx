@@ -66,81 +66,47 @@ export default function ABGPage() {
 
         learningOutcomes: [
           "Understand normal arterial blood gas parameters and their clinical significance.",
-
           "Explain the relationship between pH, PaCO₂ and HCO₃⁻ in acid–base physiology.",
-
           "Interpret arterial blood gas reports using a systematic step-by-step framework.",
-
           "Differentiate respiratory and metabolic acid–base disorders.",
-
           "Recognise expected and abnormal compensation patterns.",
-
           "Assess oxygenation and ventilation from ABG findings.",
-
           "Identify clinically important acid–base abnormalities in critical-care scenarios.",
-
           "Apply ABG interpretation principles to structured ICU case studies.",
-
           "Improve clinical reasoning when reviewing abnormal ABG reports.",
-
           "Develop examination, viva and interview-oriented ABG interpretation confidence.",
         ],
 
         practicalSkills: [
           "ABG indications and clinical assessment",
-
           "Arterial blood sample collection principles",
-
           "Radial artery assessment",
-
           "Allen's test principles",
-
           "ABG sample handling and common pre-analytical considerations",
-
           "Normal ABG parameter recognition",
-
           "pH interpretation",
-
           "PaCO₂ interpretation",
-
           "HCO₃⁻ interpretation",
-
           "Oxygenation assessment",
-
           "Ventilation assessment",
-
           "Respiratory disorder identification",
-
           "Metabolic disorder identification",
-
           "Compensation assessment",
-
           "Mixed acid–base disorder recognition",
-
           "Step-by-step ABG case interpretation",
         ],
 
         includes: [
           "40 structured ABG lessons",
-
           "Step-by-step ABG interpretation framework",
-
           "Acid–base balance learning modules",
-
           "Oxygenation and ventilation concepts",
-
           "ICU-focused clinical case practice",
-
           "ABG revision resources",
-
           "Practice assessments and knowledge checks",
-
           "Learning progress tracking",
-
           "Premium course access",
-
           "Structured course completion pathway",
-
           "Certificate eligibility after completion",
         ],
       }}
