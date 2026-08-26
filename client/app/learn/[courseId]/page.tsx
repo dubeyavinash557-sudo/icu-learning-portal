@@ -413,9 +413,10 @@ export default async function CourseLearningPage({
                 />
 
                 <NotesDownload
-                  lessonTitle={lesson.title}
-                  notesUrl={lesson.notesUrl}
-                />
+  lessonId={lesson.id}
+  lessonTitle={lesson.title}
+  notesUrl={lesson.notesUrl}
+/>
 
               </div>
 
