@@ -77,7 +77,8 @@ const accentStyles = {
     icon: "bg-violet-600 text-white shadow-violet-600/20",
     soft: "bg-violet-50 text-violet-700",
     line: "from-violet-600 via-blue-600 to-cyan-500",
-    button: "bg-violet-700 shadow-violet-700/20 hover:bg-violet-800",
+    button:
+      "bg-violet-700 shadow-violet-700/20 hover:bg-violet-800",
     text: "text-violet-700",
   },
 
@@ -86,7 +87,8 @@ const accentStyles = {
     icon: "bg-amber-500 text-white shadow-amber-500/20",
     soft: "bg-amber-50 text-amber-700",
     line: "from-amber-500 via-orange-500 to-blue-600",
-    button: "bg-amber-600 shadow-amber-600/20 hover:bg-amber-700",
+    button:
+      "bg-amber-600 shadow-amber-600/20 hover:bg-amber-700",
     text: "text-amber-700",
   },
 };
@@ -98,6 +100,9 @@ export default function CourseLandingPage({
 }) {
   const accent = accentStyles[course.accent];
 
+  const displayPrice =
+    course.price?.trim() || "Premium Access";
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       {/* =====================================================
@@ -106,30 +111,31 @@ export default function CourseLandingPage({
 
       <section className="relative overflow-hidden bg-slate-950">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-blue-600/20 blur-3xl" />
+          <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-cyan-600/10 blur-3xl" />
 
-          <div className="absolute -right-40 top-20 h-[32rem] w-[32rem] rounded-full bg-cyan-500/15 blur-3xl" />
+          <div className="absolute -right-40 top-20 h-[32rem] w-[32rem] rounded-full bg-blue-600/15 blur-3xl" />
 
           <div className="absolute bottom-[-12rem] left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-3xl" />
         </div>
 
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          className="pointer-events-none absolute inset-0 opacity-[0.045]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)",
-            backgroundSize: "42px 42px",
+              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
           }}
         />
 
         <div className="relative mx-auto max-w-7xl px-5 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-20">
-          {/* Breadcrumb */}
-
           <nav
             aria-label="Breadcrumb"
             className="mb-8 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-400"
           >
-            <Link href="/" className="transition hover:text-white">
+            <Link
+              href="/"
+              className="transition hover:text-white"
+            >
               Home
             </Link>
 
@@ -157,8 +163,12 @@ export default function CourseLandingPage({
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${accent.badge}`}
               >
                 <GraduationCap size={15} />
-
                 {course.category}
+              </div>
+
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-amber-300">
+                <Crown size={14} />
+                Premium Professional Course
               </div>
 
               <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -168,8 +178,6 @@ export default function CourseLandingPage({
               <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
                 {course.description}
               </p>
-
-              {/* Rating */}
 
               <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <div className="flex items-center gap-2">
@@ -202,19 +210,16 @@ export default function CourseLandingPage({
                     size={16}
                     className="text-emerald-400"
                   />
-                  Professional learning
+                  Premium learning access
                 </div>
               </div>
-
-              {/* CTA */}
 
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/register"
                   className={`inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4 text-sm font-black text-white shadow-xl transition hover:-translate-y-0.5 ${accent.button}`}
                 >
-                  Start Learning
-
+                  Enroll in Premium Course
                   <ArrowRight size={18} />
                 </Link>
 
@@ -223,23 +228,37 @@ export default function CourseLandingPage({
                   className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-7 py-4 text-sm font-black text-white backdrop-blur transition hover:bg-white/15"
                 >
                   <BookOpen size={18} />
-
                   View Curriculum
                 </Link>
               </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                <TrustBadge
+                  icon={<ShieldCheck size={16} />}
+                  text="Secure Enrollment"
+                />
+
+                <TrustBadge
+                  icon={<PlayCircle size={16} />}
+                  text="Structured Lessons"
+                />
+
+                <TrustBadge
+                  icon={<Award size={16} />}
+                  text="Certificate Path"
+                />
+              </div>
             </div>
 
-            {/* RIGHT COURSE SUMMARY */}
+            {/* RIGHT COURSE PURCHASE CARD */}
 
             <div className="lg:justify-self-end lg:w-full lg:max-w-md">
-              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.07] shadow-2xl backdrop-blur-xl">
+              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white shadow-2xl">
                 <div
                   className={`h-1.5 bg-gradient-to-r ${accent.line}`}
                 />
 
-                <div className="p-6 sm:p-7">
-                  {/* Course identity */}
-
+                <div className="bg-slate-950 p-6 text-white sm:p-7">
                   <div className="flex items-start justify-between gap-4">
                     <div
                       className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl shadow-lg ${accent.icon}`}
@@ -247,28 +266,19 @@ export default function CourseLandingPage({
                       <GraduationCap size={27} />
                     </div>
 
-                    {course.isPremium ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
-                        <Crown size={13} />
-                        Premium
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
-                        <CheckCircle2 size={13} />
-                        Free
-                      </span>
-                    )}
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
+                      <Crown size={13} />
+                      Premium
+                    </span>
                   </div>
 
-                  <h2 className="mt-6 text-xl font-black text-white">
+                  <h2 className="mt-6 text-xl font-black">
                     {course.shortTitle}
                   </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-400">
                     {course.longDescription}
                   </p>
-
-                  {/* Stats */}
 
                   <div className="mt-6 grid grid-cols-2 gap-3">
                     <SummaryStat
@@ -296,17 +306,35 @@ export default function CourseLandingPage({
                     />
                   </div>
 
-                  {/* Price */}
+                  <div className="mt-6 rounded-2xl border border-amber-300/15 bg-amber-300/[0.06] p-4">
+                    <div className="flex items-start gap-3">
+                      <Crown
+                        size={19}
+                        className="mt-0.5 shrink-0 text-amber-300"
+                      />
+
+                      <div>
+                        <p className="text-sm font-black text-white">
+                          Premium Course Access
+                        </p>
+
+                        <p className="mt-1 text-xs leading-5 text-slate-400">
+                          Access the complete structured learning
+                          pathway after enrollment.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="mt-6 border-t border-white/10 pt-6">
                     <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">
-                      Course Access
+                      Premium Course Fee
                     </p>
 
                     <div className="mt-2 flex items-end justify-between gap-4">
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-black text-white">
-                          {course.price}
+                          {displayPrice}
                         </span>
 
                         {course.originalPrice && (
@@ -316,20 +344,29 @@ export default function CourseLandingPage({
                         )}
                       </div>
 
-                      <span className="text-xs font-semibold text-slate-500">
-                        Secure access
-                      </span>
+                      {course.originalPrice && (
+                        <span className="rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-black text-emerald-300">
+                          LIMITED OFFER
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <Link
                     href="/register"
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-black text-slate-950 transition hover:bg-slate-100"
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-black text-slate-950 transition hover:bg-cyan-50"
                   >
-                    Enroll &amp; Start
-
+                    Get Premium Access
                     <ArrowRight size={17} />
                   </Link>
+
+                  <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[11px] font-semibold text-slate-500">
+                    <span>Secure enrollment</span>
+                    <span>•</span>
+                    <span>Structured learning</span>
+                    <span>•</span>
+                    <span>Certificate pathway</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -375,7 +412,7 @@ export default function CourseLandingPage({
             href="#included"
             className="whitespace-nowrap text-slate-600 transition hover:text-blue-700"
           >
-            What&apos;s Included
+            What's Included
           </a>
         </div>
       </section>
@@ -389,16 +426,14 @@ export default function CourseLandingPage({
         className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-20"
       >
         <div className="grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
-          {/* MAIN */}
-
           <div className="space-y-8">
-            {/* Overview */}
+            {/* OVERVIEW */}
 
             <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <SectionHeading
                 icon={<BookOpen size={21} />}
                 title="Course Overview"
-                description="A structured learning pathway designed for systematic understanding and practical application."
+                description="A structured premium learning pathway designed for systematic understanding and practical application."
               />
 
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
@@ -420,7 +455,7 @@ export default function CourseLandingPage({
               </div>
             </section>
 
-            {/* Curriculum */}
+            {/* CURRICULUM */}
 
             <section
               id="curriculum"
@@ -429,14 +464,14 @@ export default function CourseLandingPage({
               <SectionHeading
                 icon={<BookOpen size={21} />}
                 title="Course Curriculum"
-                description={`${course.modules.length} structured modules • ${course.lessons} lessons`}
+                description={`${course.modules.length} structured modules • ${course.lessons} premium lessons`}
               />
 
               <div className="mt-7 space-y-3">
                 {course.modules.map((module, index) => (
                   <div
                     key={module.title}
-                    className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-200 hover:shadow-md"
+                    className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
                   >
                     <div className="flex items-start gap-4">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-sm font-black text-blue-700">
@@ -464,29 +499,29 @@ export default function CourseLandingPage({
                 ))}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-5">
+              <div className="mt-6 rounded-2xl border border-amber-100 bg-amber-50 p-5">
                 <div className="flex items-start gap-3">
                   <Sparkles
                     size={19}
-                    className="mt-0.5 shrink-0 text-blue-700"
+                    className="mt-0.5 shrink-0 text-amber-700"
                   />
 
                   <div>
-                    <p className="font-black text-blue-900">
-                      Structured learning pathway
+                    <p className="font-black text-amber-900">
+                      Premium structured pathway
                     </p>
 
-                    <p className="mt-1 text-sm leading-6 text-blue-800/80">
-                      Lessons will be connected with progress tracking,
-                      assessments and completion milestones as the LMS
-                      learning system is implemented.
+                    <p className="mt-1 text-sm leading-6 text-amber-800/80">
+                      The curriculum is designed around progressive
+                      lessons, assessments, learning progress and
+                      course completion milestones.
                     </p>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Outcomes */}
+            {/* OUTCOMES */}
 
             <section
               id="outcomes"
@@ -495,7 +530,7 @@ export default function CourseLandingPage({
               <SectionHeading
                 icon={<Award size={21} />}
                 title="What You Will Learn"
-                description="Core competencies covered throughout the course."
+                description="Core competencies covered throughout the premium course."
               />
 
               <div className="mt-7 grid gap-3 md:grid-cols-2">
@@ -505,7 +540,10 @@ export default function CourseLandingPage({
                     className="flex items-start gap-3"
                   >
                     <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                      <CheckCircle2 size={13} strokeWidth={3} />
+                      <CheckCircle2
+                        size={13}
+                        strokeWidth={3}
+                      />
                     </span>
 
                     <span className="text-sm leading-6 text-slate-600">
@@ -516,7 +554,7 @@ export default function CourseLandingPage({
               </div>
             </section>
 
-            {/* Practical Skills */}
+            {/* PRACTICAL SKILLS */}
 
             <section
               id="skills"
@@ -550,8 +588,8 @@ export default function CourseLandingPage({
 
           {/* SIDEBAR */}
 
-          <aside className="space-y-6">
-            {/* Instructor */}
+          <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
+            {/* INSTRUCTOR */}
 
             <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
@@ -584,14 +622,14 @@ export default function CourseLandingPage({
               </div>
             </div>
 
-            {/* Included */}
+            {/* INCLUDED */}
 
             <div
               id="included"
               className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm"
             >
               <p className="text-xs font-black uppercase tracking-[0.15em] text-slate-400">
-                This Course Includes
+                Premium Course Includes
               </p>
 
               <div className="mt-5 space-y-3">
@@ -613,7 +651,7 @@ export default function CourseLandingPage({
               </div>
             </div>
 
-            {/* Certificate */}
+            {/* CERTIFICATE */}
 
             <div className="overflow-hidden rounded-[2rem] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-6 shadow-sm">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-700 text-white shadow-lg">
@@ -626,21 +664,25 @@ export default function CourseLandingPage({
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Eligible learners can work toward course completion
-                and certificate issuance after the LMS completion
-                requirements are satisfied.
+                and certificate issuance after the required LMS
+                completion milestones are satisfied.
               </p>
 
               <div className="mt-5 flex items-center gap-2 text-xs font-bold text-blue-700">
                 <ShieldCheck size={15} />
-                Verification-ready pathway
+                Verification-ready learning pathway
               </div>
             </div>
 
-            {/* Final CTA */}
+            {/* PREMIUM CTA */}
 
-            <div className="rounded-[2rem] bg-slate-950 p-6 text-white shadow-xl">
-              <p className="text-xs font-black uppercase tracking-[0.15em] text-cyan-300">
-                Ready to Learn?
+            <div className="overflow-hidden rounded-[2rem] bg-slate-950 p-6 text-white shadow-xl">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-400/10 text-amber-300 ring-1 ring-amber-300/20">
+                <Crown size={21} />
+              </div>
+
+              <p className="mt-5 text-xs font-black uppercase tracking-[0.15em] text-amber-300">
+                Premium Access
               </p>
 
               <h3 className="mt-3 text-xl font-black">
@@ -648,16 +690,27 @@ export default function CourseLandingPage({
               </h3>
 
               <p className="mt-3 text-sm leading-6 text-slate-400">
-                Create your learner account and continue to the
-                enrollment process.
+                Enroll in the premium program and continue through
+                the structured course curriculum.
               </p>
+
+              <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-bold text-slate-400">
+                    Premium Fee
+                  </span>
+
+                  <span className="text-lg font-black text-white">
+                    {displayPrice}
+                  </span>
+                </div>
+              </div>
 
               <Link
                 href="/register"
                 className={`mt-5 flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-black text-white transition ${accent.button}`}
               >
-                Create Account
-
+                Enroll Now
                 <ArrowRight size={17} />
               </Link>
             </div>
@@ -672,23 +725,60 @@ export default function CourseLandingPage({
       <section className="border-t border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-5 py-10 sm:px-6 lg:px-8">
           <div className="grid gap-4 md:grid-cols-3">
-            <TrustItem
+            <TrustCard
               icon={<BookOpen size={20} />}
               title="Structured Curriculum"
-              description="Organised modules and lessons for systematic learning."
+              description="Organised modules and lessons for systematic professional learning."
             />
 
-            <TrustItem
+            <TrustCard
               icon={<PlayCircle size={20} />}
-              title="Learning Resources"
-              description="Designed to support video, notes and assessment-based learning."
+              title="Premium Learning Resources"
+              description="Video lessons, study resources and assessments inside the LMS."
             />
 
-            <TrustItem
+            <TrustCard
               icon={<Award size={20} />}
               title="Completion Pathway"
-              description="Learning progress can connect with assessment and certification."
+              description="Learning progress can connect with assessment and certificate milestones."
             />
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          FINAL CTA
+      ====================================================== */}
+
+      <section className="bg-slate-950">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
+          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-r from-blue-950 via-slate-900 to-cyan-950 p-7 shadow-2xl sm:p-10 lg:p-12">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-sm font-bold text-amber-300">
+                  <Crown size={16} />
+                  Premium Professional Learning
+                </div>
+
+                <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Build Your Critical Care Knowledge Step by Step
+                </h2>
+
+                <p className="mt-4 text-base leading-7 text-slate-300">
+                  Join the premium learning pathway and progress
+                  through structured lessons, assessments and
+                  completion milestones.
+                </p>
+              </div>
+
+              <Link
+                href="/register"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-xl transition hover:bg-cyan-50"
+              >
+                Get Premium Access
+                <ArrowRight size={18} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -759,10 +849,32 @@ function SectionHeading({
 }
 
 /* ============================================================
-   TRUST ITEM
+   TRUST BADGE
 ============================================================ */
 
-function TrustItem({
+function TrustBadge({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-2.5 text-xs font-bold text-slate-300">
+      <span className="text-emerald-400">
+        {icon}
+      </span>
+
+      {text}
+    </div>
+  );
+}
+
+/* ============================================================
+   TRUST CARD
+============================================================ */
+
+function TrustCard({
   icon,
   title,
   description,

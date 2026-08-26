@@ -22,19 +22,177 @@ import { getCourses } from "@/lib/course";
 
 export const dynamic = "force-dynamic";
 
+type PremiumCourse = Awaited<
+  ReturnType<typeof getCourses>
+>[number];
+
+function getCourseCategory(course: PremiumCourse) {
+  const value = `${course.slug} ${course.title}`.toLowerCase();
+
+  if (
+    value.includes("abg") ||
+    value.includes("blood gas")
+  ) {
+    return "Critical Care • ABG";
+  }
+
+  if (
+    value.includes("ecg") ||
+    value.includes("electrocard")
+  ) {
+    return "Critical Care • ECG";
+  }
+
+  if (
+    value.includes("ventilator") ||
+    value.includes("mechanical ventilation")
+  ) {
+    return "Critical Care • Ventilation";
+  }
+
+  if (
+    value.includes("emergency") ||
+    value.includes("emergency care")
+  ) {
+    return "Critical Care • Emergency";
+  }
+
+  if (
+    value.includes("medical coding") ||
+    value.includes("coding")
+  ) {
+    return "Healthcare • Medical Coding";
+  }
+
+  if (
+    value.includes("icu nursing") ||
+    value.includes("critical care nursing") ||
+    value.includes("icu")
+  ) {
+    return "Critical Care • Nursing";
+  }
+
+  return "Professional Healthcare Education";
+}
+
+function formatPrice(price: unknown) {
+  const value = Number(price);
+
+  if (!Number.isFinite(value) || value <= 0) {
+    return "Premium Access";
+  }
+
+  return `₹${value.toLocaleString("en-IN")}`;
+}
+
+function formatDuration(minutes: number) {
+  if (!Number.isFinite(minutes) || minutes <= 0) {
+    return "Self-paced";
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  if (hours === 0) {
+    return `${minutes} min`;
+  }
+
+  if (remainingMinutes === 0) {
+    return `${hours} hr`;
+  }
+
+  return `${hours}h ${remainingMinutes}m`;
+}
+
+function getResourceSummary(course: PremiumCourse) {
+  const slug = course.slug.toLowerCase();
+  const title = course.title.toLowerCase();
+
+  if (
+    slug.includes("abg") ||
+    title.includes("abg")
+  ) {
+    return [
+      "Normal ABG values",
+      "Acid-base disorders",
+      "ABG interpretation",
+      "Clinical case practice",
+    ];
+  }
+
+  if (
+    slug.includes("ecg") ||
+    title.includes("ecg")
+  ) {
+    return [
+      "ECG fundamentals",
+      "Waveform analysis",
+      "Cardiac rhythms",
+      "Emergency ECG",
+    ];
+  }
+
+  if (
+    slug.includes("ventilator") ||
+    title.includes("ventilator")
+  ) {
+    return [
+      "Ventilator modes",
+      "Ventilator settings",
+      "Alarm management",
+      "Weaning & nursing care",
+    ];
+  }
+
+  if (
+    slug.includes("emergency") ||
+    title.includes("emergency")
+  ) {
+    return [
+      "Emergency assessment",
+      "Crash cart concepts",
+      "Emergency medicines",
+      "Critical response",
+    ];
+  }
+
+  if (
+    slug.includes("medical-coding") ||
+    title.includes("medical coding")
+  ) {
+    return [
+      "Medical terminology",
+      "ICD-10-CM concepts",
+      "CPT fundamentals",
+      "Coding practice",
+    ];
+  }
+
+  return [
+    "ICU fundamentals",
+    "Patient monitoring",
+    "Emergency care",
+    "Practical ICU skills",
+  ];
+}
+
 export default async function NotesPage() {
   const courses = await getCourses();
 
-  const premiumCourses = courses.filter((course) => course.isPremium);
+  const premiumCourses = courses.filter(
+    (course) => course.isPremium
+  );
 
   const totalLessons = premiumCourses.reduce(
-    (total, course) => total + course.lessons.length,
-    0,
+    (total, course) =>
+      total + course.lessons.length,
+    0
   );
 
   const totalLearners = premiumCourses.reduce(
-    (total, course) => total + Number(course.students || 0),
-    0,
+    (total, course) =>
+      total + Number(course.students || 0),
+    0
   );
 
   return (
@@ -43,13 +201,13 @@ export default async function NotesPage() {
           HEADER
       ========================================================== */}
 
-      <header className="border-b border-white/10 bg-[#020617]">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#020617]/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="flex items-center gap-3"
+            className="group flex items-center gap-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-400/10 transition group-hover:bg-cyan-500/15">
               <GraduationCap size={21} />
             </div>
 
@@ -59,16 +217,16 @@ export default async function NotesPage() {
               </p>
 
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Nursing Notes Library
+                Premium Study Library
               </p>
             </div>
           </Link>
 
           <Link
             href="/courses"
-            className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-black text-slate-200 transition hover:bg-white/10 sm:inline-flex"
+            className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-black text-slate-200 transition hover:border-cyan-400/20 hover:bg-white/10 sm:inline-flex"
           >
-            View Courses
+            Browse Premium Courses
             <ArrowRight size={15} />
           </Link>
         </div>
@@ -78,7 +236,7 @@ export default async function NotesPage() {
           HERO
       ========================================================== */}
 
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden border-b border-white/10">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl" />
 
@@ -101,7 +259,7 @@ export default async function NotesPage() {
             {/* LEFT */}
 
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-black text-cyan-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-cyan-300">
                 <LockKeyhole size={14} />
                 Premium Study Library
               </div>
@@ -114,9 +272,10 @@ export default async function NotesPage() {
               </h1>
 
               <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                Access structured ICU learning resources, nursing notes,
-                mechanical ventilation material, ECG and ABG study content
-                through premium course access.
+                Access structured ICU learning resources,
+                nursing notes, mechanical ventilation material,
+                ECG, ABG and critical-care study content through
+                authenticated premium course access.
               </p>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -148,7 +307,7 @@ export default async function NotesPage() {
             {/* RIGHT */}
 
             <div className="lg:justify-self-end lg:w-full lg:max-w-md">
-              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-5 shadow-2xl backdrop-blur-xl">
+              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-5 shadow-2xl backdrop-blur-xl sm:p-6">
                 <div className="rounded-2xl border border-cyan-400/10 bg-cyan-400/[0.04] p-5">
                   <div className="flex items-center gap-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
@@ -181,14 +340,14 @@ export default async function NotesPage() {
                   />
 
                   <HeroStat
-                    value={String(totalLearners)}
+                    value={totalLearners.toLocaleString("en-IN")}
                     label="Learners"
                     icon={<Users size={18} />}
                   />
 
                   <HeroStat
                     value="100%"
-                    label="Protected"
+                    label="Premium Access"
                     icon={<ShieldCheck size={18} />}
                   />
                 </div>
@@ -201,12 +360,13 @@ export default async function NotesPage() {
 
                     <div>
                       <p className="font-black text-white">
-                        Premium course access
+                        Premium course resources
                       </p>
 
                       <p className="mt-1 text-xs leading-5 text-slate-400">
-                        Study notes and protected learning resources are
-                        available after premium course access.
+                        Study notes and protected learning
+                        resources are available only after
+                        verified premium course access.
                       </p>
                     </div>
                   </div>
@@ -221,7 +381,7 @@ export default async function NotesPage() {
           LIBRARY INTRO
       ========================================================== */}
 
-      <section className="border-y border-white/10 bg-[#071022]">
+      <section className="border-b border-white/10 bg-[#071022]">
         <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
@@ -235,9 +395,10 @@ export default async function NotesPage() {
               </h2>
 
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-                Free PDF download buttons have been removed from the public
-                library. Premium resources are accessed through authenticated
-                course access.
+                Public free-download buttons are not available.
+                Study resources are connected to premium
+                course access and are intended to remain inside
+                the LMS.
               </p>
             </div>
 
@@ -263,7 +424,7 @@ export default async function NotesPage() {
         </div>
       </section>
 
-      {/* =========================================================
+            {/* =========================================================
           COURSE GRID
       ========================================================== */}
 
@@ -278,8 +439,9 @@ export default async function NotesPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">
-            Notes are connected to premium courses. Purchase or activate the
-            relevant course to unlock protected study resources.
+            Select the premium course that matches your
+            learning goal. Protected study resources remain
+            available through authorized course access.
           </p>
         </div>
 
@@ -298,12 +460,40 @@ export default async function NotesPage() {
       </section>
 
       {/* =========================================================
-          SECURITY BANNER
+          PREMIUM POLICY
       ========================================================== */}
 
       <section className="border-y border-white/10 bg-[#071022]">
         <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
-          <div className="overflow-hidden rounded-[2rem] border border-cyan-400/10 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-indigo-950/40 p-7 sm:p-10">
+          <div className="grid gap-5 md:grid-cols-3">
+            <PolicyCard
+              icon={<LockKeyhole size={21} />}
+              title="Protected Resources"
+              description="Course notes are treated as premium learning resources rather than public downloads."
+            />
+
+            <PolicyCard
+              icon={<ShieldCheck size={21} />}
+              title="Verified Access"
+              description="Premium course access should be verified on the server before protected resources are delivered."
+            />
+
+            <PolicyCard
+              icon={<Crown size={21} />}
+              title="Premium Learning"
+              description="Learners purchase the relevant course to access its structured study material."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          SECURITY BANNER
+      ========================================================== */}
+
+      <section className="bg-[#071022]">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
+          <div className="overflow-hidden rounded-[2rem] border border-cyan-400/10 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-indigo-950/40 p-7 shadow-2xl sm:p-10">
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="max-w-3xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-black text-emerald-300">
@@ -316,9 +506,10 @@ export default async function NotesPage() {
                 </h2>
 
                 <p className="mt-3 text-sm leading-7 text-slate-400">
-                  Study resources should be delivered only after the server
-                  verifies the learner's premium access. Direct public PDF
-                  URLs should not be used for paid content.
+                  The notes page does not expose public free
+                  download actions. Protected files should be
+                  delivered only after the server validates the
+                  learner&apos;s premium course access.
                 </p>
               </div>
 
@@ -326,7 +517,7 @@ export default async function NotesPage() {
                 href="/courses"
                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-black text-slate-950 transition hover:bg-cyan-50"
               >
-                Browse Courses
+                Browse Premium Courses
                 <ArrowRight size={17} />
               </Link>
             </div>
@@ -349,8 +540,9 @@ export default async function NotesPage() {
           </h2>
 
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500">
-            Study ICU nursing, mechanical ventilation, ECG, ABG and other
-            critical-care topics through structured premium programs.
+            Study ICU nursing, mechanical ventilation, ECG,
+            ABG and other critical-care topics through
+            structured premium programs.
           </p>
 
           <Link
@@ -373,16 +565,15 @@ export default async function NotesPage() {
 function PremiumCourseCard({
   course,
 }: {
-  course: Awaited<ReturnType<typeof getCourses>>[number];
+  course: PremiumCourse;
 }) {
   const students = Number(course.students || 0);
   const rating = Number(course.rating || 0);
   const lessons = course.lessons.length;
 
-  const price =
-    Number(course.price) > 0
-      ? `₹${Number(course.price).toLocaleString("en-IN")}`
-      : "Premium";
+  const price = formatPrice(course.price);
+  const category = getCourseCategory(course);
+  const resourceSummary = getResourceSummary(course);
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b1428] shadow-xl transition duration-300 hover:-translate-y-1 hover:border-cyan-400/20 hover:shadow-cyan-950/30">
@@ -408,6 +599,8 @@ function PremiumCourseCard({
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
+        {/* PREMIUM BADGE */}
+
         <div className="absolute left-4 top-4">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-400/95 px-3 py-2 text-[10px] font-black text-amber-950 shadow-lg">
             <Crown size={13} />
@@ -415,11 +608,15 @@ function PremiumCourseCard({
           </span>
         </div>
 
+        {/* LEVEL */}
+
         <div className="absolute bottom-4 left-4">
           <span className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[10px] font-black text-slate-200 backdrop-blur">
             {course.level}
           </span>
         </div>
+
+        {/* RATING */}
 
         <div className="absolute bottom-4 right-4">
           <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/80 px-3 py-1.5 text-xs font-black text-white backdrop-blur">
@@ -437,7 +634,7 @@ function PremiumCourseCard({
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <div className="flex items-center justify-between gap-3">
           <span className="truncate text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400">
-            ICU Learning Portal
+            {category}
           </span>
 
           <span className="shrink-0 text-[10px] font-bold text-slate-500">
@@ -473,11 +670,13 @@ function PremiumCourseCard({
 
           <DarkMeta
             icon={<Users size={14} />}
-            value={`${students.toLocaleString("en-IN")} Learners`}
+            value={`${students.toLocaleString(
+              "en-IN"
+            )} Learners`}
           />
         </div>
 
-        {/* PROTECTED RESOURCE */}
+        {/* PROTECTED RESOURCES */}
 
         <div className="mt-5 rounded-2xl border border-cyan-400/10 bg-cyan-400/[0.04] p-4">
           <div className="flex gap-3">
@@ -485,17 +684,38 @@ function PremiumCourseCard({
               <LockKeyhole size={17} />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-black text-white">
                 Premium Notes Protected
               </p>
 
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Study PDFs are available only to authorized premium learners.
+                Protected study resources are available after
+                verified premium course access.
               </p>
             </div>
           </div>
+
+          <div className="mt-4 grid gap-2">
+            {resourceSummary.map((item) => (
+              <div
+                key={item}
+                className="flex items-center gap-2 rounded-xl bg-slate-950/60 px-3 py-2"
+              >
+                <CheckCircle2
+                  size={13}
+                  className="shrink-0 text-cyan-400"
+                />
+
+                <span className="text-[10px] font-bold text-slate-500">
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* PRICE */}
 
         <div className="mt-5 border-t border-white/5 pt-5">
           <div className="flex items-end justify-between gap-4">
@@ -514,7 +734,8 @@ function PremiumCourseCard({
                 Access
               </p>
 
-              <p className="mt-1 text-xs font-black text-amber-300">
+              <p className="mt-1 inline-flex items-center gap-1 text-xs font-black text-amber-300">
+                <Crown size={12} />
                 PREMIUM
               </p>
             </div>
@@ -556,6 +777,36 @@ function DarkMeta({
       <span className="truncate text-[10px] font-bold text-slate-500">
         {value}
       </span>
+    </div>
+  );
+}
+
+/* ================================================================
+   POLICY CARD
+================================================================ */
+
+function PolicyCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-[#0b1428] p-6 transition hover:border-cyan-400/20">
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
+        {icon}
+      </div>
+
+      <h3 className="mt-5 text-lg font-black text-white">
+        {title}
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-slate-500">
+        {description}
+      </p>
     </div>
   );
 }
@@ -629,9 +880,17 @@ function EmptyLibrary() {
       </h2>
 
       <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
-        Premium study resources will appear here when published courses are
-        available.
+        Premium study resources will appear here when
+        premium courses are published.
       </p>
+
+      <Link
+        href="/courses"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-400"
+      >
+        Browse Premium Courses
+        <ArrowRight size={16} />
+      </Link>
     </div>
   );
 }
@@ -640,7 +899,7 @@ function EmptyLibrary() {
    DURATION
 ================================================================ */
 
-function formatDuration(minutes: number) {
+function CourseDuration(minutes: number) {
   if (!Number.isFinite(minutes) || minutes <= 0) {
     return "Self-paced";
   }
@@ -658,3 +917,59 @@ function formatDuration(minutes: number) {
 
   return `${hours}h ${remainingMinutes}m`;
 }
+
+/*
+  Compatibility alias.
+
+  Keeping the formatter separate makes the component easy to
+  extend later without changing every course-card call site.
+*/
+
+/* ================================================================
+   OPTIONAL RESOURCE LABEL
+================================================================ */
+
+function PremiumResourceLabel({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/10 bg-cyan-400/[0.05] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
+      <LockKeyhole size={12} />
+      {children}
+    </span>
+  );
+}
+
+/* ================================================================
+   ACCESS BADGE
+================================================================ */
+
+function PremiumAccessBadge() {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
+      <Crown size={12} />
+      Premium Access
+    </span>
+  );
+}
+
+/* ================================================================
+   NOTE:
+   These helper components intentionally do not contain any
+   public download link or public file URL.
+================================================================ */
+
+/*
+  End of app/notes/page.tsx
+
+  Premium-access rule for this page:
+
+  1. Only courses with isPremium === true are displayed.
+  2. No public "Download PDF" action is rendered.
+  3. No public notesUrl is exposed from this page.
+  4. Every resource CTA points toward the premium course.
+  5. Actual file authorization must be enforced server-side
+     before returning any protected notes/PDF bytes.
+*/

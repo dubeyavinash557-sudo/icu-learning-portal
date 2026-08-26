@@ -790,53 +790,78 @@ export default async function LessonPage({ params }: Props) {
             =============================================== */}
 
             {lesson.notesUrl && (
-              <section className="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50 shadow-sm">
+  <section className="overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-cyan-50 shadow-sm">
+    <div className="p-6 sm:p-8">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 shadow-sm ring-1 ring-amber-200">
+            <FileText size={27} />
+          </div>
 
-                <div className="p-6 sm:p-8">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">
+                Premium Study Resource
+              </p>
 
-                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-amber-800">
+                Paid Access
+              </span>
+            </div>
 
-                    <div className="flex items-start gap-4">
+            <h2 className="mt-1 text-xl font-black text-slate-950">
+              Lesson Notes
+            </h2>
 
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm">
-                        <FileText size={27} />
-                      </div>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-slate-600">
+              Protected course notes are available only to
+              authenticated learners with verified premium access.
+            </p>
+          </div>
+        </div>
 
-                      <div>
+        <a
+          href={`/api/lesson-notes?lessonId=${encodeURIComponent(
+            lesson.id
+          )}`}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-amber-500/20 transition hover:from-amber-600 hover:to-orange-700 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+        >
+          <Download size={18} />
+          Access Notes
+        </a>
+      </div>
 
-                        <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-600">
-                          Study Resource
-                        </p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-3">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+            Access
+          </p>
+          <p className="mt-1 text-sm font-black text-slate-800">
+            Premium learners
+          </p>
+        </div>
 
-                        <h2 className="mt-1 text-xl font-black text-emerald-950">
-                          Lesson Notes
-                        </h2>
+        <div className="rounded-xl border border-slate-200 bg-white p-3">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+            Security
+          </p>
+          <p className="mt-1 text-sm font-black text-slate-800">
+            Payment verified
+          </p>
+        </div>
 
-                        <p className="mt-1 text-sm leading-6 text-emerald-800/80">
-                          Download the lesson notes and
-                          revise this topic offline.
-                        </p>
-
-                      </div>
-
-                    </div>
-
-                    <a
-                      href={lesson.notesUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-600/15 transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                    >
-                      <Download size={18} />
-                      Download Notes
-                    </a>
-
-                  </div>
-
-                </div>
-
-              </section>
-            )}
+        <div className="rounded-xl border border-slate-200 bg-white p-3">
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+            Resource
+          </p>
+          <p className="mt-1 text-sm font-black text-slate-800">
+            Protected PDF
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
 
             {/* ===============================================
                 COMPLETION + NAVIGATION
