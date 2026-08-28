@@ -8,6 +8,11 @@ export const runtime = "nodejs";
 
 const RESET_TOKEN_EXPIRY_MINUTES = 30;
 
+const GENERIC_SUCCESS_MESSAGE =
+  "If an account exists, a password reset link has been sent to the registered email address.";
+
+const INVALID_REQUEST_MESSAGE = "Invalid request.";
+
 function hashToken(token: string) {
   return crypto
     .createHash("sha256")
@@ -27,6 +32,38 @@ function createResetToken() {
   return crypto.randomBytes(32).toString("hex");
 }
 
+/**
+ * Escape user-controlled values before placing them inside
+ * the HTML email.
+ */
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
+ * Keep the application URL controlled by environment configuration.
+ *
+ * In production this should be:
+ *
+ * NEXTAUTH_URL=https://iculearningportal.com
+ *
+ * The localhost fallback is useful only for local development.
+ */
+function getAppUrl() {
+  const configuredUrl = process.env.NEXTAUTH_URL?.trim();
+
+  if (!configuredUrl) {
+    return "http://localhost:3000";
+  }
+
+  return configuredUrl.replace(/\/+$/, "");
+}
+
 export async function POST(request: Request) {
   try {
     /*
@@ -43,7 +80,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid request.",
+          message: INVALID_REQUEST_MESSAGE,
         },
         {
           status: 400,
@@ -53,12 +90,14 @@ export async function POST(request: Request) {
 
     if (
       typeof body !== "object" ||
-      body === null
+      body === null ||
+      !("identifier" in body) ||
+      typeof body.identifier !== "string"
     ) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid request.",
+          message: INVALID_REQUEST_MESSAGE,
         },
         {
           status: 400,
@@ -66,11 +105,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const identifier =
-      "identifier" in body &&
-      typeof body.identifier === "string"
-        ? body.identifier.trim()
-        : "";
+    const identifier = body.identifier.trim();
 
     if (!identifier) {
       return NextResponse.json(
@@ -88,6 +123,20 @@ export async function POST(request: Request) {
     /*
      * ==========================================================
      * 2. NORMALIZE IDENTIFIER
+     * ==========================================================
+     *
+     * Email:
+     *   DubeyAvinash557@Gmail.com
+     *       ↓
+     *   dubeyavinash557@gmail.com
+     *
+     * Mobile:
+     *   +91 81770 84179
+     *       ↓
+     *   918177084179
+     *
+     * The database lookup must use the same normalization
+     * convention used during registration.
      * ==========================================================
      */
 
@@ -111,16 +160,70 @@ export async function POST(request: Request) {
     }
 
     /*
+     * Basic email validation.
+     *
+     * This is intentionally not an attempt to implement the
+     * complete RFC email grammar. It simply rejects obviously
+     * malformed input before querying the database.
+     */
+
+    if (isEmail) {
+      const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (
+        normalizedIdentifier.length > 254 ||
+        !emailPattern.test(normalizedIdentifier)
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              "Please enter a valid email address.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    } else {
+      /*
+       * India-focused LMS validation.
+       *
+       * The database currently stores mobile as a unique
+       * string. We allow common international-style input,
+       * but require a reasonable number of digits.
+       */
+
+      if (
+        normalizedIdentifier.length < 10 ||
+        normalizedIdentifier.length > 15
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message:
+              "Please enter a valid mobile number.",
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    }
+
+    /*
      * ==========================================================
      * 3. FIND USER
+     * ==========================================================
      *
-     * User can enter either:
+     * The requester may provide:
      *
-     * - Email
-     * - Mobile number
+     * - registered email
+     * - registered mobile number
      *
-     * The account's registered email will be used
-     * for sending the secure password-reset link.
+     * The reset link is always delivered to the account's
+     * registered email address.
      * ==========================================================
      */
 
@@ -149,87 +252,105 @@ export async function POST(request: Request) {
     /*
      * ==========================================================
      * 4. ACCOUNT ENUMERATION PROTECTION
+     * ==========================================================
      *
-     * Never tell the requester whether an account exists.
+     * NEVER tell the requester whether the account exists.
      *
-     * This prevents attackers from discovering registered
-     * email addresses or mobile numbers.
+     * Both of these must return the same public response:
+     *
+     *   registered@example.com
+     *   unknown@example.com
+     *
+     * This prevents attackers from testing which emails are
+     * registered on the LMS.
      * ==========================================================
      */
 
     if (!user) {
       return NextResponse.json({
         success: true,
-        message:
-          "If an account exists, a password reset link has been sent to the registered email address.",
+        message: GENERIC_SUCCESS_MESSAGE,
       });
     }
 
     /*
      * ==========================================================
-     * 5. ENVIRONMENT VALIDATION
+     * 5. EMAIL SERVICE CONFIGURATION
      * ==========================================================
      */
 
     const resendApiKey =
-      process.env.RESEND_API_KEY;
+      process.env.RESEND_API_KEY?.trim();
 
     const resendFromEmail =
-      process.env.RESEND_FROM_EMAIL;
+      process.env.RESEND_FROM_EMAIL?.trim();
 
-    if (
-      !resendApiKey ||
-      !resendFromEmail
-    ) {
+    if (!resendApiKey || !resendFromEmail) {
       console.error(
         "PASSWORD RESET EMAIL CONFIGURATION IS MISSING."
       );
 
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Password reset email service is temporarily unavailable.",
-        },
-        {
-          status: 500,
-        }
-      );
+      /*
+       * Do not expose email infrastructure configuration
+       * to the requester.
+       *
+       * Returning the same public response also preserves
+       * account-enumeration protection.
+       */
+
+      return NextResponse.json({
+        success: true,
+        message: GENERIC_SUCCESS_MESSAGE,
+      });
     }
 
     /*
      * ==========================================================
-     * 6. INVALIDATE PREVIOUS UNUSED TOKENS
+     * 6. INVALIDATE PREVIOUS ACTIVE RESET TOKENS
+     * ==========================================================
      *
-     * Only the latest reset request should remain valid.
+     * Only the newest reset request should remain usable.
+     *
+     * Previous token:
+     *   usedAt = current timestamp
+     *
+     * New token:
+     *   will be created below
      * ==========================================================
      */
+
+    const invalidatedAt = new Date();
 
     await prisma.passwordResetToken.updateMany({
       where: {
         userId: user.id,
         usedAt: null,
         expiresAt: {
-          gt: new Date(),
+          gt: invalidatedAt,
         },
       },
       data: {
-        usedAt: new Date(),
+        usedAt: invalidatedAt,
       },
     });
 
     /*
      * ==========================================================
-     * 7. GENERATE SECURE RANDOM TOKEN
+     * 7. CREATE SECURE RESET TOKEN
+     * ==========================================================
      *
      * Raw token:
-     *   -> sent only through the reset URL
+     *   - generated using Node crypto
+     *   - sent only inside the email URL
+     *   - never returned by the API
+     *   - never stored directly in the database
      *
      * Hash:
-     *   -> stored in database
+     *   - SHA-256
+     *   - stored in database
      *
-     * Therefore the database never stores the usable
-     * reset token itself.
+     * The database therefore does not contain the usable
+     * reset credential.
      * ==========================================================
      */
 
@@ -264,9 +385,7 @@ export async function POST(request: Request) {
      * ==========================================================
      */
 
-    const appUrl =
-      process.env.NEXTAUTH_URL ||
-      "http://localhost:3000";
+    const appUrl = getAppUrl();
 
     const resetUrl =
       `${appUrl}/reset-password?token=${encodeURIComponent(
@@ -275,7 +394,21 @@ export async function POST(request: Request) {
 
     /*
      * ==========================================================
-     * 10. SEND RESET EMAIL
+     * 10. PREPARE SAFE EMAIL VALUES
+     * ==========================================================
+     */
+
+    const safeFullName = escapeHtml(
+      user.fullName
+    );
+
+    const safeResetUrl = escapeHtml(
+      resetUrl
+    );
+
+    /*
+     * ==========================================================
+     * 11. SEND PASSWORD RESET EMAIL
      * ==========================================================
      */
 
@@ -283,206 +416,250 @@ export async function POST(request: Request) {
       resendApiKey
     );
 
-    const emailResult =
-      await resend.emails.send({
-        from: resendFromEmail,
-        to: user.email,
-        subject:
-          "Reset your ICU Learning Portal password",
+    let emailResult;
 
-        html: `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="UTF-8" />
-              <meta
-                name="viewport"
-                content="width=device-width, initial-scale=1.0"
-              />
-              <title>Password Reset</title>
-            </head>
+    try {
+      emailResult =
+        await resend.emails.send({
+          from: resendFromEmail,
+          to: user.email,
+          subject:
+            "Reset your ICU Learning Portal password",
 
-            <body
-              style="
-                margin:0;
-                padding:0;
-                background:#f1f5f9;
-                font-family:Arial,Helvetica,sans-serif;
-                color:#0f172a;
-              "
-            >
+          html: `
+            <!DOCTYPE html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8" />
+                <meta
+                  name="viewport"
+                  content="width=device-width, initial-scale=1.0"
+                />
+                <title>
+                  Reset your ICU Learning Portal password
+                </title>
+              </head>
 
-              <div
+              <body
                 style="
-                  max-width:620px;
-                  margin:40px auto;
-                  padding:20px;
+                  margin:0;
+                  padding:0;
+                  background:#f1f5f9;
+                  font-family:Arial,Helvetica,sans-serif;
+                  color:#0f172a;
                 "
               >
 
                 <div
                   style="
-                    background:#ffffff;
-                    border-radius:20px;
-                    overflow:hidden;
-                    border:1px solid #e2e8f0;
+                    max-width:620px;
+                    margin:40px auto;
+                    padding:20px;
                   "
                 >
 
                   <div
                     style="
-                      background:linear-gradient(
-                        135deg,
-                        #0891b2,
-                        #2563eb,
-                        #4338ca
-                      );
-                      padding:32px;
-                      color:#ffffff;
+                      background:#ffffff;
+                      border-radius:20px;
+                      overflow:hidden;
+                      border:1px solid #e2e8f0;
                     "
                   >
 
-                    <div
-                      style="
-                        font-size:13px;
-                        font-weight:bold;
-                        letter-spacing:1.5px;
-                        text-transform:uppercase;
-                        opacity:.9;
-                      "
-                    >
-                      ICU Learning Portal
-                    </div>
-
-                    <h1
-                      style="
-                        margin:10px 0 0;
-                        font-size:28px;
-                        line-height:1.25;
-                      "
-                    >
-                      Password Reset Request
-                    </h1>
-
-                  </div>
-
-                  <div
-                    style="
-                      padding:32px;
-                    "
-                  >
-
-                    <p
-                      style="
-                        margin:0 0 16px;
-                        font-size:16px;
-                        line-height:1.7;
-                      "
-                    >
-                      Hello ${user.fullName},
-                    </p>
-
-                    <p
-                      style="
-                        margin:0 0 20px;
-                        font-size:15px;
-                        line-height:1.7;
-                        color:#475569;
-                      "
-                    >
-                      We received a request to reset the password
-                      for your ICU Learning Portal account.
-                    </p>
+                    <!-- Header -->
 
                     <div
                       style="
-                        margin:24px 0;
-                        text-align:center;
+                        background:linear-gradient(
+                          135deg,
+                          #0891b2,
+                          #2563eb,
+                          #4338ca
+                        );
+                        padding:32px;
+                        color:#ffffff;
                       "
                     >
 
-                      <a
-                        href="${resetUrl}"
+                      <div
                         style="
-                          display:inline-block;
-                          background:#2563eb;
-                          color:#ffffff;
-                          text-decoration:none;
-                          padding:14px 24px;
-                          border-radius:10px;
-                          font-size:15px;
+                          font-size:13px;
                           font-weight:bold;
+                          letter-spacing:1.5px;
+                          text-transform:uppercase;
+                          opacity:.9;
                         "
                       >
-                        Reset Password
-                      </a>
+                        ICU Learning Portal
+                      </div>
+
+                      <h1
+                        style="
+                          margin:10px 0 0;
+                          font-size:28px;
+                          line-height:1.25;
+                        "
+                      >
+                        Password Reset Request
+                      </h1>
 
                     </div>
 
-                    <p
-                      style="
-                        margin:24px 0 8px;
-                        font-size:14px;
-                        line-height:1.7;
-                        color:#64748b;
-                      "
-                    >
-                      This password-reset link will expire in
-                      ${RESET_TOKEN_EXPIRY_MINUTES} minutes.
-                    </p>
-
-                    <p
-                      style="
-                        margin:8px 0;
-                        font-size:14px;
-                        line-height:1.7;
-                        color:#64748b;
-                      "
-                    >
-                      If you did not request a password reset,
-                      you can safely ignore this email.
-                    </p>
+                    <!-- Content -->
 
                     <div
                       style="
-                        margin-top:28px;
-                        padding-top:20px;
-                        border-top:1px solid #e2e8f0;
-                        font-size:12px;
-                        line-height:1.6;
-                        color:#94a3b8;
+                        padding:32px;
                       "
                     >
-                      For your security, ICU Learning Portal
-                      never sends your existing password by email.
+
+                      <p
+                        style="
+                          margin:0 0 16px;
+                          font-size:16px;
+                          line-height:1.7;
+                        "
+                      >
+                        Hello ${safeFullName},
+                      </p>
+
+                      <p
+                        style="
+                          margin:0 0 20px;
+                          font-size:15px;
+                          line-height:1.7;
+                          color:#475569;
+                        "
+                      >
+                        We received a request to reset the
+                        password for your ICU Learning Portal
+                        account.
+                      </p>
+
+                      <div
+                        style="
+                          margin:28px 0;
+                          text-align:center;
+                        "
+                      >
+
+                        <a
+                          href="${safeResetUrl}"
+                          style="
+                            display:inline-block;
+                            background:#2563eb;
+                            color:#ffffff;
+                            text-decoration:none;
+                            padding:14px 24px;
+                            border-radius:10px;
+                            font-size:15px;
+                            font-weight:bold;
+                          "
+                        >
+                          Reset Password
+                        </a>
+
+                      </div>
+
+                      <p
+                        style="
+                          margin:24px 0 8px;
+                          font-size:14px;
+                          line-height:1.7;
+                          color:#64748b;
+                        "
+                      >
+                        This password-reset link will expire
+                        in ${RESET_TOKEN_EXPIRY_MINUTES}
+                        minutes.
+                      </p>
+
+                      <p
+                        style="
+                          margin:8px 0;
+                          font-size:14px;
+                          line-height:1.7;
+                          color:#64748b;
+                        "
+                      >
+                        If you did not request a password
+                        reset, you can safely ignore this email.
+                        Your existing password will remain
+                        unchanged.
+                      </p>
+
+                      <!-- Security Notice -->
+
+                      <div
+                        style="
+                          margin-top:28px;
+                          padding:16px;
+                          background:#f8fafc;
+                          border:1px solid #e2e8f0;
+                          border-radius:12px;
+                        "
+                      >
+
+                        <p
+                          style="
+                            margin:0;
+                            font-size:12px;
+                            line-height:1.7;
+                            color:#64748b;
+                          "
+                        >
+                          Security notice: ICU Learning Portal
+                          never sends your existing password by
+                          email. If you did not request this
+                          password reset, no action is required.
+                        </p>
+
+                      </div>
+
+                      <!-- Footer -->
+
+                      <div
+                        style="
+                          margin-top:28px;
+                          padding-top:20px;
+                          border-top:1px solid #e2e8f0;
+                          font-size:12px;
+                          line-height:1.6;
+                          color:#94a3b8;
+                        "
+                      >
+                        ICU Learning Portal<br />
+                        Professional Medical Education
+                      </div>
+
                     </div>
 
                   </div>
 
                 </div>
 
-              </div>
+              </body>
+            </html>
+          `,
+        });
+    } catch (emailError) {
+      /*
+       * ========================================================
+       * EMAIL PROVIDER EXCEPTION
+       * ========================================================
+       *
+       * Never expose Resend/internal infrastructure details.
+       */
 
-            </body>
-          </html>
-        `,
-      });
-
-    /*
-     * ==========================================================
-     * 11. HANDLE EMAIL PROVIDER ERROR
-     * ==========================================================
-     */
-
-    if (emailResult.error) {
       console.error(
-        "PASSWORD RESET EMAIL ERROR:",
-        emailResult.error
+        "PASSWORD RESET EMAIL PROVIDER EXCEPTION:",
+        emailError
       );
 
       /*
-       * Do not leave a usable token behind when email
-       * delivery could not be initiated successfully.
+       * Immediately invalidate the token because the reset
+       * credential could not be delivered successfully.
        */
 
       await prisma.passwordResetToken.updateMany({
@@ -496,41 +673,98 @@ export async function POST(request: Request) {
         },
       });
 
-      return NextResponse.json(
-        {
-          success: false,
-          message:
-            "Unable to send password reset email.",
-        },
-        {
-          status: 500,
-        }
-      );
+      /*
+       * Return the same public response used for a non-existent
+       * account. This prevents account enumeration through
+       * email-provider failures.
+       */
+
+      return NextResponse.json({
+        success: true,
+        message: GENERIC_SUCCESS_MESSAGE,
+      });
     }
 
     /*
      * ==========================================================
-     * 12. SUCCESS
+     * 12. HANDLE EMAIL PROVIDER ERROR RESPONSE
+     * ==========================================================
+     */
+
+    if (emailResult.error) {
+      console.error(
+        "PASSWORD RESET EMAIL ERROR:",
+        emailResult.error
+      );
+
+      /*
+       * The email was not successfully accepted by the
+       * provider, therefore the generated token must not
+       * remain usable.
+       */
+
+      await prisma.passwordResetToken.updateMany({
+        where: {
+          userId: user.id,
+          tokenHash,
+          usedAt: null,
+        },
+        data: {
+          usedAt: new Date(),
+        },
+      });
+
+      /*
+       * Same external response:
+       *
+       * - account exists
+       * - account does not exist
+       * - email provider failed
+       *
+       * All receive the same public message.
+       */
+
+      return NextResponse.json({
+        success: true,
+        message: GENERIC_SUCCESS_MESSAGE,
+      });
+    }
+
+    /*
+     * ==========================================================
+     * 13. SUCCESS
+     * ==========================================================
      *
      * Never return:
      *
-     * - raw token
+     * - raw reset token
      * - reset URL
-     * - email provider response
+     * - token hash
      * - database information
+     * - Resend response
      * ==========================================================
      */
 
     return NextResponse.json({
       success: true,
-      message:
-        "If an account exists, a password reset link has been sent to the registered email address.",
+      message: GENERIC_SUCCESS_MESSAGE,
     });
   } catch (error) {
+    /*
+     * ==========================================================
+     * 14. UNEXPECTED SERVER ERROR
+     * ==========================================================
+     */
+
     console.error(
       "FORGOT PASSWORD ERROR:",
       error
     );
+
+    /*
+     * Do not expose Prisma, database, environment,
+     * authentication or infrastructure details.
+     */
 
     return NextResponse.json(
       {
