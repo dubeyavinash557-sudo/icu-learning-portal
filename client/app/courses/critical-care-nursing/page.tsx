@@ -12,7 +12,7 @@ export default function CriticalCareNursingPage() {
           "A professional critical-care nursing learning pathway covering ICU assessment, hemodynamic monitoring, airway and ventilator care, emergency management, documentation and advanced bedside nursing practice.",
 
         longDescription:
-          "Designed for nursing professionals and serious ICU learners who want a structured pathway from critical-care fundamentals to advanced ICU nursing practice.",
+          "Designed for nursing professionals and serious ICU learners who want a structured pathway from critical-care fundamentals to advanced ICU nursing practice. This premium LMS pathway combines structured lessons, clinical concepts, practical nursing skills, monitoring knowledge, emergency-care principles and assessment-focused revision.",
 
         instructor: "ICU Learning Portal Faculty",
 
@@ -32,37 +32,37 @@ export default function CriticalCareNursingPage() {
           {
             title: "Critical Care Nursing Foundations",
             description:
-              "Understand ICU organization, critical-care workflow, patient safety, infection prevention and the professional role of the ICU nurse.",
+              "Build a strong foundation in ICU nursing, including ICU organization, critical-care workflow, patient safety, infection prevention, professional responsibilities and structured bedside practice.",
             lessons: 15,
           },
           {
             title: "Patient Assessment & Clinical Monitoring",
             description:
-              "Develop a systematic approach to patient assessment, vital signs, neurological assessment, fluid balance and bedside monitoring.",
+              "Develop a systematic approach to ICU patient assessment, vital signs, neurological assessment, fluid balance, respiratory observation and continuous bedside monitoring.",
             lessons: 15,
           },
           {
             title: "Hemodynamic & Advanced Monitoring",
             description:
-              "Learn the principles of invasive and non-invasive monitoring, perfusion assessment, hemodynamic parameters and clinical deterioration recognition.",
+              "Understand the principles of invasive and non-invasive monitoring, perfusion assessment, hemodynamic parameters, monitoring trends and recognition of clinical deterioration.",
             lessons: 15,
           },
           {
             title: "Airway, Ventilator & Respiratory Care",
             description:
-              "Build practical knowledge of airway management, ET-tube care, suctioning, oxygen therapy, ventilator concepts and respiratory nursing responsibilities.",
+              "Develop practical knowledge of airway management, ET-tube care, suctioning principles, oxygen therapy, ventilator concepts and essential respiratory nursing responsibilities.",
             lessons: 15,
           },
           {
             title: "Emergency & Critical Care Management",
             description:
-              "Study emergency response, shock management, code situations, emergency medications and nursing priorities during patient deterioration.",
+              "Study emergency response principles, shock recognition, code situations, emergency medications and nursing priorities during acute patient deterioration.",
             lessons: 15,
           },
           {
             title: "Advanced ICU Nursing Practice",
             description:
-              "Strengthen documentation, medication safety, multidisciplinary communication, patient-family support and professional ICU practice.",
+              "Strengthen professional ICU practice through documentation, medication safety, multidisciplinary communication, structured handover, patient-family support and advanced bedside responsibilities.",
             lessons: 15,
           },
         ],
@@ -75,16 +75,20 @@ export default function CriticalCareNursingPage() {
           "Recognize common patterns of shock, instability and clinical deterioration.",
           "Understand emergency nursing priorities during critical patient situations.",
           "Apply safe medication-administration and high-alert medication principles.",
-          "Improve ICU documentation, communication and structured handover.",
+          "Improve ICU documentation, communication and structured clinical handover.",
           "Understand infection-prevention practices relevant to critical-care nursing.",
+          "Apply structured clinical reasoning to common ICU patient scenarios.",
+          "Strengthen practical bedside nursing knowledge for critical-care environments.",
           "Prepare for ICU nursing interviews, viva discussions and professional assessments.",
         ],
 
         practicalSkills: [
           "ICU patient assessment",
-          "Vital-sign and bedside monitoring",
+          "Systematic bedside assessment",
+          "Vital-sign monitoring",
           "Neurological assessment",
           "Fluid balance monitoring",
+          "Respiratory assessment",
           "Airway and ET-tube care",
           "Suctioning principles",
           "Oxygen therapy principles",
@@ -92,23 +96,31 @@ export default function CriticalCareNursingPage() {
           "Hemodynamic monitoring concepts",
           "Central-line care principles",
           "Arterial-line monitoring",
-          "Emergency response",
+          "Emergency response principles",
           "Medication safety",
+          "High-alert medication awareness",
           "ICU documentation",
-          "Clinical handover and communication",
+          "Structured clinical handover",
+          "Multidisciplinary communication",
+          "Patient and family communication",
         ],
 
         includes: [
           "90 structured premium lessons",
-          "Critical-care nursing curriculum",
-          "Advanced ICU learning modules",
-          "Airway and ventilator learning",
+          "Complete critical-care nursing curriculum",
+          "Six structured advanced ICU learning modules",
+          "Airway and respiratory-care learning",
+          "Ventilator-care concepts",
           "Monitoring and hemodynamic concepts",
+          "Neurological and bedside assessment learning",
           "Emergency and shock-management learning",
           "Practical ICU nursing resources",
+          "Clinical documentation and handover guidance",
+          "Medication-safety learning",
           "Assessment and quiz preparation",
+          "Case-based clinical revision",
           "Lesson progress tracking",
-          "Structured completion pathway",
+          "Structured course completion pathway",
           "Certificate eligibility after course completion",
           "Premium learner access through the LMS",
         ],
