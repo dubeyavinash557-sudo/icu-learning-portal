@@ -6,102 +6,132 @@ export default function AirwayManagementPage() {
       course={{
         title: "Airway Management & Intubation Master Course",
         shortTitle: "Airway Management & Intubation",
+
         category: "Critical Care • Airway",
+
         description:
-          "Learn structured airway assessment, oxygenation, airway equipment, intubation assistance, tube care and post-intubation monitoring.",
+          "Develop structured knowledge of airway assessment, oxygenation, airway equipment, intubation assistance, endotracheal tube care and post-intubation monitoring for professional ICU practice.",
+
         longDescription:
-          "A premium airway-management program focused on safe, systematic ICU airway knowledge for nurses, technicians and critical-care learners.",
+          "A premium, structured airway-management learning pathway for nurses, ICU technicians and critical-care learners. The course progresses from airway assessment and equipment preparation to oxygenation, intubation assistance, endotracheal tube care, post-intubation monitoring and emergency airway scenarios. Learning is organised around practical bedside concepts, structured revision and case-based application.",
+
         instructor: "ICU Learning Portal Faculty",
+
         level: "Intermediate",
+
         duration: "10+ Hours",
+
         lessons: 46,
+
         students: "2,800+",
+
         rating: 4.9,
+
         price: "₹1,599",
+
         originalPrice: "₹2,199",
+
         isPremium: true,
+
         accent: "blue",
 
         modules: [
           {
             title: "Airway Assessment Fundamentals",
             description:
-              "Recognise airway risk, assess breathing and understand the priorities of initial airway management.",
+              "Build a systematic approach to airway and breathing assessment, identify potential airway risks and understand the priorities of initial airway management.",
             lessons: 6,
           },
           {
             title: "Airway Equipment & Preparation",
             description:
-              "Identify essential airway equipment and organise a safe preparation sequence.",
+              "Identify essential airway equipment, understand equipment readiness and follow a structured preparation sequence before airway intervention.",
             lessons: 6,
           },
           {
             title: "Oxygen Therapy & Preoxygenation",
             description:
-              "Understand oxygen-delivery devices, preoxygenation concepts and respiratory monitoring.",
+              "Understand common oxygen-delivery concepts, preoxygenation principles, respiratory observations and the importance of monitoring oxygenation.",
             lessons: 5,
           },
           {
             title: "Endotracheal Intubation Assistance",
             description:
-              "Learn the nursing and technician role before, during and immediately after intubation.",
+              "Understand the nursing and technician responsibilities before, during and immediately after endotracheal intubation within a multidisciplinary ICU team.",
             lessons: 8,
           },
           {
             title: "ET Tube & Cuff Care",
             description:
-              "Tube-position checks, fixation, cuff-care concepts, oral care and airway safety.",
+              "Learn structured endotracheal tube observation, fixation, position checks, cuff-care concepts, oral care and airway-safety practices.",
             lessons: 6,
           },
           {
             title: "Ventilator Connection & Initial Monitoring",
             description:
-              "Understand post-intubation connection, respiratory observations, alarms and documentation.",
+              "Understand post-intubation ventilator connection, respiratory assessment, monitoring observations, alarm awareness and clinical documentation.",
             lessons: 5,
           },
           {
             title: "Difficult Airway & Emergency Scenarios",
             description:
-              "Structured recognition of airway problems and escalation priorities in emergency situations.",
+              "Develop structured recognition of airway problems and understand immediate escalation priorities during challenging or deteriorating airway situations.",
             lessons: 5,
           },
           {
             title: "Airway Case-Based Revision",
             description:
-              "Practice airway assessment, intubation-support and post-intubation clinical scenarios.",
+              "Reinforce airway assessment, equipment preparation, intubation support and post-intubation monitoring through structured ICU case scenarios.",
             lessons: 5,
           },
         ],
 
         learningOutcomes: [
           "Perform a structured airway and breathing assessment.",
-          "Identify essential airway equipment and preparation requirements.",
-          "Understand preoxygenation and oxygen-delivery concepts.",
-          "Describe safe nursing and technician support during intubation.",
-          "Understand endotracheal tube care and post-intubation monitoring.",
-          "Recognise airway emergencies and appropriate escalation priorities.",
+          "Recognise important airway-risk indicators and escalation priorities.",
+          "Identify essential airway equipment and understand preparation requirements.",
+          "Understand oxygen-delivery and preoxygenation concepts.",
+          "Describe the nursing and technician role during endotracheal intubation support.",
+          "Understand essential endotracheal tube observation, fixation and care principles.",
+          "Understand cuff-care and post-intubation airway-safety concepts.",
+          "Understand initial ventilator connection and respiratory monitoring after intubation.",
+          "Recognise common airway problems and understand appropriate escalation priorities.",
+          "Apply airway-management knowledge to structured ICU case scenarios.",
         ],
 
         practicalSkills: [
-          "Airway assessment",
+          "Structured airway assessment",
+          "Breathing assessment",
+          "Airway equipment identification",
           "Airway equipment preparation",
-          "Oxygen-delivery setup",
+          "Oxygen-delivery setup awareness",
+          "Preoxygenation principles",
           "Intubation assistance",
-          "ET tube fixation and care",
+          "ET tube position and fixation checks",
+          "ET tube and oral-care principles",
           "Cuff-pressure monitoring concepts",
           "Post-intubation assessment",
-          "Airway emergency case practice",
+          "Ventilator connection awareness",
+          "Airway alarm awareness",
+          "Airway emergency escalation",
+          "Case-based airway practice",
         ],
 
         includes: [
-          "Structured premium video lessons",
-          "Airway management study notes",
-          "Intubation checklists",
+          "46 structured premium lessons",
+          "Airway management learning modules",
+          "Intubation-support learning resources",
+          "Airway assessment revision notes",
+          "Airway equipment checklists",
+          "ET tube and cuff-care resources",
+          "Oxygenation and preoxygenation revision",
+          "Post-intubation monitoring guidance",
           "Case-based assessments",
           "Premium PDF study resources",
           "Learning progress tracking",
-          "Course completion pathway",
-          "Certificate eligibility after completion",
+          "Structured course completion pathway",
+          "Certificate eligibility after course completion",
+          "Premium learner access through the LMS",
         ],
       }}
     />
