@@ -309,7 +309,7 @@ export default async function CourseDetailsPage({
     }
   }
 
-  // ==========================================================
+    // ==========================================================
   // 10. FINAL ACCESS DECISION
   //
   // FREE:
@@ -626,7 +626,7 @@ export default async function CourseDetailsPage({
                   </div>
                 </div>
 
-                <div className="p-6 sm:p-7">
+                                <div className="p-6 sm:p-7">
                   {hasCourseAccess ? (
                     <div>
                       <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
@@ -926,7 +926,7 @@ export default async function CourseDetailsPage({
 
             {/* CURRICULUM */}
 
-            <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                        <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <SectionHeading
                   eyebrow="Course Curriculum"
@@ -1543,7 +1543,8 @@ function LessonCard({
             </p>
 
             <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-bold">
-              <span className="inline-flex items-center gap-1.5 text-slate-500">
+
+                            <span className="inline-flex items-center gap-1.5 text-slate-500">
                 <Clock3 size={14} />
                 {lesson.duration} min
               </span>
