@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -9,7 +8,6 @@ import {
   Crown,
   FileText,
   GraduationCap,
-  Languages,
   PlayCircle,
   ShieldCheck,
   Sparkles,
@@ -18,26 +16,204 @@ import {
   Video,
 } from "lucide-react";
 
-import { getCourses } from "@/lib/course";
+type CourseCatalogItem = {
+  slug: string;
+  title: string;
+  category: string;
+  description: string;
+  level: string;
+  duration: string;
+  lessons: string;
+  language: string;
+  accent: string;
+};
 
-export default async function CoursesPage() {
-  const allCourses = await getCourses();
+const COURSES: CourseCatalogItem[] = [
+  {
+    slug: "abg",
+    title: "ABG Analysis & Acid-Base Disorders Masterclass",
+    category: "Critical Care • ABG",
+    description:
+      "Structured ABG learning covering normal values, acid-base disorders, compensation, mixed disorders and ICU case interpretation.",
+    level: "Beginner to Advanced",
+    duration: "9+ Hours",
+    lessons: "11 Lessons",
+    language: "Hindi + English",
+    accent: "from-cyan-600 via-blue-600 to-indigo-700",
+  },
 
-  // Public course catalog intentionally exposes premium programs only.
-  // Free/demo courses are not shown on the public LMS catalog.
-  const courses = allCourses.filter((course) => course.isPremium);
+  {
+    slug: "airway-management",
+    title: "Airway Management & Intubation Master Course",
+    category: "Critical Care • Airway",
+    description:
+      "Professional airway-learning pathway covering airway assessment, oxygenation, intubation support, airway devices and ICU airway safety.",
+    level: "Intermediate to Advanced",
+    duration: "10+ Hours",
+    lessons: "Structured Lessons",
+    language: "Hindi + English",
+    accent: "from-blue-600 via-indigo-600 to-cyan-600",
+  },
 
-  const totalCourses = courses.length;
+  {
+    slug: "critical-care-monitoring",
+    title: "Critical Care Monitoring Master Course",
+    category: "Critical Care • Monitoring",
+    description:
+      "Learn systematic ICU monitoring including vital signs, ECG, SpO₂, neurological assessment, fluid balance and hemodynamic concepts.",
+    level: "Intermediate to Advanced",
+    duration: "10+ Hours",
+    lessons: "Structured Lessons",
+    language: "Hindi + English",
+    accent: "from-indigo-600 via-blue-600 to-cyan-600",
+  },
 
-  const totalLessons = courses.reduce(
-    (total, course) => total + course.lessons.length,
-    0
-  );
+  {
+    slug: "critical-care-nursing",
+    title: "Critical Care Nursing Master Course",
+    category: "Critical Care • Advanced Nursing",
+    description:
+      "A professional critical-care nursing pathway covering ICU assessment, monitoring, airway and ventilator care, emergencies and advanced bedside practice.",
+    level: "Intermediate to Advanced",
+    duration: "18+ Hours",
+    lessons: "90 Lessons",
+    language: "Hindi + English",
+    accent: "from-blue-600 via-cyan-600 to-indigo-700",
+  },
 
-  const totalStudents = courses.reduce(
-    (total, course) => total + Number(course.students || 0),
-    0
-  );
+  {
+    slug: "ecg",
+    title: "ECG & Cardiac Rhythm Interpretation Masterclass",
+    category: "Critical Care • ECG",
+    description:
+      "Structured ECG training covering ECG fundamentals, rhythm analysis, conduction abnormalities and important critical-care ECG patterns.",
+    level: "Beginner to Advanced",
+    duration: "10+ Hours",
+    lessons: "Structured Lessons",
+    language: "Hindi + English",
+    accent: "from-rose-600 via-red-600 to-blue-700",
+  },
+
+  {
+    slug: "emergency-care",
+    title: "ICU Emergency & Critical Care Management",
+    category: "Critical Care • Emergency",
+    description:
+      "Professional emergency-care program covering deterioration, resuscitation, airway emergencies, shock, sepsis and cardiac emergencies.",
+    level: "Intermediate to Advanced",
+    duration: "11+ Hours",
+    lessons: "Structured Lessons",
+    language: "Hindi + English",
+    accent: "from-red-600 via-orange-600 to-blue-700",
+  },
+
+  {
+    slug: "icu-emergency-drugs",
+    title: "ICU Emergency Drugs Master Course",
+    category: "Critical Care • Emergency Pharmacology",
+    description:
+      "Systematic learning of ICU emergency drugs, medication safety, emergency pharmacology, monitoring principles and case-based practice.",
+    level: "Intermediate to Advanced",
+    duration: "12+ Hours",
+    lessons: "60 Lessons",
+    language: "Hindi + English",
+    accent: "from-amber-500 via-orange-600 to-blue-700",
+  },
+
+  {
+    slug: "icu-nursing",
+    title: "ICU Nursing Master Course",
+    category: "Critical Care • ICU Nursing",
+    description:
+      "Comprehensive ICU nursing education covering patient assessment, monitoring, ventilator care, emergency management and bedside responsibilities.",
+    level: "Beginner to Advanced",
+    duration: "Structured Program",
+    lessons: "Structured Lessons",
+    language: "Hindi + English",
+    accent: "from-blue-600 via-cyan-600 to-indigo-700",
+  },
+
+  {
+    slug: "icu-nursing-interview-viva",
+    title: "ICU Nursing Interview & Viva Master Course",
+    category: "Career • ICU Nursing Interview",
+    description:
+      "Prepare for ICU nursing interviews, viva questions and practical discussions across ventilators, emergency care, drugs, monitoring and procedures.",
+    level: "All Levels",
+    duration: "10+ Hours",
+    lessons: "50 Lessons",
+    language: "Hindi + English",
+    accent: "from-blue-600 via-indigo-600 to-cyan-600",
+  },
+
+  {
+    slug: "icu-technician-master",
+    title: "ICU Technician Master Course",
+    category: "Critical Care • ICU Technician",
+    description:
+      "Professional ICU technician learning covering equipment, patient monitoring, emergency support, airway assistance and critical-care workflows.",
+    level: "Beginner to Intermediate",
+    duration: "12+ Hours",
+    lessons: "56 Lessons",
+    language: "Hindi + English",
+    accent: "from-violet-600 via-blue-600 to-cyan-600",
+  },
+
+  {
+    slug: "infection-control",
+    title: "Infection Control & Patient Safety Master Course",
+    category: "Critical Care • Infection Prevention",
+    description:
+      "Learn infection prevention, isolation precautions, hand hygiene, PPE, device-associated infection prevention and ICU patient safety.",
+    level: "Beginner to Intermediate",
+    duration: "8+ Hours",
+    lessons: "40 Lessons",
+    language: "Hindi + English",
+    accent: "from-emerald-600 via-cyan-600 to-blue-700",
+  },
+
+  {
+    slug: "mechanical-ventilation",
+    title: "Mechanical Ventilation Master Course",
+    category: "Critical Care • Ventilator",
+    description:
+      "Comprehensive mechanical ventilation learning covering ventilator fundamentals, modes, settings, alarms, airway management and ICU nursing responsibilities.",
+    level: "Intermediate to Advanced",
+    duration: "15+ Hours",
+    lessons: "80 Lessons",
+    language: "Hindi + English",
+    accent: "from-cyan-500 via-blue-600 to-indigo-700",
+  },
+
+  {
+    slug: "medical-coding",
+    title: "Medical Coding Master Course",
+    category: "Healthcare • Medical Coding",
+    description:
+      "Professional medical coding pathway covering ICD-10-CM, CPT, HCPCS, medical terminology and real-world coding practice.",
+    level: "Intermediate to Advanced",
+    duration: "Structured Program",
+    lessons: "Structured Lessons",
+    language: "Hindi + English",
+    accent: "from-indigo-600 via-violet-600 to-blue-700",
+  },
+
+  {
+    slug: "ventilator",
+    title: "Ventilator Master Course",
+    category: "Critical Care • Mechanical Ventilation",
+    description:
+      "Focused ventilator training covering modes, settings, PEEP, FiO₂, alarms, weaning and essential ICU ventilator-care principles.",
+    level: "Intermediate",
+    duration: "Structured Program",
+    lessons: "Structured Lessons",
+    language: "Hindi + English",
+    accent: "from-cyan-600 via-blue-600 to-indigo-700",
+  },
+];
+
+export default function CoursesPage() {
+  const totalCourses = COURSES.length;
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
@@ -46,16 +222,16 @@ export default async function CoursesPage() {
       ========================================================== */}
 
       <section className="relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -left-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-cyan-500/10 blur-3xl" />
 
-          <div className="absolute -right-40 top-0 h-[32rem] w-[32rem] rounded-full bg-blue-600/10 blur-3xl" />
+          <div className="absolute -right-40 top-0 h-[34rem] w-[34rem] rounded-full bg-blue-600/10 blur-3xl" />
 
           <div className="absolute bottom-[-15rem] left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-3xl" />
         </div>
 
         <div
-          className="absolute inset-0 opacity-[0.045]"
+          className="pointer-events-none absolute inset-0 opacity-[0.045]"
           style={{
             backgroundImage:
               "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
@@ -63,7 +239,7 @@ export default async function CoursesPage() {
           }}
         />
 
-        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
+        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-20">
           <div className="grid items-center gap-12 lg:grid-cols-[1.15fr_0.85fr]">
             {/* LEFT */}
 
@@ -71,6 +247,11 @@ export default async function CoursesPage() {
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-bold text-cyan-300">
                 <GraduationCap size={16} />
                 ICU Learning Portal
+              </div>
+
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-amber-300">
+                <Crown size={14} />
+                Premium Professional Learning
               </div>
 
               <h1 className="mt-6 max-w-4xl text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -81,9 +262,9 @@ export default async function CoursesPage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                Build professional critical-care knowledge through structured
-                premium courses, video lessons, study resources, assessments,
-                progress tracking and certificate pathways.
+                Explore the professional ICU Learning Portal catalogue.
+                Select a course, review its complete landing page and curriculum,
+                then continue into enrollment and premium LMS access.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -91,13 +272,13 @@ export default async function CoursesPage() {
                   href="#course-list"
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-7 py-4 text-sm font-black text-white shadow-xl shadow-cyan-500/20 transition hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
                 >
-                  Browse Premium Courses
+                  Browse All Courses
                   <ArrowRight size={18} />
                 </a>
 
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-7 py-4 text-sm font-black text-white transition hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/30"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-7 py-4 text-sm font-black text-white transition hover:bg-white/10"
                 >
                   <PlayCircle size={18} />
                   My Learning
@@ -105,10 +286,10 @@ export default async function CoursesPage() {
               </div>
 
               <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-slate-300">
-                <TrustItem label="Premium Courses" />
-                <TrustItem label="Structured Lessons" />
-                <TrustItem label="Progress Tracking" />
-                <TrustItem label="Certificates" />
+                <TrustItem label="14 Professional Courses" />
+                <TrustItem label="Structured Curriculum" />
+                <TrustItem label="Premium LMS Access" />
+                <TrustItem label="Progress & Certificates" />
               </div>
             </div>
 
@@ -124,11 +305,11 @@ export default async function CoursesPage() {
 
                     <div>
                       <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">
-                        Premium Learning Library
+                        Premium Course Library
                       </p>
 
                       <h2 className="mt-1 text-xl font-black text-white">
-                        Professional Course Collection
+                        Professional ICU Collection
                       </h2>
                     </div>
                   </div>
@@ -136,27 +317,27 @@ export default async function CoursesPage() {
 
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <HeroStat
-                    value={String(totalCourses)}
-                    label="Premium Courses"
+                    value="14"
+                    label="Professional Courses"
                     icon={<BookOpen size={18} />}
                   />
 
                   <HeroStat
-                    value={String(totalLessons)}
-                    label="Lessons"
-                    icon={<Video size={18} />}
-                  />
-
-                  <HeroStat
                     value="100%"
-                    label="Premium Access"
+                    label="Premium Programs"
                     icon={<Crown size={18} />}
                   />
 
                   <HeroStat
-                    value={totalStudents.toLocaleString("en-IN")}
-                    label="Learners"
-                    icon={<Users size={18} />}
+                    value="LMS"
+                    label="Structured Learning"
+                    icon={<Video size={18} />}
+                  />
+
+                  <HeroStat
+                    value="24/7"
+                    label="Self-Paced Access"
+                    icon={<Clock3 size={18} />}
                   />
                 </div>
 
@@ -168,12 +349,13 @@ export default async function CoursesPage() {
 
                     <div>
                       <p className="font-bold text-white">
-                        Secure premium learning
+                        Protected premium learning
                       </p>
 
                       <p className="mt-1 text-sm leading-6 text-slate-400">
-                        Premium courses, lessons, resources and assessments are
-                        organized inside the ICU Learning Portal LMS.
+                        Public visitors can explore course information.
+                        Actual lessons and protected resources remain part of
+                        the premium LMS access flow.
                       </p>
                     </div>
                   </div>
@@ -184,7 +366,7 @@ export default async function CoursesPage() {
         </div>
       </section>
 
-            {/* =========================================================
+      {/* =========================================================
           CATALOG HEADER
       ========================================================== */}
 
@@ -194,33 +376,33 @@ export default async function CoursesPage() {
             <div>
               <div className="flex items-center gap-2 text-sm font-black text-blue-700">
                 <Sparkles size={16} />
-                Premium Course Catalog
+                Premium Course Catalogue
               </div>
 
               <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
                 Professional Learning Programs
               </h2>
 
-              <p className="mt-1 text-sm leading-6 text-slate-500">
-                Choose a premium program and access its structured curriculum,
-                lessons and learning pathway.
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">
+                These cards connect directly to the corresponding course
+                landing-page files. No demo catalogue data is used here.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <CatalogStat
-                label="Premium Courses"
+                label="Courses"
                 value={totalCourses}
               />
 
               <CatalogStat
-                label="Lessons"
-                value={totalLessons}
+                label="Access"
+                value="Premium"
               />
 
               <CatalogStat
-                label="Learners"
-                value={totalStudents}
+                label="Platform"
+                value="LMS"
               />
             </div>
           </div>
@@ -235,55 +417,30 @@ export default async function CoursesPage() {
         id="course-list"
         className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16"
       >
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-600">
-              Premium Programs
-            </p>
+        <div className="mb-10 max-w-3xl">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-600">
+            14 Premium Programs
+          </p>
 
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-              Choose Your Critical Care Program
-            </h2>
+          <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+            Choose Your Critical Care Program
+          </h2>
 
-            <p className="mt-3 text-base leading-7 text-slate-600">
-              Explore premium ICU and healthcare learning programs designed for
-              systematic study, practical understanding and long-term
-              professional development.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 shadow-sm">
-            <div className="flex items-center gap-2">
-              <Crown
-                size={17}
-                className="text-amber-600"
-              />
-
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-amber-700">
-                  Premium Library
-                </p>
-
-                <p className="mt-1 text-lg font-black text-slate-900">
-                  {totalCourses} Programs
-                </p>
-              </div>
-            </div>
-          </div>
+          <p className="mt-3 text-base leading-7 text-slate-600">
+            Select any program below to open its dedicated professional landing
+            page, review the curriculum and continue toward premium enrollment.
+          </p>
         </div>
 
-        {courses.length === 0 ? (
-          <EmptyCourses />
-        ) : (
-          <div className="mt-10 grid gap-7 md:grid-cols-2 xl:grid-cols-3">
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-              />
-            ))}
-          </div>
-        )}
+        <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-3">
+          {COURSES.map((course, index) => (
+            <CourseCard
+              key={course.slug}
+              course={course}
+              index={index}
+            />
+          ))}
+        </div>
       </section>
 
       {/* =========================================================
@@ -302,41 +459,42 @@ export default async function CoursesPage() {
             </h2>
 
             <p className="mt-4 text-base leading-7 text-slate-600">
-              Each premium program is organized as a structured LMS learning
-              experience rather than a simple downloadable-content page.
+              The catalogue is only the entry point. Each course is intended
+              to continue into a structured LMS workflow with enrollment,
+              payment, lessons, progress, quizzes and certification.
             </p>
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             <FeatureCard
               icon={<Video size={23} />}
-              title="Video Lessons"
-              description="Follow structured lessons designed for focused learning, revision and clinical understanding."
+              title="Structured Lessons"
+              description="Course-specific lessons organized inside the professional LMS."
             />
 
             <FeatureCard
               icon={<FileText size={23} />}
               title="Premium Resources"
-              description="Access protected course resources and study material as part of your enrolled program."
+              description="Protected study resources available through authorized course access."
             />
 
             <FeatureCard
               icon={<CheckCircle2 size={23} />}
               title="Assessments"
-              description="Use quizzes and learning checks to evaluate understanding across the curriculum."
+              description="Quizzes and learning checks connected to the course pathway."
             />
 
             <FeatureCard
               icon={<Award size={23} />}
               title="Certificates"
-              description="Eligible learners can progress toward course completion and certificate issuance."
+              description="Completion milestones can connect with the portal certificate workflow."
             />
           </div>
         </div>
       </section>
 
-            {/* =========================================================
-          PREMIUM VALUE SECTION
+      {/* =========================================================
+          ACCESS MODEL
       ========================================================== */}
 
       <section className="bg-slate-50">
@@ -344,20 +502,20 @@ export default async function CoursesPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             <ValueCard
               icon={<GraduationCap size={22} />}
-              title="Professional Curriculum"
-              description="Course structures are organized into clear learning modules so students can progress systematically."
+              title="1. Explore"
+              description="Visitors can browse the public catalogue and open any professional course landing page."
             />
 
             <ValueCard
               icon={<ShieldCheck size={22} />}
-              title="Protected Course Access"
-              description="Premium learning content is intended for enrolled learners rather than public free access."
+              title="2. Premium Access"
+              description="Course lessons and protected learning resources remain behind the authenticated premium LMS flow."
             />
 
             <ValueCard
               icon={<Award size={22} />}
-              title="Learning Completion Path"
-              description="Progress, assessment and completion can connect to the portal's certificate workflow."
+              title="3. Complete"
+              description="Enrollment, payment, learning progress, quiz completion and certificate milestones form the learning journey."
             />
           </div>
         </div>
@@ -378,13 +536,12 @@ export default async function CoursesPage() {
                 </div>
 
                 <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Invest in Structured Critical Care Learning
+                  Build Your ICU Knowledge Step by Step
                 </h2>
 
                 <p className="mt-4 text-base leading-7 text-slate-300">
-                  Select a premium course, review the curriculum and continue
-                  through the ICU Learning Portal with protected learning
-                  access.
+                  Choose a course, review its dedicated landing page and
+                  continue through the professional ICU Learning Portal LMS.
                 </p>
 
                 <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-slate-300">
@@ -393,7 +550,7 @@ export default async function CoursesPage() {
                       size={16}
                       className="text-emerald-400"
                     />
-                    Premium Access
+                    14 Courses
                   </span>
 
                   <span className="flex items-center gap-2">
@@ -401,7 +558,7 @@ export default async function CoursesPage() {
                       size={16}
                       className="text-emerald-400"
                     />
-                    Structured Lessons
+                    Premium LMS
                   </span>
 
                   <span className="flex items-center gap-2">
@@ -422,13 +579,13 @@ export default async function CoursesPage() {
                 </div>
               </div>
 
-              <Link
+              <a
                 href="#course-list"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-xl transition hover:bg-cyan-50 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-xl transition hover:bg-cyan-50"
               >
-                Explore Premium Courses
+                Explore Courses
                 <ArrowRight size={18} />
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -443,75 +600,54 @@ export default async function CoursesPage() {
 
 function CourseCard({
   course,
+  index,
 }: {
-  course: Awaited<ReturnType<typeof getCourses>>[number];
+  course: CourseCatalogItem;
+  index: number;
 }) {
-  const price =
-    typeof course.price === "number"
-      ? course.price
-      : Number(course.price);
-
-  const students = Number(course.students || 0);
-  const rating = Number(course.rating || 0);
-  const lessons = course.lessons.length;
-
-  const formattedPrice =
-    Number.isFinite(price) && price > 0
-      ? `₹${price.toLocaleString("en-IN")}`
-      : "Premium Access";
-
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-2xl">
-      {/* IMAGE */}
+      {/* COURSE VISUAL */}
 
-      <div className="relative h-56 overflow-hidden bg-slate-200">
-        {course.image ? (
-          <Image
-            src={course.image}
-            alt={`${course.title} premium course`}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-            className="object-cover transition duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-700 via-blue-700 to-indigo-800">
-            <GraduationCap
-              size={70}
-              className="text-white/80"
-            />
+      <div
+        className={`relative h-52 overflow-hidden bg-gradient-to-br ${course.accent}`}
+      >
+        <div className="absolute inset-0 bg-black/10" />
+
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border border-white/30" />
+          <div className="absolute -bottom-20 -left-10 h-48 w-48 rounded-full border border-white/20" />
+        </div>
+
+        <div className="relative flex h-full flex-col justify-between p-5">
+          <div className="flex items-start justify-between gap-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-2 text-[10px] font-black uppercase tracking-wider text-amber-950 shadow-lg">
+              <Crown size={13} />
+              Premium
+            </span>
+
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/70 px-3 py-2 text-xs font-black text-white backdrop-blur">
+              <Star
+                size={13}
+                className="fill-amber-400 text-amber-400"
+              />
+              4.9
+            </span>
           </div>
-        )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-transparent to-transparent" />
+          <div>
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-white backdrop-blur">
+              <GraduationCap size={25} />
+            </div>
 
-        {/* PREMIUM */}
+            <p className="text-xs font-black uppercase tracking-[0.12em] text-white/80">
+              Program {String(index + 1).padStart(2, "0")}
+            </p>
 
-        <div className="absolute left-4 top-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-2 text-xs font-black text-amber-950 shadow-lg">
-            <Crown size={13} />
-            PREMIUM
-          </span>
-        </div>
-
-        {/* LEVEL */}
-
-        <div className="absolute bottom-4 left-4">
-          <span className="rounded-full border border-white/20 bg-white/90 px-3 py-1.5 text-xs font-bold text-slate-800 shadow-lg backdrop-blur">
-            {course.level}
-          </span>
-        </div>
-
-        {/* RATING */}
-
-        <div className="absolute bottom-4 right-4">
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/80 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
-            <Star
-              size={13}
-              className="fill-amber-400 text-amber-400"
-            />
-
-            {rating.toFixed(1)}
-          </span>
+            <p className="mt-1 text-sm font-bold text-white">
+              {course.category}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -519,16 +655,17 @@ function CourseCard({
 
       <div className="flex flex-1 flex-col p-6">
         <div className="flex items-center justify-between gap-3">
-          <span className="truncate text-xs font-black uppercase tracking-[0.12em] text-blue-700">
-            {course.instructor}
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-blue-700">
+            <ShieldCheck size={12} />
+            Professional LMS
           </span>
 
-          <span className="shrink-0 text-xs font-bold text-slate-400">
+          <span className="text-xs font-bold text-slate-400">
             {course.language}
           </span>
         </div>
 
-        <h3 className="mt-3 line-clamp-2 min-h-[3.5rem] text-xl font-black leading-7 text-slate-950 transition group-hover:text-blue-700">
+        <h3 className="mt-4 min-h-[4rem] text-xl font-black leading-7 text-slate-950 transition group-hover:text-blue-700">
           {course.title}
         </h3>
 
@@ -541,26 +678,26 @@ function CourseCard({
         <div className="mt-6 grid grid-cols-2 gap-2">
           <CourseMeta
             icon={<BookOpen size={15} />}
-            value={`${lessons} Lessons`}
+            value={course.lessons}
           />
 
           <CourseMeta
             icon={<Clock3 size={15} />}
-            value={formatDuration(course.duration)}
+            value={course.duration}
           />
 
           <CourseMeta
-            icon={<Languages size={15} />}
-            value={course.language}
+            icon={<GraduationCap size={15} />}
+            value={course.level}
           />
 
           <CourseMeta
             icon={<Users size={15} />}
-            value={`${students.toLocaleString("en-IN")} Learners`}
+            value="Premium"
           />
         </div>
 
-        {/* COURSE VALUE */}
+        {/* PREMIUM VALUE */}
 
         <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
           <div className="flex items-start gap-3">
@@ -574,8 +711,8 @@ function CourseCard({
               </p>
 
               <p className="mt-1 text-xs leading-5 text-slate-600">
-                Protected lessons, course resources, assessments and progress
-                tracking are available through enrollment.
+                Review the full curriculum and course details before
+                continuing to premium enrollment.
               </p>
             </div>
           </div>
@@ -583,37 +720,41 @@ function CourseCard({
 
         <div className="my-5 border-t border-slate-100" />
 
-        {/* PRICE */}
+        {/* CTA */}
 
         <div className="mt-auto">
-          <div className="flex items-end justify-between gap-4">
+          <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-                Premium Course Fee
+                Course Access
               </p>
 
-              <p className="mt-1 text-2xl font-black text-blue-700">
-                {formattedPrice}
+              <p className="mt-1 text-lg font-black text-blue-700">
+                Premium Program
               </p>
             </div>
 
-            <div className="text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-                Learners
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-right">
+              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                Details
               </p>
 
-              <p className="mt-1 text-sm font-black text-slate-700">
-                {students.toLocaleString("en-IN")}
+              <p className="mt-1 text-xs font-black text-slate-700">
+                Full Curriculum
               </p>
             </div>
           </div>
 
+          {/* IMPORTANT:
+              This points to the REAL course landing-page file,
+              NOT the generic database course route.
+          */}
+
           <Link
-            href={`/courses/${course.id}`}
+            href={`/courses/${course.slug}`}
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            View Course & Pricing
-
+            View Course Details
             <ArrowRight
               size={17}
               className="transition-transform group-hover:translate-x-1"
@@ -711,7 +852,7 @@ function CatalogStat({
   value,
 }: {
   label: string;
-  value: number;
+  value: number | string;
 }) {
   return (
     <div className="min-w-[96px] rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
@@ -720,7 +861,7 @@ function CatalogStat({
       </p>
 
       <p className="mt-1 text-xl font-black text-slate-900">
-        {value.toLocaleString("en-IN")}
+        {value}
       </p>
     </div>
   );
@@ -784,58 +925,4 @@ function ValueCard({
       </p>
     </div>
   );
-}
-
-/* ================================================================
-   EMPTY COURSES
-================================================================ */
-
-function EmptyCourses() {
-  return (
-    <div className="mt-10 overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-      <div className="mx-auto max-w-xl px-6 py-20 text-center sm:px-10">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-50 text-amber-600">
-          <Crown size={38} />
-        </div>
-
-        <h2 className="mt-6 text-2xl font-black text-slate-900">
-          Premium Courses Are Being Prepared
-        </h2>
-
-        <p className="mt-3 text-base leading-7 text-slate-600">
-          No premium course is currently published in the catalog. Once a
-          premium program is published, it will appear here with its curriculum
-          and enrollment options.
-        </p>
-
-        <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-bold text-slate-600">
-          <GraduationCap size={17} />
-          ICU Learning Portal
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ================================================================
-   DURATION FORMATTER
-================================================================ */
-
-function formatDuration(minutes: number) {
-  if (!Number.isFinite(minutes) || minutes <= 0) {
-    return "Self-paced";
-  }
-
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (hours === 0) {
-    return `${minutes} min`;
-  }
-
-  if (remainingMinutes === 0) {
-    return `${hours} hr`;
-  }
-
-  return `${hours}h ${remainingMinutes}m`;
 }
