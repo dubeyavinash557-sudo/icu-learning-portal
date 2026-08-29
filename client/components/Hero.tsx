@@ -78,6 +78,7 @@ export default function Hero() {
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition duration-300 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/25"
               >
                 Explore Courses
+
                 <ArrowRight
                   size={18}
                   className="transition-transform group-hover:translate-x-1"
@@ -89,6 +90,7 @@ export default function Hero() {
                 className="group inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-black text-slate-800 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-700 hover:shadow-md"
               >
                 Start Learning
+
                 <ArrowRight
                   size={18}
                   className="transition-transform group-hover:translate-x-1"
