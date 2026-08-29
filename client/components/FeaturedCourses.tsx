@@ -3,10 +3,13 @@ import Link from "next/link";
 import {
   ArrowRight,
   Award,
+  BookOpenCheck,
   CheckCircle2,
   GraduationCap,
   PlayCircle,
   Sparkles,
+  Stethoscope,
+  ShieldCheck,
 } from "lucide-react";
 
 import CourseCard, { type Course } from "./CourseCard";
@@ -20,6 +23,7 @@ export default function FeaturedCourses({
 }: FeaturedCoursesProps) {
   return (
     <section
+      id="featured-courses"
       className="
         relative
         overflow-hidden
@@ -30,7 +34,8 @@ export default function FeaturedCourses({
         via-slate-50
         to-white
         py-20
-        md:py-24
+        sm:py-24
+        lg:py-28
       "
     >
       {/* =====================================================
@@ -38,13 +43,14 @@ export default function FeaturedCourses({
       ===================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           -left-40
-          top-20
-          h-80
-          w-80
+          top-16
+          h-96
+          w-96
           rounded-full
           bg-cyan-400/10
           blur-3xl
@@ -52,153 +58,220 @@ export default function FeaturedCourses({
       />
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           -right-40
-          bottom-0
-          h-96
-          w-96
+          top-1/3
+          h-[28rem]
+          w-[28rem]
           rounded-full
           bg-blue-500/10
           blur-3xl
         "
       />
 
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          bottom-0
+          left-1/2
+          h-64
+          w-64
+          -translate-x-1/2
+          rounded-full
+          bg-blue-100/40
+          blur-3xl
+        "
+      />
+
+      {/* Subtle clinical grid */}
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          opacity-[0.025]
+        "
+        style={{
+          backgroundImage:
+            "linear-gradient(#2563eb 1px, transparent 1px), linear-gradient(90deg, #2563eb 1px, transparent 1px)",
+          backgroundSize: "44px 44px",
+        }}
+      />
+
+      {/* =====================================================
+          MAIN CONTAINER
+      ===================================================== */}
+
       <div className="relative mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
         {/* ===================================================
             SECTION HEADER
         =================================================== */}
 
-        <div className="mb-12 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            {/* Eyebrow */}
-
-            <div
-              className="
-                mb-5
-                inline-flex
-                items-center
-                gap-2
-                rounded-full
-                border
-                border-cyan-200
-                bg-cyan-50
-                px-4
-                py-2
-                text-xs
-                font-black
-                uppercase
-                tracking-[0.14em]
-                text-cyan-700
-              "
-            >
-              <GraduationCap size={16} />
-
-              Professional Learning
-            </div>
-
-            {/* Heading */}
-
-            <h2
-              className="
-                text-3xl
-                font-black
-                tracking-tight
-                text-slate-950
-                sm:text-4xl
-                md:text-5xl
-              "
-            >
-              Master Critical Care
-
-              <span className="block text-blue-700">
-                With Professional Courses
-              </span>
-            </h2>
-
-            {/* Description */}
-
-            <p
-              className="
-                mt-5
-                max-w-2xl
-                text-base
-                leading-8
-                text-slate-600
-                sm:text-lg
-              "
-            >
-              Structured ICU and critical-care learning designed to
-              help healthcare learners build practical knowledge
-              through lessons, video learning, study resources and
-              assessments.
-            </p>
-
-            {/* Trust Points */}
-
-            <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
-              <TrustPoint
-                icon={<CheckCircle2 size={16} />}
-                text="Structured curriculum"
-              />
-
-              <TrustPoint
-                icon={<PlayCircle size={16} />}
-                text="Video-based learning"
-              />
-
-              <TrustPoint
-                icon={<Award size={16} />}
-                text="Course certificates"
-              />
-            </div>
-          </div>
-
-          {/* View All Courses */}
-
-          <Link
-            href="/courses"
+        <div className="mb-12 lg:mb-14">
+          <div
             className="
-              group
-              inline-flex
-              w-fit
-              shrink-0
-              items-center
-              gap-2
-              rounded-2xl
-              border
-              border-slate-300
-              bg-white
-              px-6
-              py-3.5
-              text-sm
-              font-black
-              text-slate-800
-              shadow-sm
-              transition-all
-              duration-300
-              hover:-translate-y-0.5
-              hover:border-blue-400
-              hover:text-blue-700
-              hover:shadow-lg
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              focus:ring-offset-2
+              flex
+              flex-col
+              gap-8
+              lg:flex-row
+              lg:items-end
+              lg:justify-between
             "
           >
-            Explore All Courses
+            {/* -------------------------------------------------
+                LEFT CONTENT
+            ------------------------------------------------- */}
 
-            <ArrowRight
-              size={18}
+            <div className="max-w-3xl">
+              {/* Eyebrow */}
+
+              <div
+                className="
+                  mb-5
+                  inline-flex
+                  items-center
+                  gap-2
+                  rounded-full
+                  border
+                  border-cyan-200
+                  bg-cyan-50
+                  px-4
+                  py-2
+                  text-xs
+                  font-black
+                  uppercase
+                  tracking-[0.14em]
+                  text-cyan-700
+                "
+              >
+                <GraduationCap size={16} />
+
+                Professional Learning
+              </div>
+
+              {/* Heading */}
+
+              <h2
+                className="
+                  text-3xl
+                  font-black
+                  leading-[1.08]
+                  tracking-[-0.025em]
+                  text-slate-950
+                  sm:text-4xl
+                  md:text-5xl
+                "
+              >
+                Master Critical Care
+
+                <span
+                  className="
+                    block
+                    bg-gradient-to-r
+                    from-blue-700
+                    via-blue-600
+                    to-cyan-500
+                    bg-clip-text
+                    text-transparent
+                  "
+                >
+                  With Professional Courses
+                </span>
+              </h2>
+
+              {/* Description */}
+
+              <p
+                className="
+                  mt-5
+                  max-w-2xl
+                  text-base
+                  leading-7
+                  text-slate-600
+                  sm:text-lg
+                  sm:leading-8
+                "
+              >
+                Structured ICU and critical-care learning designed to
+                help healthcare learners build practical knowledge
+                through lessons, video learning, study resources and
+                assessments.
+              </p>
+
+              {/* Trust Points */}
+
+              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3">
+                <TrustPoint
+                  icon={<CheckCircle2 size={16} />}
+                  text="Structured curriculum"
+                />
+
+                <TrustPoint
+                  icon={<PlayCircle size={16} />}
+                  text="Video-based learning"
+                />
+
+                <TrustPoint
+                  icon={<Award size={16} />}
+                  text="Course certificates"
+                />
+              </div>
+            </div>
+
+            {/* -------------------------------------------------
+                VIEW ALL COURSES
+            ------------------------------------------------- */}
+
+            <Link
+              href="/courses"
               className="
-                transition-transform
+                group
+                inline-flex
+                w-fit
+                shrink-0
+                items-center
+                gap-2
+                rounded-2xl
+                border
+                border-slate-300
+                bg-white
+                px-6
+                py-3.5
+                text-sm
+                font-black
+                text-slate-800
+                shadow-sm
+                transition-all
                 duration-300
-                group-hover:translate-x-1
+                hover:-translate-y-0.5
+                hover:border-blue-400
+                hover:text-blue-700
+                hover:shadow-lg
+                focus:outline-none
+                focus:ring-2
+                focus:ring-blue-500
+                focus:ring-offset-2
               "
-            />
-          </Link>
+            >
+              Explore All Courses
+
+              <ArrowRight
+                size={18}
+                className="
+                  transition-transform
+                  duration-300
+                  group-hover:translate-x-1
+                "
+              />
+            </Link>
+          </div>
         </div>
 
         {/* ===================================================
@@ -208,22 +281,67 @@ export default function FeaturedCourses({
         {courses.length === 0 ? (
           <EmptyCourses />
         ) : (
-          <div
-            className="
-              grid
-              grid-cols-1
-              gap-6
-              sm:grid-cols-2
-              xl:grid-cols-4
-            "
-          >
-            {courses.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-              />
-            ))}
-          </div>
+          <>
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-6
+                sm:grid-cols-2
+                xl:grid-cols-4
+              "
+            >
+              {courses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                />
+              ))}
+            </div>
+
+            {/* Course count / supporting information */}
+
+            <div
+              className="
+                mt-7
+                flex
+                flex-col
+                gap-3
+                text-center
+                sm:flex-row
+                sm:items-center
+                sm:justify-between
+                sm:text-left
+              "
+            >
+              <div className="inline-flex items-center justify-center gap-2 text-xs font-bold text-slate-500 sm:justify-start">
+                <ShieldCheck
+                  size={15}
+                  className="text-emerald-600"
+                />
+
+                Professional learning resources
+              </div>
+
+              <Link
+                href="/courses"
+                className="
+                  inline-flex
+                  items-center
+                  justify-center
+                  gap-1.5
+                  text-xs
+                  font-black
+                  text-blue-700
+                  transition
+                  hover:text-blue-900
+                "
+              >
+                View complete course catalogue
+                <ArrowRight size={15} />
+              </Link>
+            </div>
+          </>
         )}
 
         {/* ===================================================
@@ -233,6 +351,7 @@ export default function FeaturedCourses({
         {courses.length > 0 && (
           <div
             className="
+              relative
               mt-12
               overflow-hidden
               rounded-[2rem]
@@ -240,42 +359,61 @@ export default function FeaturedCourses({
               border-slate-800
               bg-slate-950
               shadow-2xl
+              sm:mt-14
             "
           >
+            {/* CTA background glow */}
+
+            <div
+              aria-hidden="true"
+              className="
+                pointer-events-none
+                absolute
+                -right-24
+                -top-36
+                h-80
+                w-80
+                rounded-full
+                bg-cyan-500/10
+                blur-3xl
+              "
+            />
+
+            <div
+              aria-hidden="true"
+              className="
+                pointer-events-none
+                absolute
+                -bottom-40
+                left-1/3
+                h-80
+                w-80
+                rounded-full
+                bg-blue-600/10
+                blur-3xl
+              "
+            />
+
             <div
               className="
                 relative
                 flex
                 flex-col
-                gap-7
+                gap-8
                 px-6
                 py-8
                 sm:px-8
+                sm:py-9
                 lg:flex-row
                 lg:items-center
                 lg:justify-between
                 lg:px-10
+                lg:py-10
               "
             >
-              {/* Decorative glow */}
-
-              <div
-                className="
-                  pointer-events-none
-                  absolute
-                  -right-20
-                  -top-32
-                  h-72
-                  w-72
-                  rounded-full
-                  bg-cyan-500/10
-                  blur-3xl
-                "
-              />
-
               {/* CTA Content */}
 
-              <div className="relative flex items-start gap-4">
+              <div className="flex items-start gap-4">
                 <div
                   className="
                     flex
@@ -295,23 +433,44 @@ export default function FeaturedCourses({
                 </div>
 
                 <div>
-                  <p
-                    className="
-                      text-xs
-                      font-black
-                      uppercase
-                      tracking-[0.16em]
-                      text-cyan-300
-                    "
-                  >
-                    Build Your Learning Path
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p
+                      className="
+                        text-xs
+                        font-black
+                        uppercase
+                        tracking-[0.16em]
+                        text-cyan-300
+                      "
+                    >
+                      Build Your Learning Path
+                    </p>
+
+                    <span
+                      className="
+                        rounded-full
+                        border
+                        border-emerald-400/20
+                        bg-emerald-400/10
+                        px-2.5
+                        py-1
+                        text-[9px]
+                        font-black
+                        uppercase
+                        tracking-wider
+                        text-emerald-300
+                      "
+                    >
+                      Learn at your pace
+                    </span>
+                  </div>
 
                   <h3
                     className="
-                      mt-1
+                      mt-2
                       text-xl
                       font-black
+                      leading-tight
                       text-white
                       sm:text-2xl
                     "
@@ -334,43 +493,135 @@ export default function FeaturedCourses({
                 </div>
               </div>
 
-              {/* CTA Button */}
+              {/* CTA Actions */}
 
-              <Link
-                href="/courses"
+              <div
                 className="
-                  relative
-                  inline-flex
-                  shrink-0
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-white
-                  px-6
-                  py-3.5
-                  text-sm
-                  font-black
-                  text-slate-950
-                  transition-all
-                  duration-300
-                  hover:-translate-y-0.5
-                  hover:bg-cyan-50
-                  hover:shadow-xl
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-cyan-400
-                  focus:ring-offset-2
-                  focus:ring-offset-slate-950
+                  flex
+                  flex-col
+                  gap-3
+                  sm:flex-row
+                  lg:shrink-0
                 "
               >
-                Browse Courses
+                <Link
+                  href="/courses"
+                  className="
+                    group
+                    inline-flex
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-xl
+                    bg-white
+                    px-6
+                    py-3.5
+                    text-sm
+                    font-black
+                    text-slate-950
+                    transition-all
+                    duration-300
+                    hover:-translate-y-0.5
+                    hover:bg-cyan-50
+                    hover:shadow-xl
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-cyan-400
+                    focus:ring-offset-2
+                    focus:ring-offset-slate-950
+                  "
+                >
+                  Browse Courses
 
-                <ArrowRight size={17} />
-              </Link>
+                  <ArrowRight
+                    size={17}
+                    className="
+                      transition-transform
+                      duration-300
+                      group-hover:translate-x-1
+                    "
+                  />
+                </Link>
+
+                <Link
+                  href="/register"
+                  className="
+                    inline-flex
+                    items-center
+                    justify-center
+                    gap-2
+                    rounded-xl
+                    border
+                    border-white/15
+                    bg-white/5
+                    px-6
+                    py-3.5
+                    text-sm
+                    font-black
+                    text-white
+                    backdrop-blur-sm
+                    transition-all
+                    duration-300
+                    hover:border-white/30
+                    hover:bg-white/10
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-cyan-400
+                    focus:ring-offset-2
+                    focus:ring-offset-slate-950
+                  "
+                >
+                  Start Learning
+                </Link>
+              </div>
             </div>
           </div>
         )}
+
+        {/* ===================================================
+            PROFESSIONAL LEARNING STRIP
+        =================================================== */}
+
+        <div
+          className="
+            mt-10
+            overflow-hidden
+            rounded-2xl
+            border
+            border-slate-200
+            bg-white
+            shadow-sm
+          "
+        >
+          <div
+            className="
+              grid
+              divide-y
+              divide-slate-200
+              md:grid-cols-3
+              md:divide-x
+              md:divide-y-0
+            "
+          >
+            <PlatformValue
+              icon={<BookOpenCheck size={19} />}
+              title="Structured Courses"
+              description="Follow clear learning paths from fundamentals to advanced topics."
+            />
+
+            <PlatformValue
+              icon={<Stethoscope size={19} />}
+              title="Clinical Learning"
+              description="Build practical understanding of important ICU concepts."
+            />
+
+            <PlatformValue
+              icon={<Award size={19} />}
+              title="Learning Achievement"
+              description="Complete eligible programs and earn course certificates."
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -378,7 +629,7 @@ export default function FeaturedCourses({
 
 /* ============================================================
    TRUST POINT
-   ============================================================ */
+============================================================ */
 
 function TrustPoint({
   icon,
@@ -393,13 +644,7 @@ function TrustPoint({
         {icon}
       </span>
 
-      <span
-        className="
-          text-xs
-          font-bold
-          text-slate-600
-        "
-      >
+      <span className="text-xs font-bold text-slate-600">
         {text}
       </span>
     </div>
@@ -407,8 +652,54 @@ function TrustPoint({
 }
 
 /* ============================================================
+   PLATFORM VALUE
+============================================================ */
+
+function PlatformValue({
+  icon,
+  title,
+  description,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-start gap-4 p-5 sm:p-6">
+      <div
+        className="
+          flex
+          h-10
+          w-10
+          shrink-0
+          items-center
+          justify-center
+          rounded-xl
+          bg-blue-50
+          text-blue-700
+          ring-1
+          ring-blue-100
+        "
+      >
+        {icon}
+      </div>
+
+      <div>
+        <h3 className="text-sm font-black text-slate-950">
+          {title}
+        </h3>
+
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    EMPTY COURSES
-   ============================================================ */
+============================================================ */
 
 function EmptyCourses() {
   return (
@@ -424,6 +715,7 @@ function EmptyCourses() {
         py-16
         text-center
         shadow-sm
+        sm:px-10
       "
     >
       <div
@@ -437,16 +729,32 @@ function EmptyCourses() {
           rounded-3xl
           bg-cyan-50
           text-cyan-700
+          ring-1
+          ring-cyan-100
         "
       >
         <GraduationCap size={36} />
       </div>
 
-      <h3
+      <p
         className="
           mt-6
+          text-xs
+          font-black
+          uppercase
+          tracking-[0.16em]
+          text-cyan-700
+        "
+      >
+        Professional Learning
+      </p>
+
+      <h3
+        className="
+          mt-2
           text-2xl
           font-black
+          tracking-tight
           text-slate-950
         "
       >
@@ -481,8 +789,11 @@ function EmptyCourses() {
           text-sm
           font-black
           text-white
+          shadow-lg
+          shadow-blue-700/20
           transition
           hover:bg-blue-800
+          hover:shadow-xl
           focus:outline-none
           focus:ring-2
           focus:ring-blue-500
