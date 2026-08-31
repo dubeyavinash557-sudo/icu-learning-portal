@@ -5,17 +5,18 @@ import CourseLandingPage, {
 export const dynamic = "force-dynamic";
 
 /* ================================================================
-   ICU EMERGENCY & CRITICAL CARE MANAGEMENT MASTERCLASS
+   ICU EMERGENCY MANAGEMENT MASTERCLASS
+   Premium Professional LMS Landing Page
 
    Route:
    /courses/premium/icu-emergency-management
 
    Purpose:
-   - Premium professional LMS landing page
-   - 20 structured chapters
-   - ICU emergency focused curriculum
-   - Uses shared CourseLandingPage component
-   - Separate from practical/study resource courses
+   - Premium ICU emergency-care program
+   - Structured 20-chapter curriculum
+   - Professional LMS presentation
+   - Uses existing shared CourseLandingPage
+   - Separate from free/demo courses
 ================================================================ */
 
 const course: CourseLandingData = {
@@ -23,18 +24,17 @@ const course: CourseLandingData = {
      BASIC COURSE INFORMATION
   ============================================================== */
 
-  title: "ICU Emergency & Critical Care Management Masterclass",
+  title: "ICU Emergency Management Masterclass",
 
-  shortTitle: "ICU Emergency Management Masterclass",
+  shortTitle: "ICU Emergency Management",
 
-  category:
-    "ICU Emergency • Critical Care • Emergency Management",
+  category: "ICU Emergency Care • Critical Care • Emergency Response",
 
   description:
-    "A professional ICU emergency learning program designed to help nurses, critical care professionals, paramedical students and healthcare learners develop a structured approach to recognising and managing common critical-care emergencies.",
+    "A professional ICU emergency-management learning program designed for nurses, critical-care professionals, paramedical learners and healthcare students who want to develop structured knowledge for recognising and responding to common critical-care emergencies.",
 
   longDescription:
-    "Build a strong foundation in ICU emergency assessment, rapid patient evaluation, airway and breathing emergencies, circulation and shock, cardiac emergencies, sepsis, neurological emergencies, electrolyte disturbances, emergency procedures, monitoring, escalation and structured clinical case learning. The program follows a progressive 20-chapter pathway from emergency fundamentals to advanced ICU-oriented clinical reasoning.",
+    "Build a systematic approach to ICU emergency management through a structured 20-chapter pathway covering emergency assessment, ABC approach, airway emergencies, respiratory emergencies, shock, sepsis, cardiac emergencies, arrhythmias, cardiac arrest, emergency response, neurological emergencies, electrolyte emergencies, anaphylaxis, rapid response, emergency documentation and case-based practice.",
 
   instructor: "Avinash Dubey",
 
@@ -44,7 +44,7 @@ const course: CourseLandingData = {
 
   lessons: 20,
 
-  students: "10,000+",
+  students: "9,500+",
 
   rating: 4.9,
 
@@ -54,7 +54,7 @@ const course: CourseLandingData = {
 
   isPremium: true,
 
-  accent: "blue",
+  accent: "amber",
 
   /* ==============================================================
      20-CHAPTER CURRICULUM
@@ -64,140 +64,140 @@ const course: CourseLandingData = {
     {
       title: "Chapter 01 — ICU Emergency Fundamentals",
       description:
-        "Understand the principles of emergency care in the ICU, early recognition of deterioration and the importance of rapid, structured assessment.",
+        "Understand the principles of emergency management in critical care, emergency recognition, prioritisation and the role of the ICU healthcare team.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 02 — Initial Patient Assessment",
+      title: "Chapter 02 — Rapid Emergency Assessment",
       description:
-        "Learn a systematic approach to assessing a critically ill patient, identifying immediate threats and prioritising urgent interventions.",
+        "Learn a structured approach to rapidly assessing a deteriorating patient and identifying immediate life-threatening problems.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 03 — ABCDE Assessment",
+      title: "Chapter 03 — ABC Approach in Critical Care",
       description:
-        "Develop a structured Airway, Breathing, Circulation, Disability and Exposure assessment approach for critically ill patients.",
+        "Develop a systematic Airway, Breathing and Circulation assessment framework for critically ill and deteriorating patients.",
       lessons: 1,
     },
 
     {
       title: "Chapter 04 — Airway Emergencies",
       description:
-        "Study common airway emergencies, warning signs, basic airway support principles and escalation during acute deterioration.",
+        "Study recognition and initial management principles for airway obstruction, airway compromise and other common airway emergencies.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 05 — Respiratory Emergencies",
+      title: "Chapter 05 — Acute Respiratory Emergencies",
       description:
-        "Understand common acute respiratory problems, oxygenation failure, respiratory distress and the principles of emergency respiratory support.",
+        "Understand common respiratory emergencies, oxygenation problems, respiratory distress and escalation of respiratory support.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 06 — Mechanical Ventilation in Emergencies",
+      title: "Chapter 06 — Mechanical Ventilation Emergencies",
       description:
-        "Review important emergency ventilation concepts and understand how ventilatory support is used during severe respiratory compromise.",
+        "Learn how to recognise common patient-related and equipment-related ventilator emergencies and follow a structured troubleshooting approach.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 07 — Shock & Circulatory Emergencies",
+      title: "Chapter 07 — Shock Recognition & Initial Response",
       description:
-        "Understand the major concepts of shock, recognition of circulatory compromise, monitoring and structured emergency response.",
+        "Understand the major concepts of shock, recognition of clinical deterioration, monitoring priorities and initial supportive management principles.",
       lessons: 1,
     },
 
     {
       title: "Chapter 08 — Sepsis & Septic Shock",
       description:
-        "Learn the fundamentals of recognising suspected sepsis, assessing deterioration and understanding the importance of timely escalation and treatment.",
+        "Study early recognition of sepsis, clinical deterioration, monitoring priorities and multidisciplinary management principles.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 09 — Cardiac Arrest & CPR",
+      title: "Chapter 09 — Cardiac Emergencies",
       description:
-        "Understand cardiac arrest recognition, high-quality CPR principles, emergency response sequence and team-based resuscitation concepts.",
+        "Understand common acute cardiac presentations in critical care and develop a structured approach to monitoring and escalation.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 10 — ECG & Acute Cardiac Emergencies",
+      title: "Chapter 10 — Tachyarrhythmia Emergencies",
       description:
-        "Develop a structured approach to recognising important ECG abnormalities and understanding common acute cardiac emergencies in critical care.",
+        "Learn recognition of important fast cardiac rhythms and understand the principles of assessment, monitoring and emergency response.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 11 — Acute Coronary Syndromes",
+      title: "Chapter 11 — Bradyarrhythmia & Heart Block Emergencies",
       description:
-        "Understand the basic clinical concepts of acute coronary syndromes, warning signs, monitoring priorities and emergency escalation.",
+        "Understand clinically important slow rhythms and conduction abnormalities and their significance in critically ill patients.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 12 — Arrhythmias & Hemodynamic Instability",
+      title: "Chapter 12 — Cardiac Arrest & Resuscitation",
       description:
-        "Learn to recognise clinically important rhythm abnormalities and understand the relationship between arrhythmia, perfusion and patient instability.",
+        "Study cardiac-arrest recognition, emergency response, resuscitation workflow, team communication and post-resuscitation priorities.",
       lessons: 1,
     },
 
     {
       title: "Chapter 13 — Neurological Emergencies",
       description:
-        "Study important neurological emergencies including altered consciousness, seizures and acute neurological deterioration.",
+        "Understand assessment and emergency-care principles for acute neurological deterioration, altered consciousness and seizures.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 14 — Acute Kidney & Electrolyte Emergencies",
+      title: "Chapter 14 — Electrolyte & Metabolic Emergencies",
       description:
-        "Understand common electrolyte abnormalities, acute kidney-related emergencies and their significance in critically ill patients.",
+        "Study important electrolyte and metabolic abnormalities that may cause rapid clinical deterioration in ICU patients.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 15 — Acid–Base & ABG Emergencies",
+      title: "Chapter 15 — Acute Kidney & Fluid Emergencies",
       description:
-        "Apply structured ABG and acid–base concepts to critically ill patients presenting with acute respiratory or metabolic deterioration.",
+        "Understand important fluid-balance problems, acute kidney-related deterioration and monitoring priorities in critical care.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 16 — Emergency Drugs & Medication Safety",
+      title: "Chapter 16 — Anaphylaxis & Acute Allergic Emergencies",
       description:
-        "Review the principles of emergency medication preparation, safe administration, monitoring and communication during critical situations.",
+        "Learn recognition of severe allergic reactions and anaphylaxis and understand emergency assessment and escalation principles.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 17 — ICU Monitoring & Early Warning Signs",
+      title: "Chapter 17 — Rapid Response & Clinical Escalation",
       description:
-        "Learn how vital signs, monitoring trends and changes in clinical condition can help identify deterioration and support timely escalation.",
+        "Develop an organised approach to escalating care, communicating deterioration and coordinating emergency response within the ICU team.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 18 — Common ICU Emergency Scenarios",
+      title: "Chapter 18 — Emergency Drugs & Safety Principles",
       description:
-        "Work through structured ICU emergency scenarios covering respiratory, cardiac, neurological and circulatory deterioration.",
+        "Understand the role of emergency medications, medication-safety principles, preparation, checking and safe administration within clinical protocols.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 19 — Emergency Communication & Team Response",
+      title: "Chapter 19 — ICU Emergency Documentation & Handover",
       description:
-        "Understand effective ICU emergency communication, escalation, handover and coordinated multidisciplinary response.",
+        "Learn professional documentation, emergency communication, structured handover and important safety information following acute events.",
       lessons: 1,
     },
 
     {
-      title: "Chapter 20 — Final ICU Emergency Mastery Assessment",
+      title: "Chapter 20 — Emergency Case Studies & Final Assessment",
       description:
-        "Review the complete emergency-management pathway and prepare for the final assessment through comprehensive ICU-oriented clinical scenarios.",
+        "Integrate emergency-assessment principles through structured ICU case scenarios and prepare for the final professional assessment.",
       lessons: 1,
     },
   ],
@@ -209,43 +209,43 @@ const course: CourseLandingData = {
   learningOutcomes: [
     "Understand the fundamentals of emergency management in the ICU.",
 
-    "Recognize important signs of acute clinical deterioration.",
+    "Recognize clinical deterioration and identify immediate priorities.",
 
-    "Apply a structured initial assessment approach to critically ill patients.",
+    "Use a structured ABC approach during acute patient deterioration.",
 
-    "Understand the ABCDE assessment framework.",
+    "Understand common airway emergencies and emergency response principles.",
 
-    "Recognize common airway emergencies and understand basic emergency airway support principles.",
+    "Recognize important respiratory emergencies in critically ill patients.",
 
-    "Recognize common respiratory emergencies and understand oxygenation and ventilation concepts.",
+    "Understand common mechanical ventilation emergencies and troubleshooting principles.",
 
-    "Understand important emergency mechanical ventilation concepts.",
+    "Recognize major clinical patterns associated with shock.",
 
-    "Recognize major clinical features associated with shock and circulatory compromise.",
+    "Understand sepsis and septic shock recognition and monitoring principles.",
 
-    "Understand the fundamentals of sepsis and septic shock recognition.",
+    "Recognize common acute cardiac emergencies in critical care.",
 
-    "Understand cardiac arrest recognition and high-quality CPR principles.",
+    "Understand important tachyarrhythmia patterns and emergency assessment.",
 
-    "Recognize important ECG and acute cardiac emergency patterns.",
+    "Recognize clinically significant bradyarrhythmias and heart blocks.",
 
-    "Understand the basic concepts of acute coronary syndromes.",
+    "Understand cardiac-arrest response and resuscitation workflow.",
 
-    "Recognize clinically important arrhythmias and their relationship with hemodynamic instability.",
+    "Recognize important neurological emergencies and acute deterioration.",
 
-    "Recognize important neurological emergencies and acute neurological deterioration.",
+    "Understand major electrolyte and metabolic emergencies.",
 
-    "Understand common electrolyte and acute kidney-related emergencies.",
+    "Recognize important fluid and acute kidney-related emergencies.",
 
-    "Apply basic ABG and acid–base concepts to acute critical-care situations.",
+    "Understand recognition and initial response principles for anaphylaxis.",
 
-    "Understand principles of emergency medication safety and monitoring.",
+    "Develop structured clinical escalation and emergency communication skills.",
 
-    "Recognize important monitoring trends and early warning signs.",
+    "Understand emergency medication safety principles.",
 
-    "Apply structured reasoning to common ICU emergency scenarios.",
+    "Improve emergency documentation and professional handover.",
 
-    "Develop confidence in emergency communication, escalation and team response.",
+    "Apply emergency-management concepts to ICU-based clinical cases.",
   ],
 
   /* ==============================================================
@@ -253,45 +253,57 @@ const course: CourseLandingData = {
   ============================================================== */
 
   practicalSkills: [
-    "Perform a structured initial assessment of a critically ill patient",
+    "Rapid ICU emergency assessment",
 
-    "Apply the ABCDE assessment framework",
+    "ABC assessment",
 
-    "Recognize signs of airway compromise",
+    "Recognition of clinical deterioration",
 
-    "Recognize respiratory distress and deterioration",
+    "Airway emergency recognition",
 
-    "Assess basic oxygenation and ventilation status",
+    "Respiratory emergency assessment",
 
-    "Understand emergency respiratory support concepts",
+    "Oxygenation monitoring",
 
-    "Recognize signs of circulatory compromise",
+    "Ventilator emergency recognition",
 
-    "Identify common shock patterns conceptually",
+    "Ventilator troubleshooting principles",
 
-    "Recognize important sepsis warning signs",
+    "Shock recognition",
 
-    "Understand basic cardiac arrest response principles",
+    "Sepsis recognition",
 
-    "Review high-quality CPR concepts",
+    "Septic shock monitoring principles",
 
-    "Recognize important ECG abnormalities",
+    "Cardiac emergency assessment",
 
-    "Identify common acute cardiac emergency presentations",
+    "Tachyarrhythmia recognition",
 
-    "Recognize clinically important arrhythmias",
+    "Bradyarrhythmia recognition",
 
-    "Assess basic neurological deterioration",
+    "Heart block recognition",
 
-    "Recognize common seizure and altered-consciousness scenarios",
+    "Cardiac arrest response workflow",
 
-    "Identify important electrolyte abnormalities",
+    "Resuscitation team communication",
 
-    "Relate ABG findings to acute clinical deterioration",
+    "Neurological emergency assessment",
 
-    "Apply safe principles of emergency medication administration",
+    "Seizure emergency recognition",
 
-    "Use structured communication and escalation during ICU emergencies",
+    "Electrolyte emergency recognition",
+
+    "Fluid-balance assessment",
+
+    "Anaphylaxis recognition",
+
+    "Emergency escalation",
+
+    "Structured emergency handover",
+
+    "Emergency documentation",
+
+    "Case-based emergency decision making",
   ],
 
   /* ==============================================================
@@ -299,53 +311,55 @@ const course: CourseLandingData = {
   ============================================================== */
 
   includes: [
-    "20 structured ICU emergency learning chapters",
+    "20 structured ICU emergency-management chapters",
 
-    "Beginner-to-advanced emergency management pathway",
+    "Beginner-to-advanced emergency learning pathway",
 
-    "Initial critical patient assessment",
+    "Professional emergency assessment framework",
 
-    "ABCDE emergency assessment",
+    "Rapid patient assessment",
+
+    "ABC emergency approach",
 
     "Airway emergency concepts",
 
     "Respiratory emergency concepts",
 
-    "Emergency mechanical ventilation concepts",
+    "Mechanical ventilation emergency concepts",
 
-    "Shock and circulatory emergency concepts",
+    "Shock recognition and response principles",
 
-    "Sepsis and septic shock learning",
+    "Sepsis and septic shock concepts",
 
-    "Cardiac arrest and CPR concepts",
+    "Cardiac emergency concepts",
 
-    "ECG and acute cardiac emergencies",
+    "Tachyarrhythmia learning",
 
-    "Acute coronary syndrome concepts",
+    "Bradyarrhythmia and heart-block learning",
 
-    "Arrhythmia and hemodynamic instability",
+    "Cardiac arrest and resuscitation pathway",
 
     "Neurological emergency concepts",
 
-    "Acute kidney and electrolyte emergencies",
+    "Electrolyte and metabolic emergency concepts",
 
-    "ABG and acid–base emergency concepts",
+    "Fluid and acute kidney emergency concepts",
 
-    "Emergency medication safety principles",
+    "Anaphylaxis emergency concepts",
 
-    "ICU monitoring and early warning signs",
+    "Rapid response and escalation principles",
 
-    "Common ICU emergency case scenarios",
+    "Emergency medication safety concepts",
 
-    "Emergency communication and escalation",
+    "Emergency documentation and handover",
 
-    "Structured LMS learning pathway",
+    "ICU emergency case studies",
 
-    "Quiz and assessment pathway",
+    "Final professional assessment pathway",
 
     "Progress tracking through the LMS",
 
-    "Premium course access",
+    "Premium learning access",
 
     "Course completion certificate pathway",
 
