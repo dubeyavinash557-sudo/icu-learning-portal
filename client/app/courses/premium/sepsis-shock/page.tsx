@@ -4,26 +4,7 @@ import CourseLandingPage, {
 
 export const dynamic = "force-dynamic";
 
-/* ================================================================
-   SEPSIS & SHOCK MASTERCLASS
-   Premium ICU LMS Landing Page
-
-   Route:
-   /courses/premium/sepsis-shock
-
-   Purpose:
-   - Premium marketing / course landing page
-   - 20 structured chapters
-   - ICU-focused sepsis and shock curriculum
-   - Uses existing shared CourseLandingPage component
-   - Keeps premium course presentation consistent
-================================================================ */
-
 const course: CourseLandingData = {
-  /* ==============================================================
-     BASIC COURSE INFORMATION
-  ============================================================== */
-
   title: "Sepsis & Shock Management Masterclass",
 
   shortTitle: "Sepsis & Shock Masterclass",
@@ -31,16 +12,16 @@ const course: CourseLandingData = {
   category: "Sepsis • Shock • Critical Care",
 
   description:
-    "A professional ICU learning program covering sepsis recognition, shock physiology, perfusion assessment, hemodynamic monitoring, organ dysfunction, supportive care concepts and case-based critical-care reasoning.",
+    "Professional ICU training focused on sepsis recognition, shock assessment, perfusion, hemodynamic monitoring, organ dysfunction and structured critical-care case learning.",
 
   longDescription:
-    "Build a structured understanding of sepsis and shock through a comprehensive 20-chapter ICU learning pathway. The program progresses from sepsis fundamentals and early recognition to shock classification, perfusion assessment, hemodynamic concepts, organ dysfunction, monitoring, supportive-care principles, documentation and clinical case analysis.",
+    "Build a systematic understanding of sepsis and shock through a structured premium ICU learning pathway. The course progresses from sepsis fundamentals and recognition to shock classification, perfusion assessment, hemodynamic monitoring, organ dysfunction, renal and respiratory deterioration, documentation and case-based clinical reasoning.",
 
-  instructor: "ICU Learning Portal Faculty",
+  instructor: "Avinash Dubey",
 
   level: "Intermediate to Advanced",
 
-  duration: "15+ Hours",
+  duration: "20 Chapters • 50 Lessons",
 
   lessons: 50,
 
@@ -56,222 +37,210 @@ const course: CourseLandingData = {
 
   accent: "violet",
 
-  /* ==============================================================
-     20-CHAPTER CURRICULUM
-  ============================================================== */
-
   modules: [
     {
       title: "Chapter 01 — Introduction to Sepsis",
       description:
-        "Understand the basic concept of sepsis, why it is a critical-care emergency and why early recognition is important.",
+        "Understand the core concept of sepsis, critical illness and the importance of early recognition.",
       lessons: 3,
     },
 
     {
       title: "Chapter 02 — Infection & Systemic Response",
       description:
-        "Review the relationship between infection, systemic inflammatory response and progressive physiological deterioration.",
+        "Understand the relationship between infection, systemic response and progressive physiological deterioration.",
       lessons: 2,
     },
 
     {
-      title: "Chapter 03 — Sepsis Recognition",
+      title: "Chapter 03 — Recognition of Sepsis",
       description:
-        "Develop a structured approach to recognising concerning clinical features in patients with suspected infection and deterioration.",
+        "Learn a structured approach to identifying important clinical signs of deterioration in patients with suspected infection.",
       lessons: 3,
     },
 
     {
       title: "Chapter 04 — Sepsis Assessment in ICU",
       description:
-        "Learn a systematic ICU assessment framework covering airway, breathing, circulation, neurological status and overall patient condition.",
+        "Develop a systematic ICU assessment approach covering airway, breathing, circulation and neurological status.",
       lessons: 3,
     },
 
     {
       title: "Chapter 05 — Understanding Shock",
       description:
-        "Understand shock as inadequate tissue perfusion and review the major physiological consequences of circulatory failure.",
+        "Understand shock, impaired tissue perfusion and the major physiological consequences of circulatory instability.",
       lessons: 2,
     },
 
     {
       title: "Chapter 06 — Types of Shock",
       description:
-        "Differentiate distributive, hypovolemic, cardiogenic and obstructive shock using clinical and physiological concepts.",
+        "Differentiate hypovolemic, cardiogenic, distributive and obstructive shock using structured clinical concepts.",
       lessons: 3,
     },
 
     {
       title: "Chapter 07 — Septic Shock",
       description:
-        "Understand the major features of septic shock and the relationship between infection, vasodilation, perfusion abnormalities and organ dysfunction.",
+        "Study the relationship between severe infection, circulatory dysfunction, perfusion abnormalities and organ dysfunction.",
       lessons: 3,
     },
 
     {
       title: "Chapter 08 — Perfusion Assessment",
       description:
-        "Review clinical indicators of tissue perfusion including blood pressure, mental status, urine output, skin findings and laboratory trends.",
+        "Review clinical indicators of tissue perfusion including blood pressure, mental status, skin findings and urine output.",
       lessons: 2,
     },
 
     {
       title: "Chapter 09 — Hemodynamic Monitoring",
       description:
-        "Understand important hemodynamic concepts and how monitoring information supports assessment of critically ill patients.",
+        "Understand important hemodynamic concepts and how monitoring helps assess critically ill patients.",
       lessons: 3,
     },
 
     {
       title: "Chapter 10 — Fluid Assessment Concepts",
       description:
-        "Study the principles of assessing fluid status and understanding the clinical context of fluid responsiveness and fluid balance.",
+        "Learn the principles of fluid-status assessment, fluid balance and clinical context in critically ill patients.",
       lessons: 2,
     },
 
     {
-      title: "Chapter 11 — Vasopressor & Hemodynamic Concepts",
+      title: "Chapter 11 — Vasoactive & Hemodynamic Concepts",
       description:
-        "Understand the role of vasopressor therapy in circulatory support and the monitoring considerations associated with hemodynamic treatment.",
+        "Understand the general role of vasoactive therapy in circulatory support and related monitoring considerations.",
       lessons: 3,
     },
 
     {
       title: "Chapter 12 — Lactate & Tissue Perfusion",
       description:
-        "Understand lactate as a clinical marker used in the assessment of critically ill patients and follow-up of perfusion abnormalities.",
+        "Understand lactate as a clinical marker and review its relationship with tissue perfusion and critical illness.",
       lessons: 2,
     },
 
     {
       title: "Chapter 13 — Organ Dysfunction",
       description:
-        "Recognize how sepsis and shock can affect major organ systems including the kidneys, lungs, brain, heart and liver.",
+        "Recognize common organ-system effects of severe sepsis and shock, including renal, respiratory, neurological and cardiovascular dysfunction.",
       lessons: 3,
     },
 
     {
       title: "Chapter 14 — Acute Kidney Injury in Sepsis",
       description:
-        "Review the relationship between sepsis, impaired renal perfusion, urine output and acute kidney injury monitoring.",
+        "Study renal monitoring, urine output and the relationship between sepsis, perfusion abnormalities and acute kidney injury.",
       lessons: 2,
     },
 
     {
       title: "Chapter 15 — Respiratory Dysfunction",
       description:
-        "Understand respiratory deterioration in critically ill patients and review oxygenation and respiratory-support monitoring concepts.",
+        "Understand respiratory deterioration, oxygenation concerns and respiratory-support monitoring in critical illness.",
       lessons: 2,
     },
 
     {
       title: "Chapter 16 — Sepsis Monitoring & Documentation",
       description:
-        "Develop professional habits for monitoring vital signs, trends, interventions, response to treatment and clinical documentation.",
+        "Develop professional monitoring, trend observation and documentation habits for critically ill patients.",
       lessons: 2,
     },
 
     {
       title: "Chapter 17 — Infection Source & Clinical Priorities",
       description:
-        "Understand the importance of identifying a possible infection source and coordinating timely clinical evaluation and management.",
+        "Understand the importance of identifying a possible infection source and coordinating timely clinical evaluation.",
       lessons: 3,
     },
 
     {
-      title: "Chapter 18 — ICU Sepsis Case Studies",
+      title: "Chapter 18 — Sepsis & Shock Case Studies",
       description:
-        "Apply sepsis and shock concepts to structured ICU case scenarios involving deterioration, perfusion abnormalities and organ dysfunction.",
+        "Apply recognition, perfusion and monitoring concepts to structured ICU clinical scenarios.",
       lessons: 3,
     },
 
     {
       title: "Chapter 19 — Rapid Sepsis & Shock Revision",
       description:
-        "Consolidate the major concepts using structured revision, clinical reasoning questions and rapid assessment frameworks.",
+        "Strengthen retention through structured revision, rapid-review questions and clinical reasoning checkpoints.",
       lessons: 2,
     },
 
     {
       title: "Chapter 20 — Final Sepsis & Shock Assessment",
       description:
-        "Complete a comprehensive review and prepare for the final professional assessment using ICU-oriented clinical scenarios.",
+        "Consolidate the complete course pathway and prepare for the final professional assessment.",
       lessons: 2,
     },
   ],
 
-  /* ==============================================================
-     LEARNING OUTCOMES
-  ============================================================== */
-
   learningOutcomes: [
-    "Understand the fundamental concept of sepsis and its importance in critical care.",
+    "Understand the fundamental concept of sepsis in critical care.",
 
     "Understand the relationship between infection and systemic physiological deterioration.",
 
-    "Recognize important clinical features that may indicate sepsis.",
+    "Recognize important clinical features associated with sepsis.",
 
     "Apply a structured initial assessment approach to critically ill patients.",
 
-    "Understand shock as a state of inadequate tissue perfusion.",
+    "Understand the concept of shock and impaired tissue perfusion.",
 
-    "Differentiate the major clinical categories of shock.",
+    "Differentiate the major categories of shock.",
 
-    "Understand the key physiological features of septic shock.",
+    "Understand major concepts associated with septic shock.",
 
     "Assess important clinical indicators of tissue perfusion.",
 
-    "Understand basic hemodynamic monitoring concepts.",
+    "Understand foundational hemodynamic monitoring concepts.",
 
     "Review fluid-status and fluid-balance assessment principles.",
 
-    "Understand the clinical role of vasopressor therapy in circulatory support.",
+    "Understand general vasoactive and circulatory-support concepts.",
 
     "Understand the clinical significance of lactate trends.",
 
-    "Recognize common patterns of organ dysfunction associated with severe illness.",
+    "Recognize common organ-dysfunction patterns in severe critical illness.",
 
-    "Understand renal monitoring considerations in sepsis and shock.",
+    "Understand renal monitoring considerations during sepsis and shock.",
 
-    "Recognize respiratory deterioration and oxygenation concerns.",
+    "Recognize respiratory deterioration in critically ill patients.",
 
-    "Develop professional ICU monitoring and documentation habits.",
+    "Develop professional monitoring and documentation habits.",
 
-    "Understand the importance of identifying a possible infection source.",
+    "Understand the importance of evaluating a possible infection source.",
 
-    "Apply sepsis and shock knowledge to ICU-oriented clinical cases.",
+    "Apply sepsis and shock concepts to ICU-oriented clinical cases.",
 
-    "Develop a systematic rapid-revision framework for sepsis and shock.",
+    "Develop a structured rapid-revision framework.",
 
-    "Prepare for a professional sepsis and shock critical-care assessment.",
+    "Prepare for a professional sepsis and shock assessment.",
   ],
-
-  /* ==============================================================
-     PRACTICAL SKILLS
-  ============================================================== */
 
   practicalSkills: [
     "Sepsis recognition framework",
 
-    "Initial ICU patient assessment",
+    "Structured ICU patient assessment",
 
-    "Airway and breathing assessment concepts",
+    "Airway and breathing assessment",
 
     "Circulation assessment",
 
-    "Vital-sign trend interpretation",
+    "Vital-sign trend assessment",
 
     "Shock recognition",
 
-    "Differentiation of major shock categories",
+    "Shock category differentiation",
 
     "Septic shock recognition",
 
     "Peripheral perfusion assessment",
 
-    "Mental-status assessment",
+    "Mental-status observation",
 
     "Urine-output monitoring",
 
@@ -281,67 +250,69 @@ const course: CourseLandingData = {
 
     "Blood-pressure trend assessment",
 
-    "Lactate trend interpretation",
+    "Lactate trend review",
 
     "Organ-function monitoring",
 
-    "Renal monitoring in critical illness",
+    "Renal monitoring",
 
     "Respiratory deterioration monitoring",
 
     "Clinical documentation",
 
-    "Sepsis case-based clinical reasoning",
+    "Case-based sepsis and shock reasoning",
   ],
-
-  /* ==============================================================
-     COURSE INCLUDES
-  ============================================================== */
 
   includes: [
     "50 structured premium lessons",
 
     "20 professional ICU chapters",
 
-    "Sepsis recognition learning pathway",
+    "Sepsis recognition pathway",
 
     "Sepsis assessment framework",
 
-    "Infection and systemic response concepts",
+    "Infection and systemic-response concepts",
 
     "Shock physiology fundamentals",
 
-    "Major types of shock",
+    "Hypovolemic shock concepts",
+
+    "Cardiogenic shock concepts",
+
+    "Distributive shock concepts",
+
+    "Obstructive shock concepts",
 
     "Septic shock concepts",
 
     "Perfusion assessment",
 
-    "Hemodynamic monitoring concepts",
+    "Hemodynamic monitoring",
 
-    "Fluid assessment principles",
+    "Fluid-status assessment",
 
-    "Fluid-balance monitoring",
+    "Fluid-balance learning",
 
-    "Vasopressor and hemodynamic concepts",
+    "Vasoactive and circulatory-support concepts",
 
-    "Lactate and tissue-perfusion concepts",
+    "Lactate and tissue-perfusion learning",
 
     "Organ dysfunction monitoring",
 
     "Acute kidney injury in sepsis",
 
-    "Respiratory dysfunction concepts",
+    "Respiratory dysfunction",
 
-    "Sepsis monitoring and documentation",
+    "Clinical monitoring and documentation",
 
     "Infection-source assessment concepts",
 
     "ICU case-based learning",
 
-    "Rapid sepsis and shock revision",
+    "Rapid revision pathway",
 
-    "Final professional assessment pathway",
+    "Final professional assessment",
 
     "Progress tracking through the LMS",
 
@@ -352,10 +323,6 @@ const course: CourseLandingData = {
     "Hindi + English learning environment",
   ],
 };
-
-/* ================================================================
-   PAGE
-================================================================ */
 
 export default function SepsisShockPremiumPage() {
   return <CourseLandingPage course={course} />;
