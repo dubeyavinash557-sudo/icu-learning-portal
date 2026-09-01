@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { getCourseByIdOrSlug } from "@/lib/course";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
@@ -46,19 +47,7 @@ export default async function CourseDetailsPage({
   // 1. COURSE + LESSONS
   // ==========================================================
 
-  const course = await prisma.course.findUnique({
-    where: {
-      id,
-    },
-    include: {
-      lessons: {
-        orderBy: {
-          lessonOrder: "asc",
-        },
-      },
-      enrollments: true,
-    },
-  });
+  const course = await getCourseByIdOrSlug(id);
 
   if (!course) {
     notFound();

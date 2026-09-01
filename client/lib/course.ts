@@ -1,11 +1,12 @@
 import prisma from "@/lib/prisma";
 
-const lessonInclude = {
+const courseInclude = {
   lessons: {
     orderBy: {
       lessonOrder: "asc" as const,
     },
   },
+  enrollments: true,
 };
 
 /**
@@ -14,7 +15,7 @@ const lessonInclude = {
  */
 export async function getCourses() {
   return prisma.course.findMany({
-    include: lessonInclude,
+    include: courseInclude,
     orderBy: [
       {
         isPremium: "desc",
@@ -34,7 +35,7 @@ export async function getPremiumCourses() {
     where: {
       isPremium: true,
     },
-    include: lessonInclude,
+    include: courseInclude,
     orderBy: {
       createdAt: "asc",
     },
@@ -49,7 +50,7 @@ export async function getCourseById(id: string) {
     where: {
       id,
     },
-    include: lessonInclude,
+    include: courseInclude,
   });
 }
 
@@ -62,7 +63,7 @@ export async function getCourseBySlug(slug: string) {
     where: {
       slug,
     },
-    include: lessonInclude,
+    include: courseInclude,
   });
 }
 
