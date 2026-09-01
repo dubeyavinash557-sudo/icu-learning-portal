@@ -35,7 +35,7 @@ export const dynamic = "force-dynamic";
 
    Design goals:
    - Professional LMS presentation
-   - 14 premium programs
+   - 12 premium programs
    - Course-specific professional imagery
    - Curriculum preview
    - Pricing
