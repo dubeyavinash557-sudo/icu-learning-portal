@@ -352,7 +352,7 @@ export default function CourseCard({ course }: CourseCardProps) {
 
         <div className="mt-5 space-y-2.5">
           <Link
-            href={`/courses/${course.slug}`}
+            href={`/courses/${course.id}`}
             className="
               group/button
               flex
@@ -392,7 +392,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           </Link>
 
           <Link
-            href={`/courses/${course.slug}`}
+            href={`/courses/${course.id}`}
             className="
               flex
               w-full
