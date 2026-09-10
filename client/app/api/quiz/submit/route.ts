@@ -331,29 +331,18 @@ export async function POST(req: Request) {
         // ----------------------------------------------
         // Create/update latest attempt
         // ----------------------------------------------
-        const quizAttempt =
-          await tx.quizAttempt.upsert({
-            where: {
-              userId_quizId: {
-                userId: user.id,
-                quizId,
-              },
-            },
-            update: {
-              score,
-              total,
-              percentage,
-              passed,
-            },
-            create: {
-              userId: user.id,
-              quizId,
-              score,
-              total,
-              percentage,
-              passed,
-            },
-          });
+
+          const quizAttempt =
+  await tx.quizAttempt.create({
+    data: {
+      userId: user.id,
+      quizId,
+      score,
+      total,
+      percentage,
+      passed,
+    },
+  });
 
         // ----------------------------------------------
         // Remove previous answer records

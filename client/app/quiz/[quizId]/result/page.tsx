@@ -53,27 +53,28 @@ export default async function QuizResultPage({
   // 4. Get latest attempt for this user + quiz
   // --------------------------------------------------
   const attempt =
-    await prisma.quizAttempt.findUnique({
-      where: {
-        userId_quizId: {
-          userId: user.id,
-          quizId,
-        },
-      },
-      include: {
-        quiz: {
-          include: {
-            course: true,
-            questions: {
-              orderBy: {
-                id: "asc",
-              },
+  await prisma.quizAttempt.findFirst({
+    where: {
+      userId: user.id,
+      quizId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      quiz: {
+        include: {
+          course: true,
+          questions: {
+            orderBy: {
+              id: "asc",
             },
           },
         },
-        answers: true,
       },
-    });
+      answers: true,
+    },
+  });
 
   // --------------------------------------------------
   // 5. Attempt not found

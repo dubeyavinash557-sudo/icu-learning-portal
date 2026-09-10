@@ -202,7 +202,9 @@ model QuizAttempt {
 
   answers QuizAttemptAnswer[]
 
-  @@unique([userId, quizId])
+  @@index([userId, quizId])
+  @@index([userId, createdAt])
+  @@index([quizId, createdAt])
 }
 
 model QuizAttemptAnswer {
