@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -525,7 +526,7 @@ function ProfessionalCourseCard({
   const image =
     hasCourseImage(course.slug)
       ? visual.image
-      : course.image || visual.image;
+      : course.image || "/images/icu-lms-hero.png";
 
   const price =
     typeof course.price === "number"
@@ -560,11 +561,15 @@ function ProfessionalCourseCard({
       ========================================================== */}
 
       <div className="relative h-60 overflow-hidden">
-        <img
+        <Image
           src={image}
-          alt={`${course.title} professional ICU course`}
-          className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-          loading={index < 6 ? "eager" : "lazy"}
+          alt={visual.alt}
+          fill
+          quality={85}
+          priority={index < 3}
+          loading={index < 3 ? "eager" : "lazy"}
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+          className="object-cover transition duration-700 group-hover:scale-105"
         />
 
         {/* Gradient overlay */}

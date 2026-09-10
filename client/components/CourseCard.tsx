@@ -61,9 +61,11 @@ export default function CourseCard({ course }: CourseCardProps) {
 
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
         <Image
-          src={course.image}
-          alt={`${course.title} - ICU Learning Portal`}
+          src={course.image || "/images/icu-lms-hero.png"}
+          alt={`${course.title} — professional ICU Learning Portal course`}
           fill
+          quality={85}
+          loading="lazy"
           className="
             object-cover
             transition-transform
@@ -78,7 +80,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           "
         />
 
-        {/* Image overlay */}
+        {/* Professional LMS image overlay */}
 
         <div
           className="

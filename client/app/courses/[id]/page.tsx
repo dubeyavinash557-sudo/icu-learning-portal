@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { getCourseByIdOrSlug } from "@/lib/course";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { getCourseImageConfig } from "@/app/courses/_components/course-images";
 import { auth } from "@/auth";
 
 import BuyNowButton from "@/components/course/BuyNowButton";
@@ -52,6 +54,9 @@ export default async function CourseDetailsPage({
   if (!course) {
     notFound();
   }
+
+  const visual = getCourseImageConfig(course.slug);
+  const courseImage = course.image || visual.image;
 
   // ==========================================================
   // 2. AUTHENTICATION
@@ -441,14 +446,15 @@ export default async function CourseDetailsPage({
 
       <section className="relative overflow-hidden bg-slate-950">
         <div className="absolute inset-0">
-          {course.image ? (
-            <img
-              src={course.image}
-              alt=""
-              aria-hidden="true"
-              className="h-full w-full object-cover opacity-25"
-            />
-          ) : null}
+          <Image
+            src={courseImage}
+            alt=""
+            aria-hidden="true"
+            fill
+            priority
+            className="object-cover opacity-25"
+            sizes="100vw"
+          />
 
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(8,145,178,0.25),transparent_35%),radial-gradient(circle_at_85%_80%,rgba(37,99,235,0.25),transparent_35%)]" />
 
@@ -581,21 +587,13 @@ export default async function CourseDetailsPage({
             <div className="lg:justify-self-end lg:w-full lg:max-w-md">
               <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white shadow-2xl shadow-black/30">
                 <div className="relative h-52 overflow-hidden bg-slate-200">
-                  {course.image ? (
-                    <img
-                      src={course.image}
-                      alt={course.title}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-gradient-to-br from-cyan-600 via-blue-700 to-indigo-800">
-                      <GraduationCap
-                        size={70}
-                        className="text-white/80"
-                      />
-                    </div>
-                  )}
-
+                  <Image
+                    src={courseImage}
+                    alt={visual.alt}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 420px"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
 
                   <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between">
