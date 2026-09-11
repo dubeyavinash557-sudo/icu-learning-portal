@@ -158,13 +158,13 @@ export default function Hero() {
             <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-2 shadow-[0_30px_80px_rgba(15,23,42,0.16)]">
               <div className="relative aspect-[4/4.35] overflow-hidden rounded-[1.55rem]">
                 <Image
-                  src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1400&q=85"
-                  alt="Healthcare professional learning in a clinical environment"
-                  fill
-                  priority
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
+  src="/images/icu-lms-hero.png"
+  alt="Professional ICU Learning Portal healthcare learning experience"
+  fill
+  priority
+  className="object-cover"
+  sizes="(max-width: 1024px) 100vw, 50vw"
+/>
 
                 {/* Image overlay */}
 
