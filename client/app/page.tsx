@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -148,14 +147,99 @@ export default async function Home() {
               <div className="relative mx-auto w-full max-w-[600px] lg:ml-auto">
                 <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-2 shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
                   <div className="relative aspect-[4/4.45] overflow-hidden rounded-[1.55rem]">
-                    <Image
-                      src="/images/icu-lms-hero.png"
-                      alt="Healthcare professional using ICU Learning Portal online learning platform"
-                      fill
-                      priority
-                      className="object-cover object-center"
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                    />
+                   <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-950" />
+
+<div className="absolute inset-0 opacity-20">
+  <div className="absolute left-8 top-8 h-32 w-32 rounded-full bg-cyan-400 blur-3xl" />
+  <div className="absolute bottom-12 right-8 h-40 w-40 rounded-full bg-blue-500 blur-3xl" />
+</div>
+
+<div className="absolute inset-5 rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-sm sm:inset-7 sm:p-5">
+  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+    <div className="flex items-center gap-2">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white">
+        <Stethoscope size={18} />
+      </div>
+
+      <div>
+        <p className="text-xs font-black text-white">
+          ICU Learning Portal
+        </p>
+        <p className="text-[10px] text-slate-400">
+          Professional learning dashboard
+        </p>
+      </div>
+    </div>
+
+    <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-[9px] font-bold text-emerald-300">
+      Online
+    </span>
+  </div>
+
+  <div className="mt-5">
+    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+      Your learning journey
+    </p>
+
+    <h2 className="mt-2 max-w-sm text-2xl font-black leading-tight text-white sm:text-3xl">
+      Build stronger critical-care skills.
+    </h2>
+
+    <p className="mt-3 max-w-sm text-xs leading-5 text-slate-300 sm:text-sm">
+      Learn through structured video lessons, clinical resources,
+      quizzes and certificate pathways.
+    </p>
+  </div>
+
+  <div className="mt-6 grid grid-cols-2 gap-3">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
+      <BookOpen size={18} className="text-cyan-300" />
+      <p className="mt-3 text-xl font-black text-white">12+</p>
+      <p className="text-[10px] text-slate-400">Premium courses</p>
+    </div>
+
+    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
+      <PlayCircle size={18} className="text-blue-300" />
+      <p className="mt-3 text-xl font-black text-white">Video</p>
+      <p className="text-[10px] text-slate-400">Practical lessons</p>
+    </div>
+
+    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
+      <Sparkles size={18} className="text-violet-300" />
+      <p className="mt-3 text-xl font-black text-white">MCQs</p>
+      <p className="text-[10px] text-slate-400">Clinical assessment</p>
+    </div>
+
+    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
+      <Award size={18} className="text-amber-300" />
+      <p className="mt-3 text-xl font-black text-white">100%</p>
+      <p className="text-[10px] text-slate-400">Learning progress</p>
+    </div>
+  </div>
+
+  <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/50 p-3">
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p className="text-[10px] text-slate-400">Featured learning track</p>
+        <p className="mt-1 text-xs font-black text-white">
+          ICU & Critical Care Essentials
+        </p>
+      </div>
+
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+        <ShieldCheck size={18} />
+      </div>
+    </div>
+
+    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+      <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" />
+    </div>
+
+    <p className="mt-2 text-[10px] text-slate-400">
+      Structured learning • Practice • Achievement
+    </p>
+  </div>
+</div>
 
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/10 to-transparent" />
 
