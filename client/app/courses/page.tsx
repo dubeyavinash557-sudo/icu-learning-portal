@@ -55,9 +55,9 @@ export default async function CoursesPage() {
    *
    * Demo/free learning will be presented separately later.
    */
-  const courses = allCourses.filter(
-    (course) => course.isPremium
-  );
+  const demoCourses = allCourses.filter((course) => !course.isPremium);
+
+  const courses = allCourses.filter((course) => course.isPremium);
 
   const totalCourses = courses.length;
 
@@ -277,6 +277,40 @@ export default async function CoursesPage() {
       </section>
 
             {/* =========================================================
+          FREE DEMO COURSES
+      ========================================================== */}
+
+      {demoCourses.length > 0 && (
+        <section className="border-b border-emerald-100 bg-emerald-50/50">
+          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
+                  Start Learning Free
+                </p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                  Free ICU Demo Courses
+                </h2>
+                <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+                  Explore selected lessons and understand the ICU Learning Portal experience before joining a premium program.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-200 bg-white px-4 py-2 text-xs font-black text-emerald-700 sm:self-auto">
+                <CheckCircle2 size={14} />
+                Free Access
+              </span>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {demoCourses.map((course, index) => (
+                <ProfessionalCourseCard key={course.id} course={course} index={index} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* =========================================================
           COURSE CATALOG HEADER
       ========================================================== */}
 
@@ -587,10 +621,13 @@ function ProfessionalCourseCard({
         {/* Premium badge */}
 
         <div className="absolute left-4 top-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-2 text-[10px] font-black uppercase tracking-wide text-amber-950 shadow-lg">
-            <Crown size={13} />
-
-            Premium
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wide shadow-lg ${
+            course.isPremium
+              ? "bg-amber-400 text-amber-950"
+              : "bg-emerald-400 text-emerald-950"
+          }`}>
+            {course.isPremium ? <Crown size={13} /> : <CheckCircle2 size={13} />}
+            {course.isPremium ? "Premium" : "Free Demo"}
           </span>
         </div>
 
@@ -736,15 +773,23 @@ function ProfessionalCourseCard({
             PREMIUM VALUE
         ======================================================== */}
 
-        <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50/80 p-4">
+        <div className={`mt-4 rounded-2xl border p-4 ${
+          course.isPremium
+            ? "border-amber-100 bg-amber-50/80"
+            : "border-emerald-100 bg-emerald-50/80"
+        }`}>
           <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-              <Crown size={17} />
+            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                course.isPremium
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-emerald-100 text-emerald-700"
+              }`}>
+              {course.isPremium ? <Crown size={17} /> : <CheckCircle2 size={17} />}
             </div>
 
             <div>
               <p className="text-sm font-black text-slate-800">
-                Premium Learning Program
+                {course.isPremium ? "Premium Learning Program" : "Free Demo Course"}
               </p>
 
               <p className="mt-1 text-xs leading-5 text-slate-600">
