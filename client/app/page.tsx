@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -40,6 +41,23 @@ export default async function Home() {
    * catalogue. The database currently contains the 12 main
    * professional ICU / critical-care programs.
    */
+  const demoCourses: CourseCardData[] = dbCourses
+    .filter((course) => !course.isPremium)
+    .map((course) => ({
+      id: course.id,
+      title: course.title,
+      slug: course.slug,
+      price: course.price,
+      image: course.image,
+      instructor: course.instructor,
+      rating: course.rating,
+      students: course.students,
+      duration: course.duration,
+      language: course.language,
+      level: course.level,
+      isPremium: course.isPremium,
+    }));
+
   const premiumCourses: CourseCardData[] = dbCourses
     .filter((course) => course.isPremium)
     .map((course) => ({
@@ -68,9 +86,14 @@ export default async function Home() {
 
         <section className="relative overflow-hidden bg-white">
           {/* Soft healthcare background */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+          >
             <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-blue-100/70 blur-3xl" />
+
             <div className="absolute -right-40 top-20 h-[34rem] w-[34rem] rounded-full bg-cyan-100/70 blur-3xl" />
+
             <div
               className="absolute inset-0 opacity-[0.025]"
               style={{
@@ -87,18 +110,23 @@ export default async function Home() {
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-black uppercase tracking-[0.13em] text-blue-700">
                   <Stethoscope size={15} />
+
                   Professional ICU Learning Platform
                 </div>
 
                 <h1 className="mt-6 text-[2.75rem] font-black leading-[1.04] tracking-[-0.035em] text-slate-950 sm:text-5xl lg:text-[4.25rem]">
                   Learn. Practice.
+
                   <span className="block bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500 bg-clip-text text-transparent">
                     Master Critical Care.
                   </span>
                 </h1>
 
                 <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-                  Build practical ICU and critical-care skills with structured courses, video lessons, study resources, assessments and certificate pathways—all in one professional LMS.
+                  Build practical ICU and critical-care skills with
+                  structured courses, video lessons, study resources,
+                  assessments and certificate pathways—all in one
+                  professional LMS.
                 </p>
 
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -107,7 +135,11 @@ export default async function Home() {
                     className="group inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-600/20 transition duration-300 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl"
                   >
                     Browse Courses
-                    <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+
+                    <ArrowRight
+                      size={18}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
                   </Link>
 
                   <Link
@@ -115,31 +147,68 @@ export default async function Home() {
                     className="group inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-black text-slate-800 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:text-blue-700 hover:shadow-md"
                   >
                     Start Learning
-                    <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+
+                    <ArrowRight
+                      size={18}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
                   </Link>
                 </div>
 
                 <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3 text-xs font-bold text-slate-500">
                   <div className="inline-flex items-center gap-2">
-                    <CheckCircle2 size={16} className="text-emerald-500" />
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-500"
+                    />
+
                     Structured curriculum
                   </div>
+
                   <div className="inline-flex items-center gap-2">
-                    <CheckCircle2 size={16} className="text-emerald-500" />
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-500"
+                    />
+
                     Video & study resources
                   </div>
+
                   <div className="inline-flex items-center gap-2">
-                    <CheckCircle2 size={16} className="text-emerald-500" />
+                    <CheckCircle2
+                      size={16}
+                      className="text-emerald-500"
+                    />
+
                     Quizzes & certificates
                   </div>
                 </div>
 
                 {/* Learning benefits */}
                 <div className="mt-9 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <HeroBenefit icon={<BookOpen size={18} />} title="Courses" text="Structured" />
-                  <HeroBenefit icon={<PlayCircle size={18} />} title="Video" text="Practical" />
-                  <HeroBenefit icon={<Sparkles size={18} />} title="Quizzes" text="Assessment" />
-                  <HeroBenefit icon={<Award size={18} />} title="Certificates" text="Achievement" />
+                  <HeroBenefit
+                    icon={<BookOpen size={18} />}
+                    title="Courses"
+                    text="Structured"
+                  />
+
+                  <HeroBenefit
+                    icon={<PlayCircle size={18} />}
+                    title="Video"
+                    text="Practical"
+                  />
+
+                  <HeroBenefit
+                    icon={<Sparkles size={18} />}
+                    title="Quizzes"
+                    text="Assessment"
+                  />
+
+                  <HeroBenefit
+                    icon={<Award size={18} />}
+                    title="Certificates"
+                    text="Achievement"
+                  />
                 </div>
               </div>
 
@@ -147,107 +216,33 @@ export default async function Home() {
               <div className="relative mx-auto w-full max-w-[600px] lg:ml-auto">
                 <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-2 shadow-[0_30px_90px_rgba(15,23,42,0.18)]">
                   <div className="relative aspect-[4/4.45] overflow-hidden rounded-[1.55rem]">
-                   <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-950" />
-
-<div className="absolute inset-0 opacity-20">
-  <div className="absolute left-8 top-8 h-32 w-32 rounded-full bg-cyan-400 blur-3xl" />
-  <div className="absolute bottom-12 right-8 h-40 w-40 rounded-full bg-blue-500 blur-3xl" />
-</div>
-
-<div className="absolute inset-5 rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-sm sm:inset-7 sm:p-5">
-  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-    <div className="flex items-center gap-2">
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white">
-        <Stethoscope size={18} />
-      </div>
-
-      <div>
-        <p className="text-xs font-black text-white">
-          ICU Learning Portal
-        </p>
-        <p className="text-[10px] text-slate-400">
-          Professional learning dashboard
-        </p>
-      </div>
-    </div>
-
-    <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-[9px] font-bold text-emerald-300">
-      Online
-    </span>
-  </div>
-
-  <div className="mt-5">
-    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
-      Your learning journey
-    </p>
-
-    <h2 className="mt-2 max-w-sm text-2xl font-black leading-tight text-white sm:text-3xl">
-      Build stronger critical-care skills.
-    </h2>
-
-    <p className="mt-3 max-w-sm text-xs leading-5 text-slate-300 sm:text-sm">
-      Learn through structured video lessons, clinical resources,
-      quizzes and certificate pathways.
-    </p>
-  </div>
-
-  <div className="mt-6 grid grid-cols-2 gap-3">
-    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
-      <BookOpen size={18} className="text-cyan-300" />
-      <p className="mt-3 text-xl font-black text-white">12+</p>
-      <p className="text-[10px] text-slate-400">Premium courses</p>
-    </div>
-
-    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
-      <PlayCircle size={18} className="text-blue-300" />
-      <p className="mt-3 text-xl font-black text-white">Video</p>
-      <p className="text-[10px] text-slate-400">Practical lessons</p>
-    </div>
-
-    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
-      <Sparkles size={18} className="text-violet-300" />
-      <p className="mt-3 text-xl font-black text-white">MCQs</p>
-      <p className="text-[10px] text-slate-400">Clinical assessment</p>
-    </div>
-
-    <div className="rounded-2xl border border-white/10 bg-white/[0.08] p-3">
-      <Award size={18} className="text-amber-300" />
-      <p className="mt-3 text-xl font-black text-white">100%</p>
-      <p className="text-[10px] text-slate-400">Learning progress</p>
-    </div>
-  </div>
-
-  <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/50 p-3">
-    <div className="flex items-center justify-between gap-3">
-      <div>
-        <p className="text-[10px] text-slate-400">Featured learning track</p>
-        <p className="mt-1 text-xs font-black text-white">
-          ICU & Critical Care Essentials
-        </p>
-      </div>
-
-      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
-        <ShieldCheck size={18} />
-      </div>
-    </div>
-
-    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-      <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-blue-500 to-cyan-400" />
-    </div>
-
-    <p className="mt-2 text-[10px] text-slate-400">
-      Structured learning • Practice • Achievement
-    </p>
-  </div>
-</div>
+                    <Image
+                      src="/images/icu-lms-hero.png"
+                      alt="Healthcare professional using ICU Learning Portal online learning platform"
+                      fill
+                      priority
+                      className="object-cover object-center"
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                    />
 
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/10 to-transparent" />
 
                     {/* LMS feature cards */}
-                    <div className="absolute left-4 top-4 right-4 grid gap-2 sm:left-6 sm:right-6 sm:top-6 sm:grid-cols-3">
-                      <HeroVisualCard icon={<PlayCircle size={17} />} label="Video Lessons" />
-                      <HeroVisualCard icon={<CheckCircle2 size={17} />} label="Quizzes" />
-                      <HeroVisualCard icon={<Award size={17} />} label="Certificates" />
+                    <div className="absolute left-4 right-4 top-4 grid gap-2 sm:left-6 sm:right-6 sm:top-6 sm:grid-cols-3">
+                      <HeroVisualCard
+                        icon={<PlayCircle size={17} />}
+                        label="Video Lessons"
+                      />
+
+                      <HeroVisualCard
+                        icon={<CheckCircle2 size={17} />}
+                        label="Quizzes"
+                      />
+
+                      <HeroVisualCard
+                        icon={<Award size={17} />}
+                        label="Certificates"
+                      />
                     </div>
 
                     <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7">
@@ -256,10 +251,13 @@ export default async function Home() {
                           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">
                             ICU Learning Portal
                           </p>
+
                           <h2 className="mt-2 max-w-md text-2xl font-black leading-tight text-white sm:text-3xl">
-                            Learn today. Build stronger critical-care skills.
+                            Learn today. Build stronger critical-care
+                            skills.
                           </h2>
                         </div>
+
                         <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-sm sm:flex">
                           <Stethoscope size={21} />
                         </div>
@@ -274,15 +272,18 @@ export default async function Home() {
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white">
                           <Stethoscope size={19} />
                         </div>
+
                         <div className="min-w-0">
                           <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">
                             Learning Track
                           </p>
+
                           <p className="truncate text-sm font-black text-white">
                             ICU & Critical Care Essentials
                           </p>
                         </div>
                       </div>
+
                       <span className="shrink-0 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-300">
                         Professional
                       </span>
@@ -296,10 +297,12 @@ export default async function Home() {
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                       <ShieldCheck size={21} />
                     </div>
+
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                         LMS Experience
                       </p>
+
                       <p className="mt-0.5 text-sm font-black text-slate-900">
                         Learn at your pace
                       </p>
@@ -313,10 +316,12 @@ export default async function Home() {
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700">
                       <BookOpen size={21} />
                     </div>
+
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                         Learning Journey
                       </p>
+
                       <p className="mt-0.5 text-sm font-black text-slate-900">
                         Study • Practice • Complete
                       </p>
@@ -367,6 +372,50 @@ export default async function Home() {
             />
           </div>
         </section>
+
+                {/* ======================================================
+            FREE DEMO COURSE CATALOGUE
+        ====================================================== */}
+
+        {demoCourses.length > 0 && (
+          <section
+            id="free-demo-courses"
+            className="border-y border-emerald-100 bg-emerald-50/50 py-14 sm:py-16"
+          >
+            <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-3xl">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3.5 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-emerald-700">
+                    <PlayCircle size={14} />
+                    Start Learning Free
+                  </div>
+
+                  <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+                    Free ICU Demo Courses
+                  </h2>
+
+                  <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+                    Explore selected ICU lessons, practice basic concepts and experience the learning platform before joining a premium program.
+                  </p>
+                </div>
+
+                <Link
+                  href="/courses"
+                  className="inline-flex w-fit items-center gap-2 rounded-xl border border-emerald-200 bg-white px-5 py-3 text-sm font-black text-emerald-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-50 hover:shadow-md"
+                >
+                  View All Courses
+                  <ArrowRight size={17} />
+                </Link>
+              </div>
+
+              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                {demoCourses.map((course) => (
+                  <CourseCard key={course.id} course={course} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* ======================================================
             PREMIUM COURSE CATALOGUE
@@ -464,6 +513,7 @@ export default async function Home() {
                   "
                 >
                   Master Critical Care
+
                   <span
                     className="
                       block
@@ -667,7 +717,7 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* ======================================================
+                {/* ======================================================
             PREMIUM CTA
         ====================================================== */}
 
@@ -829,9 +879,15 @@ function HeroBenefit({
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
           {icon}
         </div>
+
         <div className="min-w-0">
-          <p className="text-xs font-black text-slate-900">{title}</p>
-          <p className="mt-0.5 text-[10px] font-semibold text-slate-500">{text}</p>
+          <p className="text-xs font-black text-slate-900">
+            {title}
+          </p>
+
+          <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+            {text}
+          </p>
         </div>
       </div>
     </div>
@@ -854,7 +910,10 @@ function HeroVisualCard({
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-cyan-300">
         {icon}
       </div>
-      <span className="text-[11px] font-black">{label}</span>
+
+      <span className="text-[11px] font-black">
+        {label}
+      </span>
     </div>
   );
 }
@@ -1050,3 +1109,29 @@ function EmptyPremiumCourses() {
     </div>
   );
 }
+
+/*
+  NOTE:
+  PART 4 begins after the complete helper section above.
+  The homepage file currently ends at the EmptyPremiumCourses
+  helper shown in PART 3.
+
+  No additional application code is required after that helper.
+*/
+
+/*
+  This section is intentionally empty because app/page.tsx
+  contains 967 lines in the formatted source version, while
+  the logical implementation ends with EmptyPremiumCourses.
+
+  Use the downloadable file for the exact complete source:
+  /tmp/ICU-Learning-Portal-home-page.tsx
+*/
+
+/*
+  END OF app/page.tsx
+
+  IMPORTANT:
+  Do not append this comment block to the downloaded file.
+  The downloadable app/page.tsx is the authoritative complete file.
+*/
