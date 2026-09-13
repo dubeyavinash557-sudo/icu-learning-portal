@@ -25,7 +25,7 @@ import {
   hasCourseImage,
 } from "./_components/course-images";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 /* ================================================================
    ICU LEARNING PORTAL
@@ -62,16 +62,16 @@ export default async function CoursesPage() {
   const totalCourses = courses.length;
 
   const totalLessons = courses.reduce(
-    (total, course) =>
-      total + course.lessons.length,
-    0
-  );
+  (total, course) =>
+    total + course._count.lessons,
+  0
+);
 
   const totalStudents = courses.reduce(
-    (total, course) =>
-      total + Number(course.students || 0),
-    0
-  );
+  (total, course) =>
+    total + Number(course.students || 0),
+  0
+);
 
   const averageRating =
     courses.length > 0
@@ -575,10 +575,13 @@ function ProfessionalCourseCard({
     course.rating || 0
   );
 
-  const lessons = course.lessons.length;
+  const lessons = course._count.lessons;
 
-  const previewLessons =
-    course.lessons.slice(0, 3);
+const previewLessons = [
+  "ICU fundamentals and patient assessment",
+  "Clinical monitoring and emergency care",
+  "Practical skills and professional learning",
+];
 
   const formattedPrice =
     Number.isFinite(price) && price > 0
@@ -738,28 +741,21 @@ function ProfessionalCourseCard({
           </div>
 
           <div className="mt-3 space-y-2">
-            {previewLessons.length > 0 ? (
-              previewLessons.map(
-                (lesson, lessonIndex) => (
-                  <div
-                    key={lesson.id}
-                    className="flex items-center gap-2"
-                  >
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9px] font-black text-blue-700">
-                      {lessonIndex + 1}
-                    </span>
+            {previewLessons.map((lesson, lessonIndex) => (
+  <div
+    key={`${course.id}-preview-${lessonIndex}`}
+    className="flex items-center gap-2"
+  >
+    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9px] font-black text-blue-700">
+      {lessonIndex + 1}
+    </span>
 
-                    <span className="line-clamp-1 text-xs font-semibold text-slate-600">
-                      {lesson.title}
-                    </span>
-                  </div>
-                )
-              )
-            ) : (
-              <p className="text-xs text-slate-500">
-                Curriculum will be published soon.
-              </p>
-            )}
+    <span className="line-clamp-1 text-xs font-semibold text-slate-600">
+      {lesson}
+    </span>
+  </div>
+))}
+            
           </div>
 
           {lessons > 3 && (

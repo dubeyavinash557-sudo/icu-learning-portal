@@ -184,10 +184,10 @@ export default async function NotesPage() {
   );
 
   const totalLessons = premiumCourses.reduce(
-    (total, course) =>
-      total + course.lessons.length,
-    0
-  );
+  (total, course) =>
+    total + course._count.lessons,
+  0
+);
 
   const totalLearners = premiumCourses.reduce(
     (total, course) =>
@@ -569,7 +569,7 @@ function PremiumCourseCard({
 }) {
   const students = Number(course.students || 0);
   const rating = Number(course.rating || 0);
-  const lessons = course.lessons.length;
+  const lessons = course._count.lessons;
 
   const price = formatPrice(course.price);
   const category = getCourseCategory(course);
