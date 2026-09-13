@@ -115,41 +115,48 @@ export default async function LessonPage({ params }: Props) {
     course.isPremium === false;
 
   // ==========================================================
-  // 6. ENROLLMENT
-  //
-  // Enrollment is required for ALL courses.
-  // ==========================================================
+// 6. ENROLLMENT
+//
+// Free Demo Course:
+//   Enrollment is NOT required.
+//
+// Paid/Premium Course:
+//   Enrollment is required.
+//
+// This allows registered students to directly open
+// all free demo lessons without payment.
+// ==========================================================
 
-  const enrollment =
-    await prisma.enrollment.findUnique({
-      where: {
-        userId_courseId: {
-          userId: user.id,
-          courseId: course.id,
-        },
-      },
-      select: {
-        id: true,
-        userId: true,
-        courseId: true,
-        progress: true,
-        completed: true,
-        enrolledAt: true,
-      },
-    });
-
-  if (!enrollment) {
-    console.warn(
-      "LESSON ACCESS DENIED - NO ENROLLMENT:",
-      {
+const enrollment =
+  await prisma.enrollment.findUnique({
+    where: {
+      userId_courseId: {
         userId: user.id,
         courseId: course.id,
-        lessonId: lesson.id,
-      }
-    );
+      },
+    },
+    select: {
+      id: true,
+      userId: true,
+      courseId: true,
+      progress: true,
+      completed: true,
+      enrolledAt: true,
+    },
+  });
 
-    redirect(`/courses/${course.id}`);
-  }
+if (!isFreeCourse && !enrollment) {
+  console.warn(
+    "LESSON ACCESS DENIED - NO ENROLLMENT:",
+    {
+      userId: user.id,
+      courseId: course.id,
+      lessonId: lesson.id,
+    }
+  );
+
+  redirect(`/courses/${course.id}`);
+}
 
   // ==========================================================
   // 7. PAID COURSE PAYMENT SECURITY
@@ -413,13 +420,13 @@ export default async function LessonPage({ params }: Props) {
       : 0;
 
   const enrollmentProgress =
-    Math.min(
-      Math.max(
-        enrollment.progress,
-        0
-      ),
-      100
-    );
+  Math.min(
+    Math.max(
+      enrollment?.progress ?? 0,
+      0
+    ),
+    100
+  );
 
   const courseProgress =
     Math.min(
@@ -800,13 +807,29 @@ export default async function LessonPage({ params }: Props) {
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-700">
-                Premium Study Resource
-              </p>
+              <p
+  className={`text-xs font-black uppercase tracking-[0.16em] ${
+    isFreeCourse
+      ? "text-emerald-700"
+      : "text-amber-700"
+  }`}
+>
+  {isFreeCourse
+    ? "Free Demo Study Resource"
+    : "Premium Study Resource"}
+</p>
 
-              <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-amber-800">
-                Paid Access
-              </span>
+<span
+  className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide ${
+    isFreeCourse
+      ? "bg-emerald-100 text-emerald-800"
+      : "bg-amber-100 text-amber-800"
+  }`}
+>
+  {isFreeCourse
+    ? "Free Access"
+    : "Paid Access"}
+</span>
             </div>
 
             <h2 className="mt-1 text-xl font-black text-slate-950">
@@ -814,8 +837,9 @@ export default async function LessonPage({ params }: Props) {
             </h2>
 
             <p className="mt-1 max-w-xl text-sm leading-6 text-slate-600">
-              Protected course notes are available only to
-              authenticated learners with verified premium access.
+              {isFreeCourse
+                ? "Demo course notes are available for all registered students."
+                : "Protected course notes are available only to authenticated learners with verified premium access."}
             </p>
           </div>
         </div>
@@ -837,8 +861,10 @@ export default async function LessonPage({ params }: Props) {
             Access
           </p>
           <p className="mt-1 text-sm font-black text-slate-800">
-            Premium learners
-          </p>
+  {isFreeCourse
+    ? "Registered students"
+    : "Premium learners"}
+</p>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-3">
@@ -846,8 +872,10 @@ export default async function LessonPage({ params }: Props) {
             Security
           </p>
           <p className="mt-1 text-sm font-black text-slate-800">
-            Payment verified
-          </p>
+  {isFreeCourse
+    ? "No payment required"
+    : "Payment verified"}
+</p>
         </div>
 
         <div className="rounded-xl border border-slate-200 bg-white p-3">
@@ -855,8 +883,10 @@ export default async function LessonPage({ params }: Props) {
             Resource
           </p>
           <p className="mt-1 text-sm font-black text-slate-800">
-            Protected PDF
-          </p>
+  {isFreeCourse
+    ? "Demo learning material"
+    : "Protected PDF"}
+</p>
         </div>
       </div>
     </div>
