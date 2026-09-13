@@ -1,16 +1,33 @@
 import prisma from "@/lib/prisma";
 
+/*
+ * Keep the course catalogue response lightweight.
+ *
+ * Important:
+ * We only select the enrollment id because the frontend
+ * currently uses enrollment count through:
+ *
+ * course.enrollments.length
+ *
+ * Loading complete enrollment records is unnecessary and
+ * makes the courses page slower.
+ */
 const courseInclude = {
   lessons: {
     orderBy: {
       lessonOrder: "asc" as const,
     },
   },
-  enrollments: true,
+  enrollments: {
+    select: {
+      id: true,
+    },
+  },
 };
 
 /**
  * Canonical LMS course catalogue.
+ *
  * Prisma is the single source of truth.
  */
 export async function getCourses() {
@@ -56,6 +73,7 @@ export async function getCourseById(id: string) {
 
 /**
  * Resolve course by public slug.
+ *
  * Kept for legacy/external URLs.
  */
 export async function getCourseBySlug(slug: string) {
