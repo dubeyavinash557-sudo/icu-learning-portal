@@ -1,19 +1,58 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import prisma from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 
-export async function POST(req: Request) {
+const prisma = new PrismaClient();
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+type ProgressRequestBody = {
+  lessonId?: string;
+};
+
+function isValidLessonId(lessonId: unknown): lessonId is string {
+  return typeof lessonId === "string" && lessonId.trim().length > 0;
+}
+
+function isFreeDemoCourse(course: {
+  price: number;
+  isPremium: boolean;
+}) {
+  return course.price === 0 && course.isPremium === false;
+}
+
+function isPremiumCourse(course: {
+  price: number;
+  isPremium: boolean;
+}) {
+  return course.price > 0 && course.isPremium === true;
+}
+
+function getPaymentAmountInPaise(amount: number | null | undefined) {
+  if (amount === null || amount === undefined) {
+    return 0;
+  }
+
+  return Math.round(Number(amount) * 100);
+}
+
+export async function POST(request: NextRequest) {
   try {
-    // --------------------------------------------------
-    // 1. Authentication
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 1. Authenticate user
+     * ---------------------------------------------------------
+     */
 
     const session = await auth();
 
     if (!session?.user?.email) {
       return NextResponse.json(
         {
-          message: "Unauthorized.",
+          success: false,
+          error: "AUTH_REQUIRED",
+          message: "Please login to continue.",
         },
         {
           status: 401,
@@ -21,17 +60,21 @@ export async function POST(req: Request) {
       );
     }
 
-    // --------------------------------------------------
-    // 2. Read Request Body
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 2. Parse request body
+     * ---------------------------------------------------------
+     */
 
-    let body: unknown;
+    let body: ProgressRequestBody;
 
     try {
-      body = await req.json();
+      body = await request.json();
     } catch {
       return NextResponse.json(
         {
+          success: false,
+          error: "INVALID_JSON",
           message: "Invalid request body.",
         },
         {
@@ -40,15 +83,13 @@ export async function POST(req: Request) {
       );
     }
 
-    if (
-      typeof body !== "object" ||
-      body === null ||
-      !("lessonId" in body) ||
-      typeof body.lessonId !== "string" ||
-      !body.lessonId.trim()
-    ) {
+    const lessonId = body.lessonId?.trim();
+
+    if (!isValidLessonId(lessonId)) {
       return NextResponse.json(
         {
+          success: false,
+          error: "LESSON_ID_REQUIRED",
           message: "Lesson ID is required.",
         },
         {
@@ -57,11 +98,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const lessonId = body.lessonId.trim();
-
-    // --------------------------------------------------
-    // 3. Find Authenticated User
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 3. Find current user
+     * ---------------------------------------------------------
+     */
 
     const user = await prisma.user.findUnique({
       where: {
@@ -70,13 +111,17 @@ export async function POST(req: Request) {
       select: {
         id: true,
         email: true,
+        fullName: true,
+        role: true,
       },
     });
 
     if (!user) {
       return NextResponse.json(
         {
-          message: "User not found.",
+          success: false,
+          error: "USER_NOT_FOUND",
+          message: "User account was not found.",
         },
         {
           status: 404,
@@ -84,20 +129,33 @@ export async function POST(req: Request) {
       );
     }
 
-    // --------------------------------------------------
-    // 4. Find Lesson + Course
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 4. Find lesson and related course
+     * ---------------------------------------------------------
+     */
 
     const lesson = await prisma.lesson.findUnique({
       where: {
         id: lessonId,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        lessonOrder: true,
+        courseId: true,
         course: {
-          include: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            isPremium: true,
             lessons: {
               select: {
                 id: true,
+              },
+              orderBy: {
+                lessonOrder: "asc",
               },
             },
           },
@@ -105,10 +163,12 @@ export async function POST(req: Request) {
       },
     });
 
-    if (!lesson) {
+    if (!lesson || !lesson.course) {
       return NextResponse.json(
         {
-          message: "Lesson not found.",
+          success: false,
+          error: "LESSON_NOT_FOUND",
+          message: "Lesson or course was not found.",
         },
         {
           status: 404,
@@ -118,35 +178,46 @@ export async function POST(req: Request) {
 
     const course = lesson.course;
 
-    // --------------------------------------------------
-    // 5. Verify Enrollment
-    //
-    // Enrollment alone is NOT enough for paid courses.
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 5. Course access policy
+     *
+     * Free demo course:
+     * - price = 0
+     * - isPremium = false
+     * - no enrollment required
+     * - no payment required
+     *
+     * Premium course:
+     * - price > 0
+     * - isPremium = true
+     * - enrollment required
+     * - successful payment required
+     * ---------------------------------------------------------
+     */
 
-    const enrollment =
-      await prisma.enrollment.findUnique({
-        where: {
-          userId_courseId: {
-            userId: user.id,
-            courseId: course.id,
-          },
-        },
-        select: {
-          id: true,
-          userId: true,
-          courseId: true,
-          progress: true,
-          completed: true,
-          enrolledAt: true,
-        },
+    const freeDemoCourse = isFreeDemoCourse(course);
+    const premiumCourse = isPremiumCourse(course);
+
+    /*
+     * Any course that is neither a valid free demo nor a valid
+     * premium course must be blocked.
+     */
+    if (!freeDemoCourse && !premiumCourse) {
+      console.error("INVALID COURSE ACCESS CONFIGURATION", {
+        userId: user.id,
+        courseId: course.id,
+        courseTitle: course.title,
+        price: course.price,
+        isPremium: course.isPremium,
       });
 
-    if (!enrollment) {
       return NextResponse.json(
         {
+          success: false,
+          error: "COURSE_ACCESS_NOT_CONFIGURED",
           message:
-            "You are not enrolled in this course.",
+            "This course is not correctly configured. Please contact support.",
         },
         {
           status: 403,
@@ -154,188 +225,177 @@ export async function POST(req: Request) {
       );
     }
 
-    // --------------------------------------------------
-    // 6. PAYMENT ACCESS CONTROL
-    //
-    // FREE COURSE:
-    //
-    // price === 0
-    // AND
-    // isPremium === false
-    //
-    // -> Payment is NOT required.
-    //
-    // PAID / PREMIUM COURSE:
-    //
-    // -> Successful payment is REQUIRED.
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 6. Find enrollment
+     * ---------------------------------------------------------
+     */
 
-    const isFreeCourse =
-      course.price === 0 &&
-      course.isPremium === false;
-
-    if (!isFreeCourse) {
-      /*
-       * Paid/premium courses can only be accessed
-       * after a successful payment belonging to
-       * this authenticated user and this exact course.
-       */
-      const successfulPayment =
-        await prisma.payment.findFirst({
-          where: {
-            userId: user.id,
-            courseId: course.id,
-            status: "SUCCESS",
-          },
-          select: {
-            id: true,
-            amount: true,
-            status: true,
-            razorpayOrderId: true,
-            razorpayPaymentId: true,
-            transactionId: true,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
-
-      if (!successfulPayment) {
-        console.error(
-          "LESSON PROGRESS PAYMENT ACCESS DENIED:",
-          {
-            userId: user.id,
-            courseId: course.id,
-            lessonId: lesson.id,
-            reason:
-              "No successful payment found.",
-          }
-        );
-
-        return NextResponse.json(
-          {
-            message:
-              "Payment is required before accessing this course.",
-          },
-          {
-            status: 403,
-          }
-        );
-      }
-
-      // ------------------------------------------------
-      // 7. Verify Successful Payment Amount
-      // ------------------------------------------------
-      //
-      // The payment amount must match the current
-      // course price.
-      //
-      // Razorpay uses paise, therefore compare using
-      // integer paise values to avoid Float issues.
-      // ------------------------------------------------
-
-      const paymentAmountInPaise =
-        Math.round(
-          successfulPayment.amount * 100
-        );
-
-      const courseAmountInPaise =
-        Math.round(course.price * 100);
-
-      if (
-        !Number.isSafeInteger(
-          paymentAmountInPaise
-        ) ||
-        !Number.isSafeInteger(
-          courseAmountInPaise
-        ) ||
-        paymentAmountInPaise !==
-          courseAmountInPaise
-      ) {
-        console.error(
-          "LESSON PROGRESS PAYMENT AMOUNT MISMATCH:",
-          {
-            userId: user.id,
-            courseId: course.id,
-            paymentId:
-              successfulPayment.id,
-            paymentAmount:
-              successfulPayment.amount,
-            coursePrice:
-              course.price,
-          }
-        );
-
-        return NextResponse.json(
-          {
-            message:
-              "Payment amount does not match the course price.",
-          },
-          {
-            status: 403,
-          }
-        );
-      }
-
-      // ------------------------------------------------
-      // 8. Verify Payment Has Razorpay Transaction Data
-      // ------------------------------------------------
-      //
-      // SUCCESS payments created by our payment flow
-      // should have Razorpay transaction identifiers.
-      // ------------------------------------------------
-
-      if (
-        !successfulPayment.razorpayPaymentId &&
-        !successfulPayment.transactionId
-      ) {
-        console.error(
-          "LESSON PROGRESS PAYMENT TRANSACTION MISSING:",
-          {
-            userId: user.id,
-            courseId: course.id,
-            paymentId:
-              successfulPayment.id,
-          }
-        );
-
-        return NextResponse.json(
-          {
-            message:
-              "Payment verification is incomplete.",
-          },
-          {
-            status: 403,
-          }
-        );
-      }
-
-      console.log(
-        "LESSON PROGRESS PAYMENT VERIFIED:",
-        {
+    const enrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: {
           userId: user.id,
           courseId: course.id,
-          lessonId: lesson.id,
-          paymentId:
-            successfulPayment.id,
-          razorpayPaymentId:
-            successfulPayment.razorpayPaymentId,
+        },
+      },
+      select: {
+        id: true,
+        userId: true,
+        courseId: true,
+        progress: true,
+        completed: true,
+      },
+    });
+
+    /*
+     * ---------------------------------------------------------
+     * 7. Premium course enrollment verification
+     * ---------------------------------------------------------
+     */
+
+    if (premiumCourse && !enrollment) {
+      console.warn("LESSON PROGRESS DENIED - NO ENROLLMENT", {
+        userId: user.id,
+        courseId: course.id,
+        lessonId: lesson.id,
+      });
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: "ENROLLMENT_REQUIRED",
+          message:
+            "You are not enrolled in this premium course. Please purchase the course first.",
+        },
+        {
+          status: 403,
         }
       );
     }
 
-    // --------------------------------------------------
-    // 9. Course Lesson Count
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 8. Premium payment verification
+     *
+     * Admin users can bypass payment verification.
+     * Normal students must have a successful payment.
+     * ---------------------------------------------------------
+     */
 
-    const totalLessons =
-      course.lessons.length;
+    if (premiumCourse && user.role !== "ADMIN") {
+      const successfulPayment = await prisma.payment.findFirst({
+        where: {
+          userId: user.id,
+          courseId: course.id,
+          status: "SUCCESS",
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          razorpayOrderId: true,
+          razorpayPaymentId: true,
+          transactionId: true,
+          createdAt: true,
+        },
+      });
+
+      if (!successfulPayment) {
+        console.warn("LESSON PROGRESS DENIED - PAYMENT NOT FOUND", {
+          userId: user.id,
+          courseId: course.id,
+          lessonId: lesson.id,
+        });
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: "PAYMENT_REQUIRED",
+            message:
+              "Successful payment is required to access this premium course.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      const expectedAmountInPaise = getPaymentAmountInPaise(course.price);
+      const actualAmountInPaise = getPaymentAmountInPaise(
+        successfulPayment.amount
+      );
+
+      const hasValidOrderId =
+        typeof successfulPayment.razorpayOrderId === "string" &&
+        successfulPayment.razorpayOrderId.trim().length > 0;
+
+      const hasValidPaymentId =
+        typeof successfulPayment.razorpayPaymentId === "string" &&
+        successfulPayment.razorpayPaymentId.trim().length > 0;
+
+      const hasValidTransactionId =
+        typeof successfulPayment.transactionId === "string" &&
+        successfulPayment.transactionId.trim().length > 0;
+
+      const amountMatches = actualAmountInPaise === expectedAmountInPaise;
+
+      if (
+        !hasValidOrderId ||
+        !hasValidPaymentId ||
+        !hasValidTransactionId ||
+        !amountMatches
+      ) {
+        console.error("LESSON PROGRESS DENIED - INVALID PAYMENT", {
+          userId: user.id,
+          courseId: course.id,
+          lessonId: lesson.id,
+          paymentId: successfulPayment.id,
+          hasValidOrderId,
+          hasValidPaymentId,
+          hasValidTransactionId,
+          expectedAmountInPaise,
+          actualAmountInPaise,
+          amountMatches,
+        });
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: "INVALID_PAYMENT",
+            message:
+              "Your payment could not be verified. Please contact support.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      console.log("PREMIUM LESSON PROGRESS ACCESS VERIFIED", {
+        userId: user.id,
+        courseId: course.id,
+        lessonId: lesson.id,
+        paymentId: successfulPayment.id,
+      });
+    }
+
+    /*
+     * ---------------------------------------------------------
+     * 9. Validate total lessons
+     * ---------------------------------------------------------
+     */
+
+    const totalLessons = course.lessons.length;
 
     if (totalLessons === 0) {
       return NextResponse.json(
         {
-          message:
-            "This course does not contain any lessons.",
+          success: false,
+          error: "NO_LESSONS_FOUND",
+          message: "This course does not contain any lessons.",
         },
         {
           status: 400,
@@ -343,170 +403,196 @@ export async function POST(req: Request) {
       );
     }
 
-    // --------------------------------------------------
-    // 10. Mark Lesson as Completed
-    //
-    // UPSERT prevents duplicate progress records.
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 10. Save lesson progress
+     *
+     * This works for:
+     * - free demo courses
+     * - premium courses
+     * - admin users
+     * ---------------------------------------------------------
+     */
 
-    await prisma.lessonProgress.upsert({
+    const lessonProgress = await prisma.lessonProgress.upsert({
       where: {
         userId_lessonId: {
           userId: user.id,
           lessonId: lesson.id,
         },
       },
-
       update: {
         completed: true,
         completedAt: new Date(),
       },
-
       create: {
         userId: user.id,
         lessonId: lesson.id,
         completed: true,
         completedAt: new Date(),
       },
+      select: {
+        id: true,
+        userId: true,
+        lessonId: true,
+        completed: true,
+        completedAt: true,
+      },
     });
 
-    // --------------------------------------------------
-    // 11. Count Completed Lessons
-    // --------------------------------------------------
+    /*
+     * ---------------------------------------------------------
+     * 11. Count completed lessons
+     * ---------------------------------------------------------
+     */
 
-    const completedLessons =
-      await prisma.lessonProgress.count({
-        where: {
-          userId: user.id,
-          completed: true,
-          lesson: {
-            courseId: course.id,
-          },
-        },
-      });
-
-    // --------------------------------------------------
-    // 12. Calculate Course Progress
-    // --------------------------------------------------
-
-    const progress = Math.min(
-      100,
-      Math.round(
-        (completedLessons / totalLessons) *
-          100
-      )
-    );
-
-    const courseCompleted =
-      completedLessons >= totalLessons;
-
-    console.log(
-      "LESSON PROGRESS:",
-      {
-        userId: user.id,
-        courseId: course.id,
-        lessonId: lesson.id,
-        completedLessons,
-        totalLessons,
-        progress,
-        courseCompleted,
-      }
-    );
-
-    // --------------------------------------------------
-    // 13. Update Enrollment
-    // --------------------------------------------------
-
-    await prisma.enrollment.update({
+    const completedLessons = await prisma.lessonProgress.count({
       where: {
-        userId_courseId: {
-          userId: user.id,
+        userId: user.id,
+        completed: true,
+        lesson: {
           courseId: course.id,
         },
       },
-
-      data: {
-        progress,
-        completed: courseCompleted,
-      },
     });
 
-    // --------------------------------------------------
-    // 14. Create Certificate When Course Completes
-    // --------------------------------------------------
+    const safeCompletedLessons = Math.min(
+      completedLessons,
+      totalLessons
+    );
 
-    if (courseCompleted) {
-      const existingCertificate =
-        await prisma.certificate.findFirst({
-          where: {
+    const progressPercentage = Math.min(
+      100,
+      Math.round((safeCompletedLessons / totalLessons) * 100)
+    );
+
+    const courseCompleted = safeCompletedLessons >= totalLessons;
+
+    /*
+     * ---------------------------------------------------------
+     * 12. Update enrollment progress
+     *
+     * Free demo users may not have an enrollment.
+     * Therefore this update must be conditional.
+     * ---------------------------------------------------------
+     */
+
+    let updatedEnrollment = enrollment;
+
+    if (enrollment) {
+      updatedEnrollment = await prisma.enrollment.update({
+        where: {
+          id: enrollment.id,
+        },
+        data: {
+          progress: progressPercentage,
+          completed: courseCompleted,
+        },
+        select: {
+          id: true,
+          userId: true,
+          courseId: true,
+          progress: true,
+          completed: true,
+        },
+      });
+    }
+
+    /*
+     * ---------------------------------------------------------
+     * 13. Create certificate only for premium courses
+     *
+     * Free demo course completion should not automatically
+     * generate a paid-course certificate.
+     * ---------------------------------------------------------
+     */
+
+    let certificate = null;
+
+    if (courseCompleted && premiumCourse) {
+      const existingCertificate = await prisma.certificate.findFirst({
+        where: {
+          userId: user.id,
+          courseId: course.id,
+        },
+        select: {
+          id: true,
+          certificateNo: true,
+          issuedAt: true,
+          courseId: true,
+          userId: true,
+        },
+      });
+
+      if (existingCertificate) {
+        certificate = existingCertificate;
+      } else {
+        const certificateNumber = `ICU-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)
+          .toUpperCase()}`;
+
+        certificate = await prisma.certificate.create({
+          data: {
             userId: user.id,
             courseId: course.id,
+            certificateNo: certificateNumber,
+            issuedAt: new Date(),
           },
           select: {
             id: true,
             certificateNo: true,
+            issuedAt: true,
+            courseId: true,
+            userId: true,
           },
         });
-
-      if (!existingCertificate) {
-        const certificateNo =
-          `ICU-${Date.now()}-${user.id.slice(
-            -6
-          )}`;
-
-        await prisma.certificate.create({
-          data: {
-            userId: user.id,
-            courseId: course.id,
-            certificateNo,
-          },
-        });
-
-        console.log(
-          "CERTIFICATE CREATED:",
-          {
-            userId: user.id,
-            courseId: course.id,
-            certificateNo,
-          }
-        );
-      } else {
-        console.log(
-          "CERTIFICATE ALREADY EXISTS:",
-          {
-            userId: user.id,
-            courseId: course.id,
-            certificateNo:
-              existingCertificate.certificateNo,
-          }
-        );
       }
     }
 
-    // --------------------------------------------------
-    // 15. Success Response
-    // --------------------------------------------------
-
-    return NextResponse.json({
-      success: true,
-      message: courseCompleted
-        ? "Lesson completed. Course completed successfully."
-        : "Lesson completed successfully.",
-      progress,
-      completedLessons,
-      totalLessons,
-      courseCompleted,
-    });
-  } catch (error) {
-    console.error(
-      "LESSON PROGRESS ERROR:",
-      error
-    );
+    /*
+     * ---------------------------------------------------------
+     * 14. Return successful response
+     * ---------------------------------------------------------
+     */
 
     return NextResponse.json(
       {
+        success: true,
+        message: courseCompleted
+          ? premiumCourse
+            ? "Congratulations! You completed this premium course."
+            : "Congratulations! You completed this free demo course."
+          : "Lesson progress saved successfully.",
+        data: {
+          lessonId: lesson.id,
+          lessonTitle: lesson.title,
+          courseId: course.id,
+          courseTitle: course.title,
+          isFreeDemo: freeDemoCourse,
+          isPremium: premiumCourse,
+          lessonCompleted: lessonProgress.completed,
+          completedLessons: safeCompletedLessons,
+          totalLessons,
+          progress: progressPercentage,
+          courseCompleted,
+          enrollment: updatedEnrollment,
+          certificate,
+        },
+      },
+      {
+        status: 200,
+      }
+    );
+  } catch (error) {
+    console.error("LESSON PROGRESS API ERROR", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: "INTERNAL_SERVER_ERROR",
         message:
-          "Unable to update lesson progress.",
+          "Something went wrong while saving lesson progress. Please try again.",
       },
       {
         status: 500,
