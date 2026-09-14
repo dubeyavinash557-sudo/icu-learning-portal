@@ -572,9 +572,9 @@ export default async function CourseDetailsPage({
                   label="Resources"
                 />
 
-                <HeroMetric
+                                <HeroMetric
                   icon={<Award size={17} />}
-                  value="Yes"
+                  value={isFreeCourse ? "Premium" : "Yes"}
                   label="Certificate"
                 />
               </div>
@@ -649,15 +649,26 @@ export default async function CourseDetailsPage({
                       </div>
 
                       {isCompleted ? (
-                        <Link
-                          href="/dashboard/certificates"
-                          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 font-black text-white shadow-lg transition hover:from-emerald-700 hover:to-teal-700"
-                        >
-                          <Award size={20} />
-                          View Your Certificate
-                          <ArrowRight size={18} />
-                        </Link>
-                      ) : nextLessonId ? (
+  isFreeCourse ? (
+    <Link
+      href="/courses"
+      className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4 font-black text-white shadow-lg transition hover:from-blue-700 hover:to-cyan-700"
+    >
+      <Crown size={20} />
+      Unlock Premium Course
+      <ArrowRight size={18} />
+    </Link>
+  ) : (
+    <Link
+      href="/dashboard/certificates"
+      className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 font-black text-white shadow-lg transition hover:from-emerald-700 hover:to-teal-700"
+    >
+      <Award size={20} />
+      View Your Certificate
+      <ArrowRight size={18} />
+    </Link>
+  )
+) : nextLessonId ? (
                         <Link
                           href={`/courses/${course.id}/lesson/${nextLessonId}`}
                           className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-4 font-black text-white shadow-lg shadow-blue-600/20 transition hover:from-cyan-700 hover:to-blue-800"
