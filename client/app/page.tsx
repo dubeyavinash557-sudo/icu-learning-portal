@@ -1109,29 +1109,3 @@ function EmptyPremiumCourses() {
     </div>
   );
 }
-
-/*
-  NOTE:
-  PART 4 begins after the complete helper section above.
-  The homepage file currently ends at the EmptyPremiumCourses
-  helper shown in PART 3.
-
-  No additional application code is required after that helper.
-*/
-
-/*
-  This section is intentionally empty because app/page.tsx
-  contains 967 lines in the formatted source version, while
-  the logical implementation ends with EmptyPremiumCourses.
-
-  Use the downloadable file for the exact complete source:
-  /tmp/ICU-Learning-Portal-home-page.tsx
-*/
-
-/*
-  END OF app/page.tsx
-
-  IMPORTANT:
-  Do not append this comment block to the downloaded file.
-  The downloadable app/page.tsx is the authoritative complete file.
-*/
