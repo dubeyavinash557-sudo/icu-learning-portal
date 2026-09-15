@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Award,
   BookOpen,
+  CheckCircle2,
   Clock3,
   Crown,
   Globe2,
@@ -34,10 +35,37 @@ type CourseCardProps = {
 };
 
 export default function CourseCard({ course }: CourseCardProps) {
+  const courseHref = `/courses/${course.id}`;
+
+  const safeTitle = course.title?.trim() || "ICU Learning Course";
+  const safeInstructor = course.instructor?.trim() || "ICU Learning Portal";
+  const safeLanguage = course.language?.trim() || "Hindi";
+  const safeLevel = course.level?.trim() || "Beginner";
+
+  const safeRating =
+    Number.isFinite(course.rating) && course.rating > 0
+      ? Math.min(course.rating, 5).toFixed(1)
+      : "5.0";
+
+  const safeStudents =
+    Number.isFinite(course.students) && course.students > 0
+      ? Math.floor(course.students).toLocaleString("en-IN")
+      : "0";
+
+  const safePrice =
+    Number.isFinite(course.price) && course.price > 0
+      ? Math.max(0, course.price).toLocaleString("en-IN")
+      : "0";
+
+  const imageSource =
+    typeof course.image === "string" && course.image.trim().length > 0
+      ? course.image
+      : "/images/icu-lms-hero.png";
+
   return (
     <article
       className="
-        group
+        group/card
         relative
         flex
         h-full
@@ -50,9 +78,12 @@ export default function CourseCard({ course }: CourseCardProps) {
         shadow-sm
         transition-all
         duration-500
-        hover:-translate-y-2
+        hover:-translate-y-1.5
         hover:border-blue-200
         hover:shadow-2xl
+        focus-within:border-blue-300
+        focus-within:ring-2
+        focus-within:ring-blue-500/20
       "
     >
       {/* ==================================================
@@ -61,8 +92,8 @@ export default function CourseCard({ course }: CourseCardProps) {
 
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
         <Image
-          src={course.image || "/images/icu-lms-hero.png"}
-          alt={`${course.title} — professional ICU Learning Portal course`}
+          src={imageSource}
+          alt={`${safeTitle} course cover`}
           fill
           quality={85}
           loading="lazy"
@@ -71,141 +102,153 @@ export default function CourseCard({ course }: CourseCardProps) {
             transition-transform
             duration-700
             ease-out
-            group-hover:scale-105
+            group-hover/card:scale-105
           "
           sizes="
             (max-width: 640px) 100vw,
-            (max-width: 1280px) 50vw,
+            (max-width: 1024px) 50vw,
+            (max-width: 1536px) 33vw,
             25vw
           "
         />
 
-        {/* Professional LMS image overlay */}
+        {/* Image overlay */}
 
         <div
+          aria-hidden="true"
           className="
             absolute
             inset-0
             bg-gradient-to-t
-            from-slate-950/80
-            via-slate-950/15
+            from-slate-950/85
+            via-slate-950/20
             to-transparent
           "
         />
 
-        {/* Premium badge */}
+        {/* Top badges */}
 
-        {course.isPremium && (
-          <div
+        <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
+          {course.isPremium ? (
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                border-yellow-300/30
+                bg-slate-950/85
+                px-3
+                py-1.5
+                text-[10px]
+                font-black
+                uppercase
+                tracking-[0.08em]
+                text-yellow-300
+                shadow-lg
+                backdrop-blur-md
+              "
+            >
+              <Crown size={13} aria-hidden="true" />
+              Premium
+            </div>
+          ) : (
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                border-emerald-200/30
+                bg-emerald-950/80
+                px-3
+                py-1.5
+                text-[10px]
+                font-black
+                uppercase
+                tracking-[0.08em]
+                text-emerald-200
+                shadow-lg
+                backdrop-blur-md
+              "
+            >
+              <CheckCircle2 size={13} aria-hidden="true" />
+              Free Access
+            </div>
+          )}
+
+          <span
             className="
-              absolute
-              left-4
-              top-4
-              inline-flex
-              items-center
-              gap-1.5
               rounded-full
               border
-              border-yellow-300/30
-              bg-slate-950/80
+              border-white/30
+              bg-white/90
               px-3
               py-1.5
-              text-[11px]
+              text-[10px]
               font-black
               uppercase
-              tracking-wide
-              text-yellow-300
+              tracking-[0.08em]
+              text-slate-800
               shadow-lg
               backdrop-blur-md
             "
           >
-            <Crown size={13} />
-            Premium
-          </div>
-        )}
-
-        {/* Course level */}
-
-        <div
-          className="
-            absolute
-            right-4
-            top-4
-            rounded-full
-            border
-            border-white/30
-            bg-white/90
-            px-3
-            py-1.5
-            text-[11px]
-            font-black
-            uppercase
-            tracking-wide
-            text-slate-800
-            shadow-lg
-            backdrop-blur-md
-          "
-        >
-          {course.level}
-        </div>
-
-        {/* Rating */}
-
-        <div
-          className="
-            absolute
-            bottom-4
-            left-4
-            inline-flex
-            items-center
-            gap-1.5
-            rounded-xl
-            border
-            border-white/20
-            bg-slate-950/75
-            px-3
-            py-2
-            text-white
-            shadow-lg
-            backdrop-blur-md
-          "
-        >
-          <Star
-            size={14}
-            fill="currentColor"
-            className="text-yellow-400"
-          />
-
-          <span className="text-sm font-black">
-            {Number.isFinite(course.rating)
-              ? course.rating.toFixed(1)
-              : "5.0"}
+            {safeLevel}
           </span>
         </div>
 
-        {/* Course label */}
+        {/* Bottom image information */}
 
-        <div
-          className="
-            absolute
-            bottom-4
-            right-4
-            inline-flex
-            items-center
-            gap-1.5
-            rounded-xl
-            bg-blue-600/90
-            px-3
-            py-2
-            text-xs
-            font-black
-            text-white
-            shadow-lg
-            backdrop-blur-md
-          "
-        >
-          <BookOpen size={14} />
-          Course
+        <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
+          <div
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              rounded-xl
+              border
+              border-white/20
+              bg-slate-950/75
+              px-3
+              py-2
+              text-white
+              shadow-lg
+              backdrop-blur-md
+            "
+            aria-label={`Course rating ${safeRating} out of 5`}
+          >
+            <Star
+              size={14}
+              fill="currentColor"
+              className="text-yellow-400"
+              aria-hidden="true"
+            />
+
+            <span className="text-sm font-black">{safeRating}</span>
+          </div>
+
+          <div
+            className="
+              inline-flex
+              items-center
+              gap-1.5
+              rounded-xl
+              bg-blue-600/90
+              px-3
+              py-2
+              text-xs
+              font-black
+              text-white
+              shadow-lg
+              backdrop-blur-md
+            "
+          >
+            <BookOpen size={14} aria-hidden="true" />
+            Course
+          </div>
         </div>
       </div>
 
@@ -216,34 +259,35 @@ export default function CourseCard({ course }: CourseCardProps) {
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         {/* Instructor */}
 
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <div
             className="
               flex
-              h-7
-              w-7
+              h-8
+              w-8
               shrink-0
               items-center
               justify-center
-              rounded-lg
+              rounded-xl
               bg-cyan-50
               text-cyan-700
             "
           >
-            <GraduationCap size={14} />
+            <GraduationCap size={15} aria-hidden="true" />
           </div>
 
           <p
             className="
               truncate
-              text-xs
+              text-[11px]
               font-black
               uppercase
-              tracking-[0.12em]
+              tracking-[0.1em]
               text-cyan-700
             "
+            title={safeInstructor}
           >
-            {course.instructor}
+            {safeInstructor}
           </p>
         </div>
 
@@ -261,36 +305,32 @@ export default function CourseCard({ course }: CourseCardProps) {
             text-slate-950
           "
         >
-          {course.title}
+          {safeTitle}
         </h3>
 
-        {/* ==================================================
-            COURSE METADATA
-        ================================================== */}
+        {/* Course metadata */}
 
         <div className="mt-5 grid grid-cols-2 gap-2.5">
           <CourseMeta
-            icon={<Users size={15} />}
+            icon={<Users size={15} aria-hidden="true" />}
             label="Students"
-            value={`${Math.max(0, course.students).toLocaleString(
-              "en-IN"
-            )}+`}
+            value={`${safeStudents}+`}
           />
 
           <CourseMeta
-            icon={<Clock3 size={15} />}
+            icon={<Clock3 size={15} aria-hidden="true" />}
             label="Duration"
             value={formatDuration(course.duration)}
           />
 
           <CourseMeta
-            icon={<Globe2 size={15} />}
+            icon={<Globe2 size={15} aria-hidden="true" />}
             label="Language"
-            value={course.language || "Hindi"}
+            value={safeLanguage}
           />
 
           <CourseMeta
-            icon={<Award size={15} />}
+            icon={<Award size={15} aria-hidden="true" />}
             label="Outcome"
             value="Certificate"
           />
@@ -300,9 +340,7 @@ export default function CourseCard({ course }: CourseCardProps) {
 
         <div className="my-5 h-px bg-slate-100" />
 
-        {/* ==================================================
-            PRICE
-        ================================================== */}
+        {/* Price and access status */}
 
         <div className="flex items-end justify-between gap-3">
           <div>
@@ -311,7 +349,7 @@ export default function CourseCard({ course }: CourseCardProps) {
                 text-[11px]
                 font-bold
                 uppercase
-                tracking-wider
+                tracking-[0.08em]
                 text-slate-400
               "
             >
@@ -319,13 +357,21 @@ export default function CourseCard({ course }: CourseCardProps) {
             </p>
 
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-2xl font-black text-slate-950">
-                ₹{Math.max(0, course.price).toLocaleString("en-IN")}
-              </span>
+              {course.price > 0 ? (
+                <>
+                  <span className="text-2xl font-black text-slate-950">
+                    ₹{safePrice}
+                  </span>
+                </>
+              ) : (
+                <span className="text-2xl font-black text-emerald-600">
+                  Free
+                </span>
+              )}
             </div>
           </div>
 
-          {course.isPremium && (
+          {course.isPremium ? (
             <div
               className="
                 inline-flex
@@ -342,19 +388,38 @@ export default function CourseCard({ course }: CourseCardProps) {
                 text-yellow-700
               "
             >
-              <Crown size={12} />
+              <Crown size={12} aria-hidden="true" />
               Premium
+            </div>
+          ) : (
+            <div
+              className="
+                inline-flex
+                items-center
+                gap-1.5
+                rounded-lg
+                bg-emerald-50
+                px-2.5
+                py-1.5
+                text-[10px]
+                font-black
+                uppercase
+                tracking-wide
+                text-emerald-700
+              "
+            >
+              <CheckCircle2 size={12} aria-hidden="true" />
+              Free
             </div>
           )}
         </div>
 
-        {/* ==================================================
-            ACTIONS
-        ================================================== */}
+        {/* Actions */}
 
         <div className="mt-5 space-y-2.5">
           <Link
-            href={`/courses/${course.id}`}
+            href={courseHref}
+            aria-label={`View ${safeTitle} course`}
             className="
               group/button
               flex
@@ -385,6 +450,7 @@ export default function CourseCard({ course }: CourseCardProps) {
 
             <ArrowRight
               size={17}
+              aria-hidden="true"
               className="
                 transition-transform
                 duration-300
@@ -394,7 +460,8 @@ export default function CourseCard({ course }: CourseCardProps) {
           </Link>
 
           <Link
-            href={`/courses/${course.id}`}
+            href={courseHref}
+            aria-label={`Start learning ${safeTitle}`}
             className="
               flex
               w-full
@@ -421,8 +488,7 @@ export default function CourseCard({ course }: CourseCardProps) {
               focus:ring-offset-2
             "
           >
-            <PlayCircle size={16} />
-
+            <PlayCircle size={16} aria-hidden="true" />
             Start Learning
           </Link>
         </div>
@@ -456,10 +522,10 @@ function CourseMeta({
         py-2.5
       "
     >
-      <div className="flex items-center gap-1.5 text-slate-400">
+      <div className="flex min-w-0 items-center gap-1.5 text-slate-400">
         {icon}
 
-        <span className="text-[10px] font-bold uppercase tracking-wide">
+        <span className="truncate text-[10px] font-bold uppercase tracking-wide">
           {label}
         </span>
       </div>
@@ -472,6 +538,7 @@ function CourseMeta({
           font-black
           text-slate-800
         "
+        title={value}
       >
         {value}
       </p>
@@ -488,12 +555,14 @@ function formatDuration(minutes: number) {
     return "—";
   }
 
-  if (minutes < 60) {
-    return `${minutes} min`;
+  const safeMinutes = Math.floor(minutes);
+
+  if (safeMinutes < 60) {
+    return `${safeMinutes} min`;
   }
 
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
+  const hours = Math.floor(safeMinutes / 60);
+  const remainingMinutes = safeMinutes % 60;
 
   if (remainingMinutes === 0) {
     return `${hours} hr`;
