@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+
 import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
 
 import {
   createRazorpayOrder,
@@ -18,26 +19,39 @@ type CreateOrderBody = {
   courseId?: unknown;
 };
 
+type ExistingPayment = {
+  id: string;
+  amount: number;
+  status: string;
+  transactionId: string | null;
+  razorpayOrderId: string | null;
+  razorpayPaymentId: string | null;
+};
+
 // ==========================================================
 // HELPERS
 // ==========================================================
 
 function jsonError(
   message: string,
-  status = 400
+  status = 400,
+  code?: string,
 ) {
   return NextResponse.json(
     {
       success: false,
       message,
       error: message,
+      ...(code ? { code } : {}),
     },
-    { status }
+    {
+      status,
+    },
   );
 }
 
 function isNonEmptyString(
-  value: unknown
+  value: unknown,
 ): value is string {
   return (
     typeof value === "string" &&
@@ -46,7 +60,7 @@ function isNonEmptyString(
 }
 
 function rupeesToPaise(
-  amount: unknown
+  amount: unknown,
 ): number | null {
   const rupees = Number(amount);
 
@@ -69,12 +83,40 @@ function rupeesToPaise(
   return paise;
 }
 
+function hasValidPaymentIdentifier(
+  payment: ExistingPayment,
+): boolean {
+  return Boolean(
+    payment.razorpayPaymentId?.trim() ||
+      payment.transactionId?.trim(),
+  );
+}
+
+function paymentAmountMatchesCourse(
+  payment: ExistingPayment,
+  coursePrice: number,
+): boolean {
+  const paidAmountInPaise = rupeesToPaise(
+    payment.amount,
+  );
+
+  const courseAmountInPaise = rupeesToPaise(
+    coursePrice,
+  );
+
+  return (
+    paidAmountInPaise !== null &&
+    courseAmountInPaise !== null &&
+    paidAmountInPaise === courseAmountInPaise
+  );
+}
+
 // ==========================================================
 // BODY PARSER
 // ==========================================================
 
 async function parseBody(
-  request: Request
+  request: Request,
 ): Promise<CreateOrderBody | null> {
   try {
     const parsed =
@@ -99,11 +141,11 @@ async function parseBody(
 // ==========================================================
 
 export async function POST(
-  request: Request
+  request: Request,
 ) {
   try {
     // ------------------------------------------------------
-    // AUTHENTICATION
+    // 1. AUTHENTICATION
     // ------------------------------------------------------
 
     const session = await auth();
@@ -116,114 +158,221 @@ export async function POST(
     if (!email) {
       return jsonError(
         "Please login before purchasing this course.",
-        401
+        401,
+        "AUTH_REQUIRED",
       );
     }
 
     // ------------------------------------------------------
-    // REQUEST BODY
+    // 2. REQUEST BODY
     // ------------------------------------------------------
 
-    const body =
-      await parseBody(request);
+    const body = await parseBody(request);
 
     if (
       !body ||
       !isNonEmptyString(body.courseId)
     ) {
       return jsonError(
-        "Course ID is required."
+        "Course ID is required.",
+        400,
+        "COURSE_ID_REQUIRED",
       );
     }
 
-    const courseId =
-      body.courseId.trim();
+    const courseId = body.courseId.trim();
 
     // ------------------------------------------------------
-    // USER
+    // 3. CURRENT USER
     // ------------------------------------------------------
 
-    const user =
-      await prisma.user.findUnique({
-        where: {
-          email,
-        },
-        select: {
-          id: true,
-          fullName: true,
-          email: true,
-          mobile: true,
-        },
-      });
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        mobile: true,
+        role: true,
+      },
+    });
 
     if (!user) {
       return jsonError(
         "User account was not found.",
-        404
+        404,
+        "USER_NOT_FOUND",
       );
     }
 
-    // ------------------------------------------------------
-    // COURSE
+        // ------------------------------------------------------
+    // 4. COURSE
     // ------------------------------------------------------
 
-    const course =
-      await prisma.course.findUnique({
-        where: {
-          id: courseId,
-        },
-        select: {
-          id: true,
-          title: true,
-          price: true,
-          isPremium: true,
-        },
-      });
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        isPremium: true,
+      },
+    });
 
     if (!course) {
       return jsonError(
         "Course not found.",
-        404
+        404,
+        "COURSE_NOT_FOUND",
       );
     }
 
     // ------------------------------------------------------
-    // PREMIUM COURSE CHECK
+    // 5. PREMIUM COURSE VALIDATION
     // ------------------------------------------------------
 
-    if (!course.isPremium) {
-      return jsonError(
-        "This course does not require a Razorpay payment."
-      );
-    }
-
-    // ------------------------------------------------------
-    // COURSE PRICE
-    // ------------------------------------------------------
-
-    const amountInPaise =
-      rupeesToPaise(course.price);
+    const amountInPaise = rupeesToPaise(
+      course.price,
+    );
 
     if (
+      course.isPremium !== true ||
       amountInPaise === null ||
       amountInPaise < 100
     ) {
       console.error(
-        "Invalid course price:",
+        "INVALID PREMIUM COURSE PAYMENT CONFIGURATION:",
         {
           courseId: course.id,
           price: course.price,
-        }
+          isPremium: course.isPremium,
+          amountInPaise,
+        },
       );
 
       return jsonError(
-        "Invalid course price configuration.",
-        500
+        "This course is not correctly configured for online payment.",
+        500,
+        "INVALID_COURSE_PAYMENT_CONFIGURATION",
       );
     }
 
     // ------------------------------------------------------
-    // EXISTING ENROLLMENT
+    // 6. EXISTING SUCCESSFUL PAYMENT
+    //
+    // A successful payment is the actual purchase proof.
+    // Enrollment alone is not treated as a purchase.
+    // ------------------------------------------------------
+
+    const successfulPayment =
+      await prisma.payment.findFirst({
+        where: {
+          userId: user.id,
+          courseId: course.id,
+          status: "SUCCESS",
+        },
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          transactionId: true,
+          razorpayOrderId: true,
+          razorpayPaymentId: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+
+    if (successfulPayment) {
+      const paymentIsValid =
+        paymentAmountMatchesCourse(
+          successfulPayment,
+          course.price,
+        ) &&
+        hasValidPaymentIdentifier(
+          successfulPayment,
+        );
+
+      if (paymentIsValid) {
+        const enrollment =
+          await prisma.enrollment.findUnique({
+            where: {
+              userId_courseId: {
+                userId: user.id,
+                courseId: course.id,
+              },
+            },
+            select: {
+              id: true,
+              progress: true,
+              completed: true,
+            },
+          });
+
+        return NextResponse.json(
+          {
+            success: true,
+            alreadyEnrolled: Boolean(enrollment),
+            alreadyPurchased: true,
+            existingOrder: false,
+            message:
+              "This course has already been purchased.",
+            courseId: course.id,
+            enrollment: enrollment
+              ? {
+                  id: enrollment.id,
+                  progress: enrollment.progress,
+                  completed: enrollment.completed,
+                }
+              : null,
+          },
+          {
+            status: 200,
+          },
+        );
+      }
+
+      console.error(
+        "INVALID SUCCESSFUL PAYMENT RECORD:",
+        {
+          userId: user.id,
+          courseId: course.id,
+          paymentId: successfulPayment.id,
+          amount: successfulPayment.amount,
+          coursePrice: course.price,
+          transactionId:
+            successfulPayment.transactionId,
+          razorpayPaymentId:
+            successfulPayment.razorpayPaymentId,
+        },
+      );
+
+      return jsonError(
+        "Your previous payment requires verification. Please contact support before making another payment.",
+        409,
+        "PAYMENT_RECORD_REQUIRES_REVIEW",
+      );
+    }
+
+        // ------------------------------------------------------
+    // 7. EXISTING ENROLLMENT
+    //
+    // Enrollment without SUCCESS payment is not considered
+    // a completed purchase.
+    //
+    // This can happen because of:
+    // - old test data
+    // - free/demo enrollment
+    // - abandoned checkout
+    // - incomplete payment verification
+    //
+    // Therefore we do not return alreadyPurchased here.
+    // A fresh Razorpay order will be created below.
     // ------------------------------------------------------
 
     const existingEnrollment =
@@ -241,47 +390,8 @@ export async function POST(
         },
       });
 
-    if (existingEnrollment) {
-      return NextResponse.json(
-        {
-          success: true,
-          alreadyEnrolled: true,
-          alreadyPurchased: true,
-
-          message:
-            "You are already enrolled in this course.",
-
-          courseId: course.id,
-
-          enrollment: {
-            id: existingEnrollment.id,
-            progress:
-              existingEnrollment.progress,
-            completed:
-              existingEnrollment.completed,
-          },
-        },
-        { status: 200 }
-      );
-    }
-
     // ------------------------------------------------------
-    // IMPORTANT
-    //
-    // DO NOT REUSE OLD RAZORPAY ORDERS
-    //
-    // Older pending orders may belong to:
-    // - an old course price
-    // - an expired checkout attempt
-    // - an abandoned payment
-    // - an already attempted Razorpay order
-    //
-    // Therefore every fresh purchase attempt creates
-    // a fresh Razorpay order.
-    // ------------------------------------------------------
-
-    // ------------------------------------------------------
-    // RECEIPT
+    // 8. RECEIPT
     // ------------------------------------------------------
 
     const receipt =
@@ -289,46 +399,38 @@ export async function POST(
         .slice(0, 40);
 
     // ------------------------------------------------------
-    // CREATE RAZORPAY ORDER
+    // 9. CREATE FRESH RAZORPAY ORDER
     // ------------------------------------------------------
 
     let order;
 
     try {
-      order =
-        await createRazorpayOrder({
-          amount: amountInPaise,
-
-          currency: "INR",
-
-          receipt,
-
-          notes: {
-            userId: user.id,
-
-            courseId: course.id,
-
-            courseTitle:
-              course.title.slice(0, 240),
-
-            customerEmail:
-              user.email ?? "",
-          },
-        });
+      order = await createRazorpayOrder({
+        amount: amountInPaise,
+        currency: "INR",
+        receipt,
+        notes: {
+          userId: user.id,
+          courseId: course.id,
+          courseTitle: course.title.slice(0, 240),
+          customerEmail: user.email ?? "",
+        },
+      });
     } catch (error) {
       console.error(
         "RAZORPAY ORDER CREATION FAILED:",
-        error
+        error,
       );
 
       return jsonError(
         "Unable to create Razorpay payment order. Please try again.",
-        502
+        502,
+        "RAZORPAY_ORDER_CREATION_FAILED",
       );
     }
 
     // ------------------------------------------------------
-    // RAZORPAY ORDER VALIDATION
+    // 10. ORDER ID VALIDATION
     // ------------------------------------------------------
 
     if (
@@ -336,18 +438,19 @@ export async function POST(
       !isNonEmptyString(order.id)
     ) {
       console.error(
-        "Razorpay returned invalid order:",
-        order
+        "RAZORPAY RETURNED INVALID ORDER:",
+        order,
       );
 
       return jsonError(
         "Razorpay returned an invalid payment order.",
-        502
+        502,
+        "INVALID_RAZORPAY_ORDER",
       );
     }
 
-    // ------------------------------------------------------
-    // CURRENCY VALIDATION
+        // ------------------------------------------------------
+    // 11. CURRENCY VALIDATION
     // ------------------------------------------------------
 
     if (
@@ -355,214 +458,172 @@ export async function POST(
       order.currency.toUpperCase() !== "INR"
     ) {
       console.error(
-        "Razorpay returned unexpected currency:",
+        "RAZORPAY CURRENCY MISMATCH:",
         {
           orderId: order.id,
           currency: order.currency,
-        }
+        },
       );
 
       return jsonError(
         "Payment currency validation failed.",
-        502
+        502,
+        "RAZORPAY_CURRENCY_MISMATCH",
       );
     }
 
     // ------------------------------------------------------
-    // AMOUNT VALIDATION
+    // 12. AMOUNT VALIDATION
     // ------------------------------------------------------
 
-    const razorpayOrderAmount =
-      Number(order.amount);
+    const razorpayOrderAmount = Number(
+      order.amount,
+    );
 
     if (
       !Number.isSafeInteger(
-        razorpayOrderAmount
+        razorpayOrderAmount,
       ) ||
       razorpayOrderAmount <= 0
     ) {
       console.error(
-        "Razorpay returned invalid amount:",
+        "RAZORPAY RETURNED INVALID AMOUNT:",
         {
           orderId: order.id,
           amount: order.amount,
-        }
+        },
       );
 
       return jsonError(
         "Razorpay returned an invalid payment amount.",
-        502
+        502,
+        "INVALID_RAZORPAY_AMOUNT",
       );
     }
 
     if (
-      razorpayOrderAmount !==
-      amountInPaise
+      razorpayOrderAmount !== amountInPaise
     ) {
       console.error(
-        "Razorpay order amount mismatch:",
+        "RAZORPAY ORDER AMOUNT MISMATCH:",
         {
           courseId: course.id,
-
-          coursePrice:
-            course.price,
-
-          expectedAmountInPaise:
-            amountInPaise,
-
-          razorpayAmount:
-            razorpayOrderAmount,
-
-          orderId:
-            order.id,
-        }
+          coursePrice: course.price,
+          expectedAmountInPaise: amountInPaise,
+          razorpayAmount: razorpayOrderAmount,
+          orderId: order.id,
+        },
       );
 
       return jsonError(
         "Payment amount validation failed.",
-        502
+        502,
+        "RAZORPAY_AMOUNT_MISMATCH",
       );
     }
 
     // ------------------------------------------------------
-    // LOCAL PAYMENT RECORD
+    // 13. LOCAL PAYMENT RECORD
     // ------------------------------------------------------
 
     let payment;
 
     try {
-      payment =
-        await prisma.payment.create({
-          data: {
-            userId: user.id,
-
-            courseId: course.id,
-
-            amount: course.price,
-
-            status: "PENDING",
-
-            paymentMethod:
-              "razorpay",
-
-            transactionId: null,
-
-            razorpayOrderId:
-              order.id,
-
-            razorpayPaymentId:
-              null,
-
-            razorpaySignature:
-              null,
-          },
-
-          select: {
-            id: true,
-
-            amount: true,
-
-            status: true,
-
-            paymentMethod: true,
-
-            transactionId: true,
-
-            razorpayOrderId: true,
-
-            razorpayPaymentId: true,
-
-            razorpaySignature: true,
-          },
-        });
+      payment = await prisma.payment.create({
+        data: {
+          userId: user.id,
+          courseId: course.id,
+          amount: course.price,
+          status: "PENDING",
+          paymentMethod: "razorpay",
+          transactionId: null,
+          razorpayOrderId: order.id,
+          razorpayPaymentId: null,
+          razorpaySignature: null,
+        },
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          paymentMethod: true,
+          transactionId: true,
+          razorpayOrderId: true,
+          razorpayPaymentId: true,
+          razorpaySignature: true,
+        },
+      });
     } catch (error) {
       console.error(
         "LOCAL PAYMENT RECORD CREATION FAILED:",
         {
           error,
-          razorpayOrderId:
-            order.id,
+          razorpayOrderId: order.id,
           userId: user.id,
           courseId: course.id,
-        }
+        },
       );
 
       return jsonError(
         "Payment order was created, but the local payment record could not be saved. Please contact support before retrying.",
-        500
+        500,
+        "LOCAL_PAYMENT_RECORD_FAILED",
       );
     }
 
-    // ------------------------------------------------------
-    // FINAL RESPONSE
+        // ------------------------------------------------------
+    // 14. FINAL RESPONSE
     // ------------------------------------------------------
 
     return NextResponse.json(
       {
         success: true,
-
-        alreadyEnrolled: false,
-
+        alreadyEnrolled: Boolean(existingEnrollment),
         alreadyPurchased: false,
-
         existingOrder: false,
+        message:
+          "Payment order created successfully.",
 
-        keyId:
-          getRazorpayKeyId(),
+        keyId: getRazorpayKeyId(),
 
         order: {
           id: order.id,
-
-          amount:
-            razorpayOrderAmount,
-
+          amount: razorpayOrderAmount,
           currency: "INR",
-
-          receipt:
-            order.receipt,
-
-          status:
-            order.status,
+          receipt: order.receipt,
+          status: order.status,
         },
 
         payment: {
           id: payment.id,
-
-          status:
-            payment.status,
+          status: payment.status,
         },
 
         course: {
           id: course.id,
-
           title: course.title,
-
           price: course.price,
         },
 
         customer: {
-          name:
-            user.fullName ?? "",
-
-          email:
-            user.email ?? "",
-
-          contact:
-            user.mobile ?? "",
+          name: user.fullName ?? "",
+          email: user.email ?? "",
+          contact: user.mobile ?? "",
         },
       },
-
-      { status: 200 }
+      {
+        status: 200,
+      },
     );
   } catch (error) {
     console.error(
       "CREATE RAZORPAY ORDER ERROR:",
-      error
+      error,
     );
 
     return jsonError(
       "Unable to create payment order. Please try again.",
-      500
+      500,
+      "CREATE_ORDER_ERROR",
     );
   }
 }
