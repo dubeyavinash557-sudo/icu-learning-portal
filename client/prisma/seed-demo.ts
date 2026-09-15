@@ -5,6 +5,12 @@ const prisma = new PrismaClient();
 const demoVideoUrl =
   "https://www.youtube.com/embed/ScMzIvxBSi4";
 
+const demoNotesBySlug: Record<string, string> = {
+  "icu-nursing-free-demo": "/pdfs/icu-nursing-notes.pdf",
+  "mechanical-ventilation-free-demo": "/pdfs/ventilator-notes.pdf",
+  "ecg-interpretation-free-demo": "/pdfs/ecg-notes.pdf",
+};
+
 async function main() {
   console.log("Starting demo course seeding...");
 
@@ -379,7 +385,7 @@ async function main() {
         title: lesson.title,
         description: lesson.description,
         videoUrl: demoVideoUrl,
-        notesUrl: null,
+        notesUrl: demoNotesBySlug[courseData.slug] ?? null,
         duration: lesson.duration,
         lessonOrder: lesson.lessonOrder,
         courseId: course.id,
