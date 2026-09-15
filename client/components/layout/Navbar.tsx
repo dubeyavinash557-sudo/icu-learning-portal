@@ -6,13 +6,14 @@ import {
   BookOpenCheck,
   ChevronDown,
   LayoutDashboard,
+  LogOut,
   Menu,
   ShieldCheck,
   Stethoscope,
   UserRound,
 } from "lucide-react";
 
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 
 const publicNavigation = [
   {
@@ -60,6 +61,14 @@ export default async function Navbar() {
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
     .join("");
+
+  async function handleLogout() {
+    "use server";
+
+    await signOut({
+      redirectTo: "/",
+    });
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
@@ -151,6 +160,7 @@ export default async function Navbar() {
                   className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-cyan-600 px-5 py-2.5 text-sm font-black text-white shadow-md shadow-blue-700/20 transition duration-300 hover:-translate-y-0.5 hover:from-blue-800 hover:to-cyan-700 hover:shadow-lg"
                 >
                   Start Learning
+
                   <ArrowRight
                     size={16}
                     className="transition-transform group-hover:translate-x-0.5"
@@ -287,6 +297,38 @@ export default async function Navbar() {
                         />
                       )}
                     </div>
+
+                    {/* =================================================
+                        DESKTOP LOGOUT
+                    ================================================== */}
+
+                    <div className="my-2 border-t border-slate-100 pt-2">
+                      <form action={handleLogout}>
+                        <button
+                          type="submit"
+                          className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition hover:bg-red-50"
+                        >
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500 transition group-hover:bg-red-100">
+                            <LogOut size={16} />
+                          </span>
+
+                          <span className="min-w-0">
+                            <span className="block text-xs font-black text-slate-800 group-hover:text-red-700">
+                              Logout
+                            </span>
+
+                            <span className="mt-0.5 block text-[10px] text-slate-400">
+                              Sign out of your account
+                            </span>
+                          </span>
+
+                          <ArrowRight
+                            size={14}
+                            className="ml-auto text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-red-500"
+                          />
+                        </button>
+                      </form>
+                    </div>
                   </div>
                 </details>
               </>
@@ -398,13 +440,29 @@ export default async function Navbar() {
 
               <div className="mt-3 border-t border-slate-100 pt-3">
                 {isLoggedIn ? (
-                  <Link
-                    href="/courses"
-                    className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-cyan-600 px-4 py-3 text-sm font-black text-white shadow-md shadow-blue-700/20 transition hover:from-blue-800 hover:to-cyan-700"
-                  >
-                    Explore Courses
-                    <ArrowRight size={17} />
-                  </Link>
+                  <div className="space-y-2">
+                    <Link
+                      href="/courses"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-cyan-600 px-4 py-3 text-sm font-black text-white shadow-md shadow-blue-700/20 transition hover:from-blue-800 hover:to-cyan-700"
+                    >
+                      Explore Courses
+                      <ArrowRight size={17} />
+                    </Link>
+
+                    {/* =================================================
+                        MOBILE LOGOUT
+                    ================================================== */}
+
+                    <form action={handleLogout}>
+                      <button
+                        type="submit"
+                        className="group flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:border-red-300 hover:bg-red-100"
+                      >
+                        <LogOut size={17} />
+                        Logout
+                      </button>
+                    </form>
+                  </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
                     <Link
