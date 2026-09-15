@@ -1,8 +1,8 @@
 import { get } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 
-import prisma from "@/lib/prisma";
 import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,29 +12,32 @@ export const runtime = "nodejs";
 //
 // PROTECTED LMS STUDY NOTES
 //
-// ACCESS:
+// ACCESS POLICY
 //
 // ADMIN
 //   OR
 //
-// STUDENT + ENROLLMENT + SUCCESSFUL PAYMENT
+// FREE DEMO COURSE
+//   + AUTHENTICATED USER
+//   + COURSE ENROLLMENT
 //
-// IMPORTANT:
+// PREMIUM COURSE
+//   + AUTHENTICATED USER
+//   + COURSE ENROLLMENT
+//   + SUCCESSFUL PAYMENT
+//   + EXACT PAYMENT AMOUNT
+//   + VALID PAYMENT IDENTIFIER
 //
-// 1. Every learner-facing study note is treated as PREMIUM.
-// 2. Enrollment alone is NOT enough.
-// 3. A successful payment is required for EVERY course.
-// 4. Paid amount must exactly match the current course price.
-// 5. A valid Razorpay payment/transaction ID is required.
-// 6. Database must store the PRIVATE Vercel Blob pathname only.
+// NOTES MUST BE STORED AS A PRIVATE VERCEL BLOB PATHNAME.
 //
-// Example:
-//   courses/abg/lesson-01.pdf
+// Correct:
+//   courses/icu/lesson-01.pdf
 //
-// Never store:
+// Incorrect:
 //   https://xxxxx.public.blob.vercel-storage.com/...
 //
-// This endpoint returns the protected file only after authorization.
+// This endpoint returns the protected file only after
+// authorization and private Blob validation.
 // ============================================================
 
 export async function GET(request: NextRequest) {
@@ -48,15 +51,10 @@ export async function GET(request: NextRequest) {
     const email = session?.user?.email?.trim().toLowerCase();
 
     if (!email) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Authentication required",
-          code: "AUTH_REQUIRED",
-        },
-        {
-          status: 401,
-        },
+      return jsonError(
+        "Authentication required",
+        "AUTH_REQUIRED",
+        401,
       );
     }
 
@@ -67,15 +65,10 @@ export async function GET(request: NextRequest) {
     const lessonId = request.nextUrl.searchParams.get("lessonId")?.trim();
 
     if (!lessonId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Missing lessonId",
-          code: "LESSON_ID_REQUIRED",
-        },
-        {
-          status: 400,
-        },
+      return jsonError(
+        "Missing lessonId",
+        "LESSON_ID_REQUIRED",
+        400,
       );
     }
 
@@ -94,19 +87,14 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "User account was not found",
-          code: "USER_NOT_FOUND",
-        },
-        {
-          status: 401,
-        },
+      return jsonError(
+        "User account was not found",
+        "USER_NOT_FOUND",
+        401,
       );
     }
 
-    // ==========================================================
+        // ==========================================================
     // 4. LESSON + COURSE
     // ==========================================================
 
@@ -132,54 +120,59 @@ export async function GET(request: NextRequest) {
     });
 
     if (!lesson) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Lesson not found",
-          code: "LESSON_NOT_FOUND",
-        },
-        {
-          status: 404,
-        },
+      return jsonError(
+        "Lesson not found",
+        "LESSON_NOT_FOUND",
+        404,
       );
     }
 
     // ==========================================================
-    // 5. ADMIN ACCESS
-    //
-    // Admin can access protected study resources.
+    // 5. COURSE TYPE
     // ==========================================================
+
+    const isFreeDemo =
+      lesson.course.isPremium === false &&
+      Number.isFinite(lesson.course.price) &&
+      lesson.course.price === 0;
+
+    const isPremiumCourse =
+      lesson.course.isPremium === true &&
+      Number.isFinite(lesson.course.price) &&
+      lesson.course.price > 0;
 
     const isAdmin = user.role === "ADMIN";
 
+    // Invalid course configuration should never grant access.
+    if (!isFreeDemo && !isPremiumCourse && !isAdmin) {
+      console.error("INVALID COURSE ACCESS CONFIGURATION:", {
+        userId: user.id,
+        courseId: lesson.courseId,
+        lessonId: lesson.id,
+        price: lesson.course.price,
+        isPremium: lesson.course.isPremium,
+      });
+
+      return jsonError(
+        "Course access configuration is invalid",
+        "INVALID_COURSE_CONFIGURATION",
+        500,
+      );
+    }
+
     // ==========================================================
-    // 6. STUDENT ACCESS
-    //
-    // IMPORTANT:
-    //
-    // ALL STUDY NOTES ARE NOW PAID-ONLY FOR STUDENTS.
-    //
-    // Required:
-    //
-    //   Enrollment
-    //   +
-    //   SUCCESSFUL PAYMENT
-    //   +
-    //   Exact payment amount match
-    //   +
-    //   Valid Razorpay/payment transaction ID
-    //
-    // This intentionally does NOT depend on user.isPremium.
-    // Access is tied to the purchased course.
-    //
-    // This also protects against an accidentally configured
-    // isPremium=false course giving away private notes.
+    // 6. ADMIN ACCESS
     // ==========================================================
 
-    if (!isAdmin) {
-      // --------------------------------------------------------
-      // ENROLLMENT
-      // --------------------------------------------------------
+    if (isAdmin) {
+      // Admin can access protected study resources directly.
+      // Payment and enrollment checks are intentionally skipped.
+    } else {
+      // Student authorization continues in the next section.
+
+            // ========================================================
+      // 7. ENROLLMENT
+      // ========================================================
 
       const enrollment = await prisma.enrollment.findUnique({
         where: {
@@ -202,8 +195,9 @@ export async function GET(request: NextRequest) {
             error: "Course enrollment required",
             code: "COURSE_ENROLLMENT_REQUIRED",
             courseId: lesson.courseId,
-            message:
-              "Enroll in the course and complete the purchase to access protected study notes.",
+            message: isFreeDemo
+              ? "Enroll in this free demo course to access its study notes."
+              : "Enroll in the course and complete the purchase to access protected study notes.",
           },
           {
             status: 403,
@@ -211,154 +205,126 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      // --------------------------------------------------------
-      // SUCCESSFUL PAYMENT
-      // --------------------------------------------------------
+      // ========================================================
+      // 8. FREE DEMO ACCESS
+      // ========================================================
 
-      const successfulPayment = await prisma.payment.findFirst({
-        where: {
-          userId: user.id,
-          courseId: lesson.courseId,
-          status: "SUCCESS",
-        },
-        select: {
-          id: true,
-          amount: true,
-          status: true,
-          transactionId: true,
-          razorpayOrderId: true,
-          razorpayPaymentId: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+      if (isFreeDemo) {
+        // Free demo notes require only:
+        //
+        // 1. Authenticated user
+        // 2. Existing enrollment
+        //
+        // No payment is required.
+      }
 
-      if (!successfulPayment) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Course purchase required",
-            code: "COURSE_PAYMENT_REQUIRED",
+      // Premium payment validation continues below.
+
+            // ========================================================
+      // 9. PREMIUM PAYMENT VALIDATION
+      // ========================================================
+
+      if (isPremiumCourse) {
+        const successfulPayment = await prisma.payment.findFirst({
+          where: {
+            userId: user.id,
             courseId: lesson.courseId,
-            message:
-              "Complete the course purchase to unlock protected study notes.",
+            status: "SUCCESS",
           },
-          {
-            status: 403,
+          select: {
+            id: true,
+            amount: true,
+            status: true,
+            transactionId: true,
+            razorpayOrderId: true,
+            razorpayPaymentId: true,
           },
-        );
-      }
-
-      // --------------------------------------------------------
-      // PAYMENT AMOUNT VALIDATION
-      //
-      // Protect against inconsistent or manually altered payment
-      // records.
-      // --------------------------------------------------------
-
-      const paidAmountInPaise = Math.round(
-        Number(successfulPayment.amount) * 100,
-      );
-
-      const courseAmountInPaise = Math.round(Number(lesson.course.price) * 100);
-
-      const amountMatches =
-        Number.isSafeInteger(paidAmountInPaise) &&
-        Number.isSafeInteger(courseAmountInPaise) &&
-        paidAmountInPaise > 0 &&
-        courseAmountInPaise > 0 &&
-        paidAmountInPaise === courseAmountInPaise;
-
-      // --------------------------------------------------------
-      // PAYMENT TRANSACTION VALIDATION
-      // --------------------------------------------------------
-
-      const transactionExists = Boolean(
-        successfulPayment.razorpayPaymentId ||
-          successfulPayment.transactionId,
-      );
-
-      if (!amountMatches || !transactionExists) {
-        console.error("LESSON NOTES PAYMENT VALIDATION FAILED:", {
-          userId: user.id,
-          courseId: lesson.courseId,
-          lessonId: lesson.id,
-          paymentId: successfulPayment.id,
-          paidAmount: successfulPayment.amount,
-          coursePrice: lesson.course.price,
-          amountMatches,
-          transactionExists,
+          orderBy: {
+            createdAt: "desc",
+          },
         });
 
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Payment verification required",
-            code: "PAYMENT_VALIDATION_FAILED",
-            message:
-              "Your payment could not be validated for this course.",
-          },
-          {
-            status: 403,
-          },
+        if (!successfulPayment) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Course purchase required",
+              code: "COURSE_PAYMENT_REQUIRED",
+              courseId: lesson.courseId,
+              message:
+                "Complete the course purchase to unlock protected study notes.",
+            },
+            {
+              status: 403,
+            },
+          );
+        }
+
+        // ------------------------------------------------------
+        // PAYMENT AMOUNT VALIDATION
+        // ------------------------------------------------------
+
+        const paidAmountInPaise = Math.round(
+          Number(successfulPayment.amount) * 100,
         );
-      }
 
-      // --------------------------------------------------------
-      // EXTRA PREMIUM ENFORCEMENT
-      //
-      // All learner-facing notes are paid resources.
-      // Even if an old/incorrect course record says isPremium=false,
-      // notes remain locked for students.
-      // --------------------------------------------------------
-
-      if (!lesson.course.isPremium) {
-        console.error("NON-PREMIUM COURSE NOTE ACCESS BLOCKED:", {
-          userId: user.id,
-          courseId: lesson.courseId,
-          lessonId: lesson.id,
-        });
-
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Premium purchase required",
-            code: "PREMIUM_RESOURCE_REQUIRED",
-            message:
-              "This study resource is available only through paid course access.",
-          },
-          {
-            status: 403,
-          },
+        const courseAmountInPaise = Math.round(
+          Number(lesson.course.price) * 100,
         );
+
+        const amountMatches =
+          Number.isSafeInteger(paidAmountInPaise) &&
+          Number.isSafeInteger(courseAmountInPaise) &&
+          paidAmountInPaise > 0 &&
+          courseAmountInPaise > 0 &&
+          paidAmountInPaise === courseAmountInPaise;
+
+        // ------------------------------------------------------
+        // PAYMENT IDENTIFIER VALIDATION
+        // ------------------------------------------------------
+
+        const hasPaymentIdentifier = Boolean(
+          successfulPayment.razorpayPaymentId?.trim() ||
+            successfulPayment.transactionId?.trim(),
+        );
+
+        if (!amountMatches || !hasPaymentIdentifier) {
+          console.error("LESSON NOTES PAYMENT VALIDATION FAILED:", {
+            userId: user.id,
+            courseId: lesson.courseId,
+            lessonId: lesson.id,
+            paymentId: successfulPayment.id,
+            paidAmount: successfulPayment.amount,
+            coursePrice: lesson.course.price,
+            amountMatches,
+            hasPaymentIdentifier,
+          });
+
+          return jsonError(
+            "Your payment could not be validated for this course",
+            "PAYMENT_VALIDATION_FAILED",
+            403,
+          );
+        }
       }
     }
 
     // ==========================================================
-    // 7. NOTES URL
+    // 10. NOTES URL
     // ==========================================================
 
     const notesUrl = lesson.notesUrl?.trim();
 
     if (!notesUrl) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Study notes are not available for this lesson",
-          code: "NOTES_NOT_AVAILABLE",
-        },
-        {
-          status: 404,
-        },
+      return jsonError(
+        "Study notes are not available for this lesson",
+        "NOTES_NOT_AVAILABLE",
+        404,
       );
     }
 
-    // ==========================================================
-    // 8. PUBLIC URL PROTECTION
-    //
-    // Never allow an already-public Blob URL to be served through
-    // this protected endpoint.
+        // ==========================================================
+    // 11. PUBLIC URL PROTECTION
     // ==========================================================
 
     if (
@@ -371,20 +337,15 @@ export async function GET(request: NextRequest) {
         notesUrl,
       });
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Protected resource configuration error",
-          code: "PUBLIC_NOTES_URL",
-        },
-        {
-          status: 500,
-        },
+      return jsonError(
+        "Protected resource configuration error",
+        "PUBLIC_NOTES_URL",
+        500,
       );
     }
 
     // ==========================================================
-    // 9. PROTECTED VERCEL BLOB
+    // 12. PRIVATE VERCEL BLOB
     // ==========================================================
 
     const result = await get(notesUrl, {
@@ -398,20 +359,15 @@ export async function GET(request: NextRequest) {
         notesUrl,
       });
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Protected study note not found",
-          code: "PROTECTED_NOTE_NOT_FOUND",
-        },
-        {
-          status: 404,
-        },
+      return jsonError(
+        "Protected study note not found",
+        "PROTECTED_NOTE_NOT_FOUND",
+        404,
       );
     }
 
     // ==========================================================
-    // 10. RESPONSE METADATA
+    // 13. RESPONSE METADATA
     // ==========================================================
 
     const contentType = result.blob.contentType || "application/pdf";
@@ -423,10 +379,7 @@ export async function GET(request: NextRequest) {
     const safeFilename = sanitizeFilename(filename);
 
     // ==========================================================
-    // 11. PROTECTED RESPONSE HEADERS
-    //
-    // Use Headers API so optional Content-Length does not create
-    // a TypeScript HeadersInit error.
+    // 14. SECURITY HEADERS
     // ==========================================================
 
     const headers = new Headers();
@@ -470,8 +423,8 @@ export async function GET(request: NextRequest) {
 
     headers.set("X-Frame-Options", "DENY");
 
-    // ==========================================================
-    // 12. FILE RESPONSE
+        // ==========================================================
+    // 15. PROTECTED FILE RESPONSE
     // ==========================================================
 
     return new NextResponse(result.stream, {
@@ -481,17 +434,35 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("LESSON NOTES ACCESS ERROR:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Unable to access protected study notes",
-        code: "NOTES_ACCESS_ERROR",
-      },
-      {
-        status: 500,
-      },
+    return jsonError(
+      "Unable to access protected study notes",
+      "NOTES_ACCESS_ERROR",
+      500,
     );
   }
+}
+
+// ============================================================
+// JSON ERROR HELPER
+// ============================================================
+
+function jsonError(
+  error: string,
+  code: string,
+  status: number,
+  extra?: Record<string, unknown>,
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      error,
+      code,
+      ...extra,
+    },
+    {
+      status,
+    },
+  );
 }
 
 // ============================================================
