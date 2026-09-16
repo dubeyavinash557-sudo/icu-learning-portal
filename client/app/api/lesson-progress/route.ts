@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -29,12 +27,27 @@ function isPremiumCourse(course: {
   return course.price > 0 && course.isPremium === true;
 }
 
-function getPaymentAmountInPaise(amount: number | null | undefined) {
+function getPaymentAmountInPaise(
+  amount: number | null | undefined
+): number {
   if (amount === null || amount === undefined) {
     return 0;
   }
 
   return Math.round(Number(amount) * 100);
+}
+
+function createCertificateNumber(isDemo: boolean): string {
+  const prefix = isDemo ? "DEMO-ICU" : "ICU-PREMIUM";
+
+  const timestamp = Date.now();
+
+  const randomPart = Math.random()
+    .toString(36)
+    .slice(2, 8)
+    .toUpperCase();
+
+  return `${prefix}-${timestamp}-${randomPart}`;
 }
 
 export async function POST(request: NextRequest) {
@@ -131,7 +144,7 @@ export async function POST(request: NextRequest) {
 
     /*
      * ---------------------------------------------------------
-     * 4. Find lesson and related course
+     * 4. Find lesson and course
      * ---------------------------------------------------------
      */
 
@@ -181,14 +194,15 @@ export async function POST(request: NextRequest) {
     /*
      * ---------------------------------------------------------
      * 5. Course access policy
+     * ---------------------------------------------------------
      *
-     * Free demo course:
+     * Free demo:
      * - price = 0
      * - isPremium = false
      * - no enrollment required
      * - no payment required
      *
-     * Premium course:
+     * Premium:
      * - price > 0
      * - isPremium = true
      * - enrollment required
@@ -199,10 +213,6 @@ export async function POST(request: NextRequest) {
     const freeDemoCourse = isFreeDemoCourse(course);
     const premiumCourse = isPremiumCourse(course);
 
-    /*
-     * Any course that is neither a valid free demo nor a valid
-     * premium course must be blocked.
-     */
     if (!freeDemoCourse && !premiumCourse) {
       console.error("INVALID COURSE ACCESS CONFIGURATION", {
         userId: user.id,
@@ -249,7 +259,7 @@ export async function POST(request: NextRequest) {
 
     /*
      * ---------------------------------------------------------
-     * 7. Premium course enrollment verification
+     * 7. Premium enrollment verification
      * ---------------------------------------------------------
      */
 
@@ -276,9 +286,6 @@ export async function POST(request: NextRequest) {
     /*
      * ---------------------------------------------------------
      * 8. Premium payment verification
-     *
-     * Admin users can bypass payment verification.
-     * Normal students must have a successful payment.
      * ---------------------------------------------------------
      */
 
@@ -323,7 +330,10 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const expectedAmountInPaise = getPaymentAmountInPaise(course.price);
+      const expectedAmountInPaise = getPaymentAmountInPaise(
+        course.price
+      );
+
       const actualAmountInPaise = getPaymentAmountInPaise(
         successfulPayment.amount
       );
@@ -340,7 +350,8 @@ export async function POST(request: NextRequest) {
         typeof successfulPayment.transactionId === "string" &&
         successfulPayment.transactionId.trim().length > 0;
 
-      const amountMatches = actualAmountInPaise === expectedAmountInPaise;
+      const amountMatches =
+        actualAmountInPaise === expectedAmountInPaise;
 
       if (
         !hasValidOrderId ||
@@ -406,11 +417,6 @@ export async function POST(request: NextRequest) {
     /*
      * ---------------------------------------------------------
      * 10. Save lesson progress
-     *
-     * This works for:
-     * - free demo courses
-     * - premium courses
-     * - admin users
      * ---------------------------------------------------------
      */
 
@@ -463,17 +469,17 @@ export async function POST(request: NextRequest) {
 
     const progressPercentage = Math.min(
       100,
-      Math.round((safeCompletedLessons / totalLessons) * 100)
+      Math.round(
+        (safeCompletedLessons / totalLessons) * 100
+      )
     );
 
-    const courseCompleted = safeCompletedLessons >= totalLessons;
+    const courseCompleted =
+      safeCompletedLessons >= totalLessons;
 
     /*
      * ---------------------------------------------------------
      * 12. Update enrollment progress
-     *
-     * Free demo users may not have an enrollment.
-     * Therefore this update must be conditional.
      * ---------------------------------------------------------
      */
 
@@ -500,37 +506,45 @@ export async function POST(request: NextRequest) {
 
     /*
      * ---------------------------------------------------------
-     * 13. Create certificate only for premium courses
+     * 13. Create demo or premium certificate
+     * ---------------------------------------------------------
      *
-     * Free demo course completion should not automatically
-     * generate a paid-course certificate.
+     * Demo course:
+     * - Creates a DEMO-style certificate number.
+     * - Does not require payment.
+     *
+     * Premium course:
+     * - Payment verification was already completed above.
+     * - Creates a premium certificate number.
+     *
+     * Existing certificate is reused to prevent duplicates.
      * ---------------------------------------------------------
      */
 
     let certificate = null;
 
-    if (courseCompleted && premiumCourse) {
-      const existingCertificate = await prisma.certificate.findFirst({
-        where: {
-          userId: user.id,
-          courseId: course.id,
-        },
-        select: {
-          id: true,
-          certificateNo: true,
-          issuedAt: true,
-          courseId: true,
-          userId: true,
-        },
-      });
+    if (courseCompleted && (freeDemoCourse || premiumCourse)) {
+      const existingCertificate =
+        await prisma.certificate.findFirst({
+          where: {
+            userId: user.id,
+            courseId: course.id,
+          },
+          select: {
+            id: true,
+            certificateNo: true,
+            issuedAt: true,
+            courseId: true,
+            userId: true,
+          },
+        });
 
       if (existingCertificate) {
         certificate = existingCertificate;
       } else {
-        const certificateNumber = `ICU-${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2, 8)
-          .toUpperCase()}`;
+        const certificateNumber = createCertificateNumber(
+          freeDemoCourse
+        );
 
         certificate = await prisma.certificate.create({
           data: {
@@ -560,9 +574,9 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: courseCompleted
-          ? premiumCourse
-            ? "Congratulations! You completed this premium course."
-            : "Congratulations! You completed this free demo course."
+          ? freeDemoCourse
+            ? "Congratulations! You completed this free demo course and earned a demo certificate."
+            : "Congratulations! You completed this premium course and earned a premium certificate."
           : "Lesson progress saved successfully.",
         data: {
           lessonId: lesson.id,

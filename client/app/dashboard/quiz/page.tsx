@@ -29,6 +29,7 @@ export const dynamic = "force-dynamic";
 
 type QuizAttemptData = {
   id: string;
+  quizId: string;
   percentage: number;
   score: number;
   total: number;
@@ -41,14 +42,17 @@ type QuizCardData = {
   title: string;
   description: string | null;
   questionCount: number;
+
   courseId: string;
   courseTitle: string;
   coursePrice: number;
   courseIsPremium: boolean;
+
   isFreeCourse: boolean;
   isEnrolled: boolean;
   hasSuccessfulPayment: boolean;
   isAccessible: boolean;
+
   attempt: QuizAttemptData | null;
 };
 
@@ -67,7 +71,7 @@ type CourseWithoutQuizData = {
 
 function calculateAverage(
   attempts: QuizAttemptData[]
-) {
+): number {
   if (attempts.length === 0) {
     return 0;
   }
@@ -81,13 +85,9 @@ function calculateAverage(
   );
 }
 
-function formatPrice(price: number) {
-  return `₹${price.toLocaleString("en-IN")}`;
-}
-
 function getAttemptLabel(
   attempt: QuizAttemptData | null
-) {
+): string {
   if (!attempt) {
     return "Not attempted";
   }
@@ -101,7 +101,7 @@ function getAttemptLabel(
 
 function getAttemptColor(
   attempt: QuizAttemptData | null
-) {
+): string {
   if (!attempt) {
     return "border-slate-700 bg-slate-900/70 text-slate-400";
   }
@@ -138,6 +138,7 @@ export default async function QuizDashboardPage() {
     where: {
       email: session.user.email,
     },
+
     select: {
       id: true,
       fullName: true,
@@ -153,6 +154,7 @@ export default async function QuizDashboardPage() {
         orderBy: {
           createdAt: "desc",
         },
+
         select: {
           id: true,
           quizId: true,
@@ -173,17 +175,17 @@ export default async function QuizDashboardPage() {
   // ==========================================================
   // 3. LOAD ALL COURSES
   //
-  // IMPORTANT:
-  // We load COURSES first rather than only quizzes.
+  // Prisma remains the source of truth for the LMS catalogue.
   //
-  // This means the dashboard can accurately represent all
-  // learning programs even if a course does not yet have a quiz.
+  // We intentionally load courses first so the dashboard can
+  // show courses even when a quiz has not been created yet.
   // ==========================================================
 
   const courses = await prisma.course.findMany({
     orderBy: {
       createdAt: "asc",
     },
+
     select: {
       id: true,
       title: true,
@@ -195,6 +197,7 @@ export default async function QuizDashboardPage() {
         orderBy: {
           createdAt: "asc",
         },
+
         select: {
           id: true,
           title: true,
@@ -222,11 +225,12 @@ export default async function QuizDashboardPage() {
   );
 
   // ==========================================================
-  // 5. PAYMENT ACCESS
+  // 5. SUCCESSFUL PAYMENTS
   //
-  // We check successful payments for the current user.
-  // The quiz detail page still performs the final server-side
-  // authorization check before questions are released.
+  // We only use successful payments for access.
+  //
+  // The final quiz authorization must still be performed by
+  // the quiz detail/server route before questions are released.
   // ==========================================================
 
   const successfulPayments =
@@ -235,12 +239,13 @@ export default async function QuizDashboardPage() {
         userId: user.id,
         status: "SUCCESS",
       },
+
       orderBy: {
         createdAt: "desc",
       },
+
       select: {
         courseId: true,
-        amount: true,
         razorpayOrderId: true,
         razorpayPaymentId: true,
         transactionId: true,
@@ -248,15 +253,16 @@ export default async function QuizDashboardPage() {
     });
 
   // ==========================================================
-  // 6. BUILD VERIFIED PAYMENT COURSE SET
+  // 6. VERIFIED PAYMENT COURSE SET
   //
-  // Payment is considered usable when:
+  // A payment is considered usable for dashboard access when:
   //
-  // - SUCCESS
-  // - Razorpay payment/order or transaction information exists
+  // - status is SUCCESS
+  // - courseId exists
+  // - at least one transaction/order/payment identifier exists
   //
-  // Exact amount verification is additionally performed on the
-  // quiz detail page.
+  // The quiz detail page remains responsible for final payment
+  // and amount verification.
   // ==========================================================
 
   const paidCourseIds = new Set<string>();
@@ -286,6 +292,9 @@ export default async function QuizDashboardPage() {
   const coursesWithoutQuiz: CourseWithoutQuizData[] =
     [];
 
+  const isAdmin =
+    user.role === "ADMIN";
+
   for (const course of courses) {
     const isEnrolled =
       enrolledCourseIds.has(course.id);
@@ -298,7 +307,7 @@ export default async function QuizDashboardPage() {
       paidCourseIds.has(course.id);
 
     // --------------------------------------------------------
-    // Courses without assessment
+    // Courses without quiz
     // --------------------------------------------------------
 
     if (course.quizzes.length === 0) {
@@ -315,19 +324,34 @@ export default async function QuizDashboardPage() {
     }
 
     // --------------------------------------------------------
-    // Every quiz belonging to the course
+    // Every quiz belonging to this course
     // --------------------------------------------------------
 
     for (const quiz of course.quizzes) {
-      const isAdmin =
-        user.role === "ADMIN";
+      /*
+       * Access rules:
+       *
+       * ADMIN
+       *   -> Always accessible.
+       *
+       * FREE COURSE
+       *   -> Accessible to logged-in users.
+       *
+       * PREMIUM COURSE
+       *   -> Requires enrollment + successful payment.
+       *
+       * The final server-side quiz authorization must still
+       * verify access before returning quiz questions.
+       */
 
       const isAccessible =
         isAdmin ||
+        isFreeCourse ||
         (isEnrolled &&
-          (isFreeCourse ||
-            hasSuccessfulPayment));
+          hasSuccessfulPayment);
 
+      // Because attempts are loaded newest first,
+      // find() returns the latest attempt for this quiz.
       const attempt =
         user.quizAttempts.find(
           (item) =>
@@ -338,17 +362,21 @@ export default async function QuizDashboardPage() {
         id: quiz.id,
         title: quiz.title,
         description: quiz.description,
+
         questionCount:
           quiz._count.questions,
+
         courseId: course.id,
         courseTitle: course.title,
         coursePrice: course.price,
         courseIsPremium:
           course.isPremium,
+
         isFreeCourse,
         isEnrolled,
         hasSuccessfulPayment,
         isAccessible,
+
         attempt,
       });
     }
@@ -363,7 +391,8 @@ export default async function QuizDashboardPage() {
 
   const attemptedQuizzes =
     quizCards.filter(
-      (quiz) => quiz.attempt !== null
+      (quiz) =>
+        quiz.attempt !== null
     ).length;
 
   const completedQuizzes =
@@ -375,8 +404,8 @@ export default async function QuizDashboardPage() {
   const failedQuizzes =
     quizCards.filter(
       (quiz) =>
-        quiz.attempt &&
-        !quiz.attempt.passed
+        quiz.attempt !== null &&
+        quiz.attempt.passed === false
     ).length;
 
   const averageScore =
@@ -401,12 +430,11 @@ export default async function QuizDashboardPage() {
     courses.length;
 
   const coursesWithQuiz =
-    quizCards.reduce(
-      (set, quiz) => {
-        set.add(quiz.courseId);
-        return set;
-      },
-      new Set<string>()
+    new Set(
+      quizCards.map(
+        (quiz) =>
+          quiz.courseId
+      )
     ).size;
 
   const courseCoveragePercent =
@@ -419,7 +447,7 @@ export default async function QuizDashboardPage() {
         );
 
   // ==========================================================
-  // 9. RECENT / FEATURED QUIZZES
+  // 9. FEATURED QUIZ
   // ==========================================================
 
   const featuredQuiz =
@@ -439,15 +467,16 @@ export default async function QuizDashboardPage() {
     null;
 
   // ==========================================================
-  // 10. DISPLAY USER NAME
+  // 10. DISPLAY NAME
   // ==========================================================
 
   const displayName =
     user.fullName?.trim() ||
     "Learner";
 
-  const isAdmin =
-    user.role === "ADMIN";
+  // ==========================================================
+  // 11. RENDER
+  // ==========================================================
 
   return (
     <main className="min-h-screen bg-[#050816] text-white">
@@ -481,7 +510,7 @@ export default async function QuizDashboardPage() {
             </div>
           </Link>
 
-          {/* Right navigation */}
+          {/* Right Navigation */}
 
           <div className="flex items-center gap-2">
             <Link
@@ -527,6 +556,8 @@ export default async function QuizDashboardPage() {
           <div className="pointer-events-none absolute -bottom-32 -left-20 h-72 w-72 rounded-full bg-indigo-950/40 blur-3xl" />
 
           <div className="relative">
+            {/* Badge */}
+
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100">
                 <ClipboardCheck
@@ -541,6 +572,8 @@ export default async function QuizDashboardPage() {
                 </span>
               )}
             </div>
+
+            {/* Hero Content */}
 
             <div className="mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
               <div>
@@ -561,6 +594,8 @@ export default async function QuizDashboardPage() {
                   your critical-care programs.
                 </p>
               </div>
+
+              {/* Average Score */}
 
               <div className="hidden rounded-3xl border border-white/15 bg-black/10 p-5 lg:block">
                 <div className="flex items-center gap-3">
@@ -584,7 +619,7 @@ export default async function QuizDashboardPage() {
               </div>
             </div>
 
-            {/* Hero metrics */}
+            {/* Hero Metrics */}
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <HeroMetric
@@ -605,7 +640,9 @@ export default async function QuizDashboardPage() {
                     size={18}
                   />
                 }
-                value={`${completedQuizzes}`}
+                value={String(
+                  completedQuizzes
+                )}
                 label="Passed"
               />
 
@@ -625,7 +662,9 @@ export default async function QuizDashboardPage() {
                     size={18}
                   />
                 }
-                value={`${availableCourseCount}`}
+                value={String(
+                  availableCourseCount
+                )}
                 label="Learning Programs"
               />
             </div>
@@ -673,15 +712,13 @@ export default async function QuizDashboardPage() {
           />
 
           <PerformanceCard
-            icon={
-              <Award size={18} />
-            }
-            value={String(
-              premiumQuizCount
-            )}
-            label="Premium Assessments"
-            description="Professional evaluations"
-          />
+  icon={
+    <Award size={18} />
+  }
+  value={String(premiumQuizCount)}
+  label="Premium Assessments"
+  description="Professional evaluations"
+/>
         </section>
 
         {/* ====================================================
@@ -724,6 +761,8 @@ export default async function QuizDashboardPage() {
             </div>
           </div>
 
+          {/* Completion Bar */}
+
           <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-800">
             <div
               className="h-full rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 transition-all"
@@ -744,12 +783,21 @@ export default async function QuizDashboardPage() {
             />
           </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {/* Mini Progress */}
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-4">
             <MiniProgress
               value={String(
                 attemptedQuizzes
               )}
               label="Attempted"
+            />
+
+            <MiniProgress
+              value={String(
+                completedQuizzes
+              )}
+              label="Passed"
             />
 
             <MiniProgress
@@ -760,10 +808,8 @@ export default async function QuizDashboardPage() {
             />
 
             <MiniProgress
-              value={String(
-                coursesWithoutQuiz.length
-              )}
-              label="Coming Soon"
+              value={`${courseCoveragePercent}%`}
+              label="Course Coverage"
             />
           </div>
         </section>
@@ -808,6 +854,8 @@ export default async function QuizDashboardPage() {
                       "Professional assessment designed to evaluate your understanding of critical-care concepts."}
                   </p>
 
+                  {/* Feature Badges */}
+
                   <div className="mt-5 flex flex-wrap gap-2">
                     <FeatureBadge
                       icon={
@@ -838,6 +886,8 @@ export default async function QuizDashboardPage() {
                   </div>
                 </div>
 
+                {/* Featured Action */}
+
                 <div className="shrink-0">
                   {featuredQuiz.isAccessible ? (
                     <Link
@@ -847,9 +897,11 @@ export default async function QuizDashboardPage() {
                       <CirclePlay
                         size={18}
                       />
+
                       {featuredQuiz.attempt
                         ? "Retake Assessment"
                         : "Start Assessment"}
+
                       <ArrowRight
                         size={17}
                       />
@@ -862,7 +914,9 @@ export default async function QuizDashboardPage() {
                       <Crown
                         size={18}
                       />
+
                       Unlock Assessment
+
                       <ArrowRight
                         size={17}
                       />
@@ -1004,7 +1058,9 @@ export default async function QuizDashboardPage() {
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 px-7 py-3.5 text-sm font-black text-slate-950 shadow-xl shadow-amber-950/30 transition hover:from-amber-300 hover:to-orange-400"
             >
               <Sparkles size={18} />
+
               Explore Premium Programs
+
               <ArrowRight size={17} />
             </Link>
           </div>
@@ -1189,7 +1245,7 @@ function QuizCard({
 
   return (
     <article className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0c1224] shadow-xl transition duration-300 hover:-translate-y-1 hover:border-cyan-400/20 hover:shadow-cyan-950/20">
-      {/* Top accent */}
+      {/* Top Accent */}
 
       <div
         className={`h-1 w-full ${
@@ -1202,7 +1258,7 @@ function QuizCard({
       />
 
       <div className="p-5 sm:p-6">
-        {/* Card header */}
+        {/* Card Header */}
 
         <div className="flex items-start justify-between gap-4">
           <div className="flex min-w-0 items-start gap-3">
@@ -1284,7 +1340,7 @@ function QuizCard({
           />
         </div>
 
-        {/* Attempt result */}
+        {/* Attempt Result */}
 
         {attempt ? (
           <div className="mt-4 rounded-2xl border border-white/5 bg-[#080e1d] p-4">
@@ -1387,9 +1443,11 @@ function QuizCard({
                   <CirclePlay
                     size={14}
                   />
+
                   {attempt
                     ? "Retake Quiz"
                     : "Start Quiz"}
+
                   <ArrowRight
                     size={14}
                   />
@@ -1404,7 +1462,9 @@ function QuizCard({
               <LockKeyhole
                 size={14}
               />
+
               Unlock Premium Access
+
               <ArrowRight
                 size={14}
               />
@@ -1553,6 +1613,7 @@ function PremiumPoint({
         size={12}
         className="text-emerald-400"
       />
+
       {text}
     </span>
   );
