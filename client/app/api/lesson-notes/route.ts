@@ -345,36 +345,70 @@ export async function GET(request: NextRequest) {
     }
 
     // ==========================================================
-    // 12. PRIVATE VERCEL BLOB
+    // 12. RESOLVE THE PROTECTED RESOURCE
     // ==========================================================
 
-    const result = await get(notesUrl, {
-      access: "private",
-    });
+    // Demo notes may be stored in /public/pdfs. Premium notes must use
+    // a private Vercel Blob pathname. The authorization checks above are
+    // performed before either resource is returned.
+    let stream: ReadableStream<Uint8Array> | null = null;
+    let contentType = "application/pdf";
+    let filename = `lesson-${lesson.id}.pdf`;
+    let contentLength: number | undefined;
 
-    if (!result || result.statusCode !== 200 || !result.stream) {
-      console.error("PROTECTED NOTE NOT FOUND:", {
-        lessonId: lesson.id,
-        courseId: lesson.courseId,
-        notesUrl,
+    if (notesUrl.startsWith("/")) {
+      const localResourceUrl = new URL(notesUrl, request.url);
+      const resourceResponse = await fetch(localResourceUrl, {
+        cache: "no-store",
       });
 
-      return jsonError(
-        "Protected study note not found",
-        "PROTECTED_NOTE_NOT_FOUND",
-        404,
-      );
+      if (!resourceResponse.ok || !resourceResponse.body) {
+        console.error("LOCAL STUDY NOTE NOT FOUND:", {
+          lessonId: lesson.id,
+          courseId: lesson.courseId,
+          notesUrl,
+          status: resourceResponse.status,
+        });
+
+        return jsonError(
+          "Protected study note not found",
+          "PROTECTED_NOTE_NOT_FOUND",
+          404,
+        );
+      }
+
+      stream = resourceResponse.body;
+      contentType = resourceResponse.headers.get("content-type") || contentType;
+      contentLength = Number(resourceResponse.headers.get("content-length")) || undefined;
+      filename = notesUrl.split("/").pop() || filename;
+    } else {
+      const result = await get(notesUrl, {
+        access: "private",
+      });
+
+      if (!result || result.statusCode !== 200 || !result.stream) {
+        console.error("PROTECTED NOTE NOT FOUND:", {
+          lessonId: lesson.id,
+          courseId: lesson.courseId,
+          notesUrl,
+        });
+
+        return jsonError(
+          "Protected study note not found",
+          "PROTECTED_NOTE_NOT_FOUND",
+          404,
+        );
+      }
+
+      stream = result.stream;
+      contentType = result.blob.contentType || contentType;
+      contentLength = result.blob.size;
+      filename = result.blob.pathname.split("/").pop() || filename;
     }
 
     // ==========================================================
     // 13. RESPONSE METADATA
     // ==========================================================
-
-    const contentType = result.blob.contentType || "application/pdf";
-
-    const filename =
-      result.blob.pathname.split("/").pop() ||
-      `lesson-${lesson.id}.pdf`;
 
     const safeFilename = sanitizeFilename(filename);
 
@@ -391,8 +425,8 @@ export async function GET(request: NextRequest) {
       `attachment; filename="${safeFilename}"`,
     );
 
-    if (typeof result.blob.size === "number") {
-      headers.set("Content-Length", String(result.blob.size));
+    if (typeof contentLength === "number" && contentLength > 0) {
+      headers.set("Content-Length", String(contentLength));
     }
 
     headers.set("X-Content-Type-Options", "nosniff");
@@ -427,7 +461,7 @@ export async function GET(request: NextRequest) {
     // 15. PROTECTED FILE RESPONSE
     // ==========================================================
 
-    return new NextResponse(result.stream, {
+    return new NextResponse(stream, {
       status: 200,
       headers,
     });
