@@ -96,7 +96,21 @@ export default function QuizClient({
         typeof parsed === "object" &&
         !Array.isArray(parsed)
       ) {
-        setAnswers(parsed);
+        const validAnswers: Record<string, string> = {};
+        const validQuestionIds = new Set(questions.map((item) => item.id));
+        const validOptions = new Set(["A", "B", "C", "D"]);
+
+        for (const [questionId, answer] of Object.entries(parsed)) {
+          if (
+            validQuestionIds.has(questionId) &&
+            typeof answer === "string" &&
+            validOptions.has(answer)
+          ) {
+            validAnswers[questionId] = answer;
+          }
+        }
+
+        setAnswers(validAnswers);
       }
     } catch (error) {
       console.error(
