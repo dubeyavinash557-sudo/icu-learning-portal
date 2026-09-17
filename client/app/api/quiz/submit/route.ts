@@ -349,7 +349,9 @@ export async function POST(req: Request) {
         typeof successfulPayment.transactionId ===
           "string" &&
         successfulPayment.transactionId.trim()
-          .length > 0;
+          .length > 0 &&
+        successfulPayment.transactionId.trim() ===
+          successfulPayment.razorpayPaymentId?.trim();
 
       const amountMatches =
         expectedAmountInPaise ===
