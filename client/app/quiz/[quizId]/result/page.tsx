@@ -21,10 +21,14 @@ interface PageProps {
   params: Promise<{
     quizId: string;
   }>;
+  searchParams: Promise<{
+    attemptId?: string;
+  }>;
 }
 
 export default async function QuizResultPage({
   params,
+  searchParams,
 }: PageProps) {
   // --------------------------------------------------
   // 1. Authentication
@@ -55,17 +59,20 @@ export default async function QuizResultPage({
   // 3. Quiz ID
   // --------------------------------------------------
   const { quizId } = await params;
+  const { attemptId } = await searchParams;
+
+  if (!attemptId?.trim()) {
+    notFound();
+  }
 
   // --------------------------------------------------
   // 4. Get latest attempt
   // --------------------------------------------------
   const attempt = await prisma.quizAttempt.findFirst({
     where: {
+      id: attemptId,
       userId: user.id,
       quizId,
-    },
-    orderBy: {
-      createdAt: "desc",
     },
     include: {
       quiz: {
@@ -115,7 +122,14 @@ export default async function QuizResultPage({
   // --------------------------------------------------
   const totalAttempts = allAttempts.length;
 
-  const latestAttemptNumber = totalAttempts;
+  const currentAttemptIndex = allAttempts.findIndex(
+    (item) => item.id === attempt.id
+  );
+
+  const currentAttemptNumber =
+    currentAttemptIndex >= 0
+      ? totalAttempts - currentAttemptIndex
+      : totalAttempts;
 
   const bestPercentage =
     allAttempts.length > 0
@@ -238,7 +252,7 @@ export default async function QuizResultPage({
                 </span>
 
                 <span>
-                  Attempt #{latestAttemptNumber}
+                  Attempt #{currentAttemptNumber}
                 </span>
               </div>
             </div>
@@ -371,7 +385,7 @@ export default async function QuizResultPage({
               </div>
 
               <p className="mt-3 text-xs text-slate-400">
-                Attempt #{latestAttemptNumber}
+                Attempt #{currentAttemptNumber}
               </p>
             </div>
 
