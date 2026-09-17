@@ -53,6 +53,7 @@ export default async function CourseLearningPage({
       id: true,
       fullName: true,
       email: true,
+      role: true,
     },
   });
 
@@ -87,6 +88,20 @@ export default async function CourseLearningPage({
           completed: true,
         },
       },
+      payments: {
+        where: {
+          userId: user.id,
+          status: "SUCCESS",
+        },
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          courseId: true,
+          razorpayPaymentId: true,
+          razorpayOrderId: true,
+        },
+      },
     },
   });
 
@@ -104,6 +119,23 @@ export default async function CourseLearningPage({
 
   if (!enrollment) {
     redirect(`/courses/${course.id}`);
+  }
+
+  const isAdmin = user.role === "ADMIN";
+  const isFreeDemo =
+    course.price === 0 && course.isPremium === false;
+
+  if (!isFreeDemo && !isAdmin) {
+    const successfulPayment = course.payments.find(
+      (payment) =>
+        payment.courseId === course.id &&
+        payment.status === "SUCCESS" &&
+        payment.amount >= course.price
+    );
+
+    if (!successfulPayment) {
+      redirect(`/courses/${course.id}?payment=required`);
+    }
   }
 
   /*
