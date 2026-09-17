@@ -225,8 +225,11 @@ export default async function QuizPage({ params }: Props) {
       // ------------------------------------------------------
 
       if (
-        !successfulPayment.razorpayPaymentId &&
-        !successfulPayment.transactionId
+        !successfulPayment.razorpayOrderId ||
+        !successfulPayment.razorpayPaymentId ||
+        !successfulPayment.transactionId ||
+        successfulPayment.transactionId !==
+          successfulPayment.razorpayPaymentId
       ) {
         console.error(
           "QUIZ ACCESS DENIED - PAYMENT VERIFICATION INCOMPLETE:",
