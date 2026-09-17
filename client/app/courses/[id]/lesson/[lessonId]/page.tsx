@@ -118,13 +118,10 @@ export default async function LessonPage({ params }: Props) {
 // 6. ENROLLMENT
 //
 // Free Demo Course:
-//   Enrollment is NOT required.
-//
-// Paid/Premium Course:
 //   Enrollment is required.
 //
-// This allows registered students to directly open
-// all free demo lessons without payment.
+// Paid/Premium Course:
+//   Enrollment + successful payment are required.
 // ==========================================================
 
 const enrollment =
@@ -145,7 +142,7 @@ const enrollment =
     },
   });
 
-if (!isFreeCourse && !enrollment) {
+if (!enrollment) {
   console.warn(
     "LESSON ACCESS DENIED - NO ENROLLMENT:",
     {
