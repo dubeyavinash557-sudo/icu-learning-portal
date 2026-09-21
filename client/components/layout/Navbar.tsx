@@ -2,6 +2,8 @@ import Link from "next/link";
 import {
   Activity,
   ArrowRight,
+  CircleHelp,
+  MessageCircle,
   Award,
   BookOpenCheck,
   ChevronDown,
@@ -14,6 +16,15 @@ import {
 } from "lucide-react";
 
 import { auth, signOut } from "@/auth";
+
+const whatsappNumber = "918177084179";
+
+const whatsappMessage = encodeURIComponent(
+  "Hello ICU Learning Portal Support,\n\nI need help with:\n\nIssue:\n\nCourse/Page:\n\nRegistered Email:\n\nThank you."
+);
+
+const whatsappUrl =
+  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
 const publicNavigation = [
   {
@@ -74,6 +85,7 @@ export default async function Navbar() {
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-[72px] items-center justify-between gap-4">
+
           {/* =====================================================
               BRAND
           ====================================================== */}
@@ -146,6 +158,41 @@ export default async function Navbar() {
           ====================================================== */}
 
           <div className="hidden items-center gap-2 lg:flex">
+
+            {/* =================================================
+                SUPPORT ACTIONS
+            ================================================== */}
+
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs font-black text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
+              aria-label="Chat with ICU Learning Portal support on WhatsApp"
+            >
+              <MessageCircle size={15} />
+              WhatsApp
+            </a>
+
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-black text-slate-600 transition hover:bg-slate-50 hover:text-blue-700"
+            >
+              Contact
+            </Link>
+
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-xs font-black text-slate-600 transition hover:bg-slate-50 hover:text-blue-700"
+            >
+              <CircleHelp size={15} />
+              Help
+            </Link>
+
+            {/* =================================================
+                LOGGED OUT
+            ================================================== */}
+
             {!isLoggedIn ? (
               <>
                 <Link
@@ -192,6 +239,7 @@ export default async function Navbar() {
 
                 <details className="relative">
                   <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 transition hover:border-blue-200 hover:bg-white [&::-webkit-details-marker]:hidden">
+
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-xs font-black text-white">
                       {initials || "S"}
                     </div>
@@ -217,10 +265,12 @@ export default async function Navbar() {
                   </summary>
 
                   <div className="absolute right-0 top-14 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/10">
+
                     {/* Account header */}
 
                     <div className="mb-2 rounded-xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900 p-4 text-white">
                       <div className="flex items-center gap-3">
+
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-sm font-black ring-1 ring-white/10">
                           {initials || "S"}
                         </div>
@@ -234,9 +284,11 @@ export default async function Navbar() {
                             {user?.email}
                           </p>
                         </div>
+
                       </div>
 
                       <div className="mt-3 flex items-center gap-2">
+
                         <span
                           className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
                             isPremium
@@ -254,12 +306,14 @@ export default async function Navbar() {
                             Admin
                           </span>
                         )}
+
                       </div>
                     </div>
 
                     {/* Account links */}
 
                     <div className="space-y-1">
+
                       <AccountMenuLink
                         href="/dashboard"
                         icon={<LayoutDashboard size={16} />}
@@ -296,6 +350,7 @@ export default async function Navbar() {
                           description="Manage the LMS"
                         />
                       )}
+
                     </div>
 
                     {/* =================================================
@@ -329,10 +384,12 @@ export default async function Navbar() {
                         </button>
                       </form>
                     </div>
+
                   </div>
                 </details>
               </>
             )}
+
           </div>
 
           {/* =====================================================
@@ -340,6 +397,7 @@ export default async function Navbar() {
           ====================================================== */}
 
           <details className="relative lg:hidden">
+
             <summary
               className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 [&::-webkit-details-marker]:hidden"
               aria-label="Open navigation menu"
@@ -348,10 +406,13 @@ export default async function Navbar() {
             </summary>
 
             <div className="absolute right-0 top-14 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/10">
+
               {/* Mobile brand strip */}
 
               <div className="mb-3 rounded-xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900 p-4 text-white">
+
                 <div className="flex items-center gap-3">
+
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20">
                     <Activity size={19} />
                   </div>
@@ -365,6 +426,7 @@ export default async function Navbar() {
                       Professional LMS
                     </p>
                   </div>
+
                 </div>
 
                 {isLoggedIn && (
@@ -380,6 +442,7 @@ export default async function Navbar() {
                     </p>
                   </div>
                 )}
+
               </div>
 
               {/* Primary links */}
@@ -394,10 +457,53 @@ export default async function Navbar() {
                 ))}
               </div>
 
+              {/* =================================================
+                  SUPPORT
+              ================================================== */}
+
+              <div className="mt-3 border-t border-slate-100 pt-3">
+
+                <p className="px-3 pb-2 text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
+                  Support
+                </p>
+
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                    <MessageCircle size={16} />
+                  </span>
+
+                  WhatsApp Support
+
+                  <ArrowRight
+                    size={14}
+                    className="ml-auto text-emerald-300"
+                  />
+                </a>
+
+                <MobileAccountLink
+                  href="/contact"
+                  icon={<CircleHelp size={16} />}
+                  label="Help & Support"
+                />
+
+                <MobileAccountLink
+                  href="/contact"
+                  icon={<MessageCircle size={16} />}
+                  label="Contact Us"
+                />
+
+              </div>
+
               {/* Logged-in links */}
 
               {isLoggedIn && (
                 <div className="mt-3 border-t border-slate-100 pt-3">
+
                   <p className="px-3 pb-2 text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
                     My Learning
                   </p>
@@ -433,14 +539,17 @@ export default async function Navbar() {
                       label="Admin Console"
                     />
                   )}
+
                 </div>
               )}
 
               {/* CTA */}
 
               <div className="mt-3 border-t border-slate-100 pt-3">
+
                 {isLoggedIn ? (
                   <div className="space-y-2">
+
                     <Link
                       href="/courses"
                       className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-cyan-600 px-4 py-3 text-sm font-black text-white shadow-md shadow-blue-700/20 transition hover:from-blue-800 hover:to-cyan-700"
@@ -462,9 +571,11 @@ export default async function Navbar() {
                         Logout
                       </button>
                     </form>
+
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
+
                     <Link
                       href="/login"
                       className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
@@ -479,11 +590,15 @@ export default async function Navbar() {
                       Register
                       <ArrowRight size={15} />
                     </Link>
+
                   </div>
                 )}
+
               </div>
+
             </div>
           </details>
+
         </div>
       </div>
     </header>
