@@ -84,6 +84,20 @@ type RazorpayResponse = {
   razorpay_signature: string;
 };
 
+type RazorpayPaymentFailedResponse = {
+  error?: {
+    code?: string;
+    description?: string;
+    reason?: string;
+    source?: string;
+    step?: string;
+    metadata?: {
+      order_id?: string;
+      payment_id?: string;
+    };
+  };
+};
+
 type RazorpayOptions = {
   key: string;
   amount: number;
@@ -119,6 +133,12 @@ declare global {
       options: RazorpayOptions
     ) => {
       open: () => void;
+      on: (
+        eventName: "payment.failed",
+        handler: (
+          response: RazorpayPaymentFailedResponse
+        ) => void
+      ) => void;
     };
   }
 }
@@ -178,7 +198,8 @@ export default function BuyNowButton({
             response.razorpay_signature,
         }),
       }
-    );
+
+          );
 
     const verifyData =
       await readJson<VerifyResponse>(
@@ -278,7 +299,8 @@ export default function BuyNowButton({
         orderData.order?.id;
 
       const orderAmount =
-        orderData.order?.amount;
+
+              orderData.order?.amount;
 
       const orderCurrency =
         orderData.order?.currency;
@@ -372,6 +394,28 @@ export default function BuyNowButton({
       const razorpay =
         new RazorpayCheckout(options);
 
+      razorpay.on(
+        "payment.failed",
+        (response: RazorpayPaymentFailedResponse) => {
+          console.error(
+            "RAZORPAY PAYMENT FAILED:",
+            response.error
+
+                      );
+
+          const failureReason =
+            response.error?.description ||
+            response.error?.reason ||
+            "The payment could not be completed.";
+
+          setError(
+            `Payment failed: ${failureReason} If money was deducted from your account, please do not pay again immediately. Contact ICU Learning Portal support on WhatsApp with your payment details.`
+          );
+
+          setLoading(false);
+        }
+      );
+
       razorpay.open();
     } catch (paymentError) {
       console.error(
@@ -458,7 +502,8 @@ export default function BuyNowButton({
             hover:from-cyan-700
             hover:via-blue-700
             hover:to-indigo-700
-            hover:shadow-2xl
+
+                        hover:shadow-2xl
             focus:outline-none
             focus:ring-2
             focus:ring-blue-500
@@ -532,6 +577,18 @@ export default function BuyNowButton({
             <p className="mt-1 text-xs leading-5 text-red-700">
               {error}
             </p>
+
+            <a
+              href={`https://wa.me/918177084179?text=${encodeURIComponent(
+                "Hello ICU Learning Portal Support, I had a payment issue. Please help me check my payment status. Course: " +
+                  courseTitle
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700"
+            >
+              Contact Support on WhatsApp
+            </a>
           </div>
         )}
       </div>
