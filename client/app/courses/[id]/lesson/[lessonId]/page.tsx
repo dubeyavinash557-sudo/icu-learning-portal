@@ -688,17 +688,121 @@ if (!enrollment) {
                 <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-2xl ring-1 ring-slate-200">
 
                   {lesson.videoUrl ? (
-                    <video
-                      controls
-                      preload="metadata"
-                      playsInline
-                      className="h-full w-full bg-black object-contain"
-                      src={lesson.videoUrl}
-                    >
-                      Your browser does not support HTML
-                      video.
-                    </video>
-                  ) : (
+  (() => {
+    const rawUrl = lesson.videoUrl.trim();
+
+    let parsedUrl: URL | null = null;
+
+    try {
+      parsedUrl = new URL(rawUrl);
+    } catch {
+      parsedUrl = null;
+    }
+
+    const hostname =
+      parsedUrl?.hostname.toLowerCase() ?? "";
+
+    const pathname =
+      parsedUrl?.pathname.toLowerCase() ?? "";
+
+    const isYouTubeHost =
+      hostname === "youtube.com" ||
+      hostname === "www.youtube.com" ||
+      hostname === "m.youtube.com" ||
+      hostname === "youtu.be" ||
+      hostname === "www.youtu.be";
+
+    let youtubeVideoId: string | null = null;
+
+    if (isYouTubeHost && parsedUrl) {
+      if (
+        hostname === "youtu.be" ||
+        hostname === "www.youtu.be"
+      ) {
+        youtubeVideoId =
+          parsedUrl.pathname
+            .replace(/^\/+/, "")
+            .split("/")[0] || null;
+      } else if (
+        pathname === "/watch"
+      ) {
+        youtubeVideoId =
+          parsedUrl.searchParams.get("v");
+      } else if (
+        pathname.startsWith("/embed/")
+      ) {
+        youtubeVideoId =
+          pathname
+            .replace(/^\/embed\//, "")
+            .split("/")[0] || null;
+      } else if (
+        pathname.startsWith("/shorts/")
+      ) {
+        youtubeVideoId =
+          pathname
+            .replace(/^\/shorts\//, "")
+            .split("/")[0] || null;
+      }
+    }
+
+    const isDirectVideo =
+      /\.(mp4|webm|ogg)(\?.*)?$/i.test(
+        rawUrl
+      );
+
+    if (youtubeVideoId) {
+      const embedUrl =
+        `https://www.youtube.com/embed/${encodeURIComponent(
+          youtubeVideoId
+        )}?rel=0&modestbranding=1`;
+
+      return (
+        <iframe
+          src={embedUrl}
+          title={lesson.title}
+          className="h-full w-full border-0 bg-black"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      );
+    }
+
+    if (isDirectVideo) {
+      return (
+        <video
+          controls
+          preload="metadata"
+          playsInline
+          className="h-full w-full bg-black object-contain"
+          src={rawUrl}
+        >
+          Your browser does not support HTML video.
+        </video>
+      );
+    }
+
+    return (
+      <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-6 text-center text-white">
+        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-500/10 text-amber-300 ring-1 ring-amber-400/20">
+          <PlayCircle size={42} />
+        </div>
+
+        <h2 className="mt-6 text-2xl font-black">
+          Video Format Not Supported
+        </h2>
+
+        <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
+          This lesson contains a video URL, but the
+          current video format is not supported.
+          Please contact student support if the problem
+          continues.
+        </p>
+      </div>
+    );
+  })()
+) : (
+  
                     <div className="flex h-full flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 px-6 text-center text-white">
 
                       <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
