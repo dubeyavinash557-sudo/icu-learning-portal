@@ -19,12 +19,24 @@ import {
   Crown,
   Target,
   TrendingUp,
+  CircleHelp,
+  MessageCircle,
+  LogOut,
 } from "lucide-react";
 
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+
+const whatsappNumber = "918177084179";
+
+const whatsappMessage = encodeURIComponent(
+  "Hello ICU Learning Portal Support,\\n\\nI need help with:\\n\\nIssue:\\n\\nCourse/Page:\\n\\nRegistered Email:\\n\\nThank you."
+);
+
+const whatsappUrl =
+  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
 /*
  * ============================================================
@@ -429,6 +441,14 @@ export default async function DashboardPage() {
       ? "Review Course"
       : "Explore Courses";
 
+  async function handleLogout() {
+    "use server";
+
+    await signOut({
+      redirectTo: "/",
+    });
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-[1540px] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
@@ -483,7 +503,7 @@ export default async function DashboardPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2.5">
 
               <Link
                 href="/courses"
@@ -500,6 +520,34 @@ export default async function DashboardPage() {
                 <UserRound size={17} />
                 My Profile
               </Link>
+
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700 transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-100"
+              >
+                <MessageCircle size={17} />
+                WhatsApp
+              </a>
+
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-black text-blue-700 transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-100"
+              >
+                <CircleHelp size={17} />
+                Help
+              </Link>
+
+              <form action={handleLogout}>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100"
+                >
+                  <LogOut size={17} />
+                  Logout
+                </button>
+              </form>
 
             </div>
           </div>
@@ -1178,6 +1226,120 @@ export default async function DashboardPage() {
                   title="My Certificates"
                   description="View earned certificates"
                 />
+
+              </div>
+
+            </section>
+
+            {/* -------------------------------------------------
+                SUPPORT & ACCOUNT
+            -------------------------------------------------- */}
+
+            <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+
+              <div className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-white to-blue-50 p-6">
+
+                <div className="flex items-start gap-3">
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-700 shadow-sm">
+                    <CircleHelp size={21} />
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
+                      Student Support
+                    </p>
+
+                    <h2 className="mt-2 text-xl font-black text-slate-950">
+                      Need help?
+                    </h2>
+
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      Contact the ICU Learning Portal support team whenever you need assistance.
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="space-y-3 p-6">
+
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3.5 transition hover:border-emerald-200 hover:bg-emerald-50"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
+                    <MessageCircle size={19} />
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-black text-slate-900">
+                      WhatsApp Support
+                    </span>
+
+                    <span className="mt-0.5 block text-xs text-slate-500">
+                      Chat with student support
+                    </span>
+                  </span>
+
+                  <ArrowRight
+                    size={16}
+                    className="text-emerald-300 transition group-hover:translate-x-0.5 group-hover:text-emerald-600"
+                  />
+                </a>
+
+                <Link
+                  href="/contact"
+                  className="group flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3.5 transition hover:border-blue-200 hover:bg-blue-50"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+                    <CircleHelp size={19} />
+                  </span>
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-black text-slate-900">
+                      Help & Contact
+                    </span>
+
+                    <span className="mt-0.5 block text-xs text-slate-500">
+                      Get help or send a support request
+                    </span>
+                  </span>
+
+                  <ArrowRight
+                    size={16}
+                    className="text-blue-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600"
+                  />
+                </Link>
+
+                <form action={handleLogout}>
+                  <button
+                    type="submit"
+                    className="group flex w-full items-center gap-3 rounded-2xl border border-red-100 bg-red-50/70 p-3.5 text-left transition hover:border-red-200 hover:bg-red-50"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-red-500 shadow-sm">
+                      <LogOut size={19} />
+                    </span>
+
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-black text-slate-900">
+                        Logout
+                      </span>
+
+                      <span className="mt-0.5 block text-xs text-slate-500">
+                        Sign out of your student account
+                      </span>
+                    </span>
+
+                    <ArrowRight
+                      size={16}
+                      className="text-red-300 transition group-hover:translate-x-0.5 group-hover:text-red-600"
+                    />
+                  </button>
+                </form>
 
               </div>
 
