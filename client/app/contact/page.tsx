@@ -38,12 +38,23 @@ const supportTopics = [
   },
 ];
 
+const whatsappNumber = "918177084179";
+
+const whatsappMessage = encodeURIComponent(
+  "Hello ICU Learning Portal Support,\n\nI need help with the following issue:\n\nIssue:\n\nCourse/Page:\n\nRegistered Email:\n\nThank you."
+);
+
+const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
 export default function ContactPage() {
   return (
     <>
       <Navbar />
 
       <main className="min-h-screen bg-slate-50 text-slate-900">
+        {/* =====================================================
+            HERO
+        ====================================================== */}
         <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-950">
           <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
           <div className="absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
@@ -60,13 +71,16 @@ export default function ContactPage() {
 
               <p className="mt-5 max-w-2xl text-base leading-8 text-blue-100 sm:text-lg">
                 Have a question about courses, account access, premium
-                learning or technical support? Choose a support topic or
-                contact our learning team.
+                learning or technical support? Contact our support team
+                directly and tell us what problem you are facing.
               </p>
             </div>
           </div>
         </section>
 
+        {/* =====================================================
+            SUPPORT TOPICS
+        ====================================================== */}
         <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8 lg:px-8 lg:py-20">
           <div className="grid gap-6 md:grid-cols-3">
             {supportTopics.map((topic) => {
@@ -93,7 +107,65 @@ export default function ContactPage() {
             })}
           </div>
 
+          {/* ===================================================
+              WHATSAPP + EMAIL SUPPORT
+          ==================================================== */}
           <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            {/* WhatsApp Support */}
+            <div className="rounded-3xl border border-emerald-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white">
+                  <MessageCircle size={21} />
+                </div>
+
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-600">
+                    WhatsApp Support
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-black text-slate-950">
+                    Need help? Message us on WhatsApp
+                  </h2>
+                </div>
+              </div>
+
+              <p className="mt-5 text-sm leading-7 text-slate-600">
+                If you are facing a course, login, account, technical or
+                payment-related issue, send us a WhatsApp message. Please
+                explain the problem clearly so we can understand and resolve
+                it.
+              </p>
+
+              <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+                <p className="text-sm font-bold text-emerald-900">
+                  What should you send?
+                </p>
+
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-emerald-800">
+                  <li>• Your registered email address</li>
+                  <li>• Course or page where the issue appears</li>
+                  <li>• Exact problem or error message</li>
+                  <li>• Screenshot, if available</li>
+                </ul>
+              </div>
+
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 sm:w-auto"
+              >
+                <MessageCircle size={18} />
+                Chat on WhatsApp
+                <ArrowRight size={17} />
+              </a>
+
+              <p className="mt-3 text-xs text-slate-400">
+                WhatsApp Support: +91 8177084179
+              </p>
+            </div>
+
+            {/* Email Support */}
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
@@ -112,8 +184,8 @@ export default function ContactPage() {
               </div>
 
               <p className="mt-5 text-sm leading-7 text-slate-600">
-                For course, account or technical questions, please send a
-                detailed message with your registered email address and the
+                For course, account or technical questions, you can also send
+                a detailed email with your registered email address and the
                 issue you are facing.
               </p>
 
@@ -125,25 +197,31 @@ export default function ContactPage() {
                 <ArrowRight size={17} />
               </a>
             </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm sm:p-8">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-cyan-300">
-                <Clock3 size={21} />
-              </div>
-
-              <h2 className="mt-5 text-xl font-black">
-                Before contacting support
-              </h2>
-
-              <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-300">
-                <li>• Mention the page or course where the issue appears.</li>
-                <li>• Include the exact error message, if available.</li>
-                <li>• Do not share your password or payment credentials.</li>
-                <li>• Add a screenshot when reporting a technical issue.</li>
-              </ul>
-            </div>
           </div>
 
+          {/* ===================================================
+              SUPPORT INSTRUCTIONS
+          ==================================================== */}
+          <div className="mt-10 rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm sm:p-8">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-cyan-300">
+              <Clock3 size={21} />
+            </div>
+
+            <h2 className="mt-5 text-xl font-black">
+              Before contacting support
+            </h2>
+
+            <ul className="mt-5 grid gap-3 text-sm leading-6 text-slate-300 md:grid-cols-2">
+              <li>• Mention the page or course where the issue appears.</li>
+              <li>• Include the exact error message, if available.</li>
+              <li>• Do not share your password or payment credentials.</li>
+              <li>• Add a screenshot when reporting a technical issue.</li>
+            </ul>
+          </div>
+
+          {/* ===================================================
+              COURSE CTA
+          ==================================================== */}
           <div className="mt-10 rounded-3xl border border-blue-100 bg-blue-50 p-6 text-center sm:p-8">
             <h2 className="text-xl font-black text-slate-950">
               Ready to continue learning?
