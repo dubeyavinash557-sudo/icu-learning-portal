@@ -190,7 +190,7 @@ export default function ContactPage() {
               </p>
 
               <a
-                href="mailto:dubeyavinash557@gmail.com"
+                href="mailto:support@iculearningportal.com"
                 className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800"
               >
                 Email Support
