@@ -12,7 +12,6 @@ import {
   GraduationCap,
   PlayCircle,
   Star,
-  Users,
 } from "lucide-react";
 
 export type Course = {
@@ -34,31 +33,41 @@ type CourseCardProps = {
   course: Course;
 };
 
-export default function CourseCard({ course }: CourseCardProps) {
+export default function CourseCard({
+  course,
+}: CourseCardProps) {
   const courseHref = `/courses/${course.id}`;
 
-  const safeTitle = course.title?.trim() || "ICU Learning Course";
-  const safeInstructor = course.instructor?.trim() || "ICU Learning Portal";
-  const safeLanguage = course.language?.trim() || "Hindi";
-  const safeLevel = course.level?.trim() || "Beginner";
+  const safeTitle =
+    course.title?.trim() || "ICU Learning Course";
+
+  const safeInstructor =
+    course.instructor?.trim() ||
+    "ICU Learning Portal";
+
+  const safeLanguage =
+    course.language?.trim() || "Hindi";
+
+  const safeLevel =
+    course.level?.trim() || "Beginner";
 
   const safeRating =
-    Number.isFinite(course.rating) && course.rating > 0
+    Number.isFinite(course.rating) &&
+    course.rating > 0
       ? Math.min(course.rating, 5).toFixed(1)
-      : "5.0";
-
-  const safeStudents =
-    Number.isFinite(course.students) && course.students > 0
-      ? Math.floor(course.students).toLocaleString("en-IN")
-      : "0";
+      : null;
 
   const safePrice =
-    Number.isFinite(course.price) && course.price > 0
-      ? Math.max(0, course.price).toLocaleString("en-IN")
+    Number.isFinite(course.price) &&
+    course.price > 0
+      ? Math.max(0, course.price).toLocaleString(
+          "en-IN"
+        )
       : "0";
 
   const imageSource =
-    typeof course.image === "string" && course.image.trim().length > 0
+    typeof course.image === "string" &&
+    course.image.trim().length > 0
       ? course.image
       : "/images/icu-lms-hero.png";
 
@@ -81,14 +90,9 @@ export default function CourseCard({ course }: CourseCardProps) {
         hover:-translate-y-1.5
         hover:border-blue-200
         hover:shadow-2xl
-        focus-within:border-blue-300
-        focus-within:ring-2
-        focus-within:ring-blue-500/20
       "
     >
-      {/* ==================================================
-          COURSE IMAGE
-      ================================================== */}
+      {/* IMAGE */}
 
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
         <Image
@@ -97,13 +101,7 @@ export default function CourseCard({ course }: CourseCardProps) {
           fill
           quality={85}
           loading="lazy"
-          className="
-            object-cover
-            transition-transform
-            duration-700
-            ease-out
-            group-hover/card:scale-105
-          "
+          className="object-cover transition-transform duration-700 group-hover/card:scale-105"
           sizes="
             (max-width: 640px) 100vw,
             (max-width: 1024px) 50vw,
@@ -112,383 +110,167 @@ export default function CourseCard({ course }: CourseCardProps) {
           "
         />
 
-        {/* Image overlay */}
-
         <div
           aria-hidden="true"
-          className="
-            absolute
-            inset-0
-            bg-gradient-to-t
-            from-slate-950/85
-            via-slate-950/20
-            to-transparent
-          "
+          className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent"
         />
 
-        {/* Top badges */}
+        {/* TOP BADGES */}
 
         <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-3">
           {course.isPremium ? (
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-1.5
-                rounded-full
-                border
-                border-yellow-300/30
-                bg-slate-950/85
-                px-3
-                py-1.5
-                text-[10px]
-                font-black
-                uppercase
-                tracking-[0.08em]
-                text-yellow-300
-                shadow-lg
-                backdrop-blur-md
-              "
-            >
-              <Crown size={13} aria-hidden="true" />
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-yellow-300/30 bg-slate-950/85 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.08em] text-yellow-300 shadow-lg backdrop-blur-md">
+              <Crown size={13} />
               Premium
             </div>
           ) : (
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-1.5
-                rounded-full
-                border
-                border-emerald-200/30
-                bg-emerald-950/80
-                px-3
-                py-1.5
-                text-[10px]
-                font-black
-                uppercase
-                tracking-[0.08em]
-                text-emerald-200
-                shadow-lg
-                backdrop-blur-md
-              "
-            >
-              <CheckCircle2 size={13} aria-hidden="true" />
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/30 bg-emerald-950/80 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.08em] text-emerald-200 shadow-lg backdrop-blur-md">
+              <CheckCircle2 size={13} />
               Free Access
             </div>
           )}
 
-          <span
-            className="
-              rounded-full
-              border
-              border-white/30
-              bg-white/90
-              px-3
-              py-1.5
-              text-[10px]
-              font-black
-              uppercase
-              tracking-[0.08em]
-              text-slate-800
-              shadow-lg
-              backdrop-blur-md
-            "
-          >
+          <span className="rounded-full border border-white/30 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-800 shadow-lg backdrop-blur-md">
             {safeLevel}
           </span>
         </div>
 
-        {/* Bottom image information */}
+        {/* IMAGE FOOTER */}
 
         <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-          <div
-            className="
-              inline-flex
-              items-center
-              gap-1.5
-              rounded-xl
-              border
-              border-white/20
-              bg-slate-950/75
-              px-3
-              py-2
-              text-white
-              shadow-lg
-              backdrop-blur-md
-            "
-            aria-label={`Course rating ${safeRating} out of 5`}
-          >
-            <Star
-              size={14}
-              fill="currentColor"
-              className="text-yellow-400"
-              aria-hidden="true"
-            />
+          {safeRating ? (
+            <div className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-slate-950/75 px-3 py-2 text-white shadow-lg backdrop-blur-md">
+              <Star
+                size={14}
+                fill="currentColor"
+                className="text-yellow-400"
+              />
 
-            <span className="text-sm font-black">{safeRating}</span>
-          </div>
+              <span className="text-sm font-black">
+                {safeRating}
+              </span>
+            </div>
+          ) : (
+            <div className="rounded-xl bg-slate-950/70 px-3 py-2 text-[10px] font-black text-white">
+              Course
+            </div>
+          )}
 
-          <div
-            className="
-              inline-flex
-              items-center
-              gap-1.5
-              rounded-xl
-              bg-blue-600/90
-              px-3
-              py-2
-              text-xs
-              font-black
-              text-white
-              shadow-lg
-              backdrop-blur-md
-            "
-          >
-            <BookOpen size={14} aria-hidden="true" />
+          <div className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600/90 px-3 py-2 text-xs font-black text-white shadow-lg backdrop-blur-md">
+            <BookOpen size={14} />
             Course
           </div>
         </div>
       </div>
 
-      {/* ==================================================
-          COURSE CONTENT
-      ================================================== */}
+      {/* CONTENT */}
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
-        {/* Instructor */}
+        {/* INSTRUCTOR */}
 
         <div className="flex min-w-0 items-center gap-2">
-          <div
-            className="
-              flex
-              h-8
-              w-8
-              shrink-0
-              items-center
-              justify-center
-              rounded-xl
-              bg-cyan-50
-              text-cyan-700
-            "
-          >
-            <GraduationCap size={15} aria-hidden="true" />
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700">
+            <GraduationCap size={15} />
           </div>
 
           <p
-            className="
-              truncate
-              text-[11px]
-              font-black
-              uppercase
-              tracking-[0.1em]
-              text-cyan-700
-            "
+            className="truncate text-[11px] font-black uppercase tracking-[0.1em] text-cyan-700"
             title={safeInstructor}
           >
             {safeInstructor}
           </p>
         </div>
 
-        {/* Course title */}
+        {/* TITLE */}
 
-        <h3
-          className="
-            mt-4
-            line-clamp-2
-            min-h-[3.5rem]
-            text-xl
-            font-black
-            leading-7
-            tracking-tight
-            text-slate-950
-          "
-        >
+        <h3 className="mt-4 min-h-[3.5rem] line-clamp-2 text-xl font-black leading-7 tracking-tight text-slate-950">
           {safeTitle}
         </h3>
 
-        {/* Course metadata */}
+        {/* META */}
 
         <div className="mt-5 grid grid-cols-2 gap-2.5">
           <CourseMeta
-            icon={<Users size={15} aria-hidden="true" />}
-            label="Students"
-            value={`${safeStudents}+`}
-          />
-
-          <CourseMeta
-            icon={<Clock3 size={15} aria-hidden="true" />}
+            icon={<Clock3 size={15} />}
             label="Duration"
             value={formatDuration(course.duration)}
           />
 
           <CourseMeta
-            icon={<Globe2 size={15} aria-hidden="true" />}
+            icon={<Globe2 size={15} />}
             label="Language"
             value={safeLanguage}
           />
 
           <CourseMeta
-            icon={<Award size={15} aria-hidden="true" />}
+            icon={<BookOpen size={15} />}
+            label="Level"
+            value={safeLevel}
+          />
+
+          <CourseMeta
+            icon={<Award size={15} />}
             label="Outcome"
             value="Certificate"
           />
         </div>
 
-        {/* Divider */}
-
         <div className="my-5 h-px bg-slate-100" />
 
-        {/* Price and access status */}
+        {/* PRICE */}
 
         <div className="flex items-end justify-between gap-3">
           <div>
-            <p
-              className="
-                text-[11px]
-                font-bold
-                uppercase
-                tracking-[0.08em]
-                text-slate-400
-              "
-            >
+            <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-400">
               Course Access
             </p>
 
-            <div className="mt-1 flex items-baseline gap-1">
-              {course.price > 0 ? (
-                <>
-                  <span className="text-2xl font-black text-slate-950">
-                    ₹{safePrice}
-                  </span>
-                </>
-              ) : (
-                <span className="text-2xl font-black text-emerald-600">
-                  Free
-                </span>
-              )}
-            </div>
+            {course.price > 0 ? (
+              <span className="mt-1 block text-2xl font-black text-slate-950">
+                ₹{safePrice}
+              </span>
+            ) : (
+              <span className="mt-1 block text-2xl font-black text-emerald-600">
+                Free
+              </span>
+            )}
           </div>
 
           {course.isPremium ? (
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-1.5
-                rounded-lg
-                bg-yellow-50
-                px-2.5
-                py-1.5
-                text-[10px]
-                font-black
-                uppercase
-                tracking-wide
-                text-yellow-700
-              "
-            >
-              <Crown size={12} aria-hidden="true" />
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-50 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wide text-yellow-700">
+              <Crown size={12} />
               Premium
             </div>
           ) : (
-            <div
-              className="
-                inline-flex
-                items-center
-                gap-1.5
-                rounded-lg
-                bg-emerald-50
-                px-2.5
-                py-1.5
-                text-[10px]
-                font-black
-                uppercase
-                tracking-wide
-                text-emerald-700
-              "
-            >
-              <CheckCircle2 size={12} aria-hidden="true" />
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wide text-emerald-700">
+              <CheckCircle2 size={12} />
               Free
             </div>
           )}
         </div>
 
-        {/* Actions */}
+        {/* ACTIONS */}
 
         <div className="mt-5 space-y-2.5">
           <Link
             href={courseHref}
             aria-label={`View ${safeTitle} course`}
-            className="
-              group/button
-              flex
-              w-full
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-blue-700
-              px-5
-              py-3.5
-              text-sm
-              font-black
-              text-white
-              shadow-lg
-              shadow-blue-700/15
-              transition-all
-              duration-300
-              hover:bg-blue-800
-              hover:shadow-xl
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              focus:ring-offset-2
-            "
+            className="group/button flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/15 transition hover:bg-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             View Course
 
             <ArrowRight
               size={17}
-              aria-hidden="true"
-              className="
-                transition-transform
-                duration-300
-                group-hover/button:translate-x-1
-              "
+              className="transition-transform group-hover/button:translate-x-1"
             />
           </Link>
 
           <Link
             href={courseHref}
             aria-label={`Start learning ${safeTitle}`}
-            className="
-              flex
-              w-full
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              border
-              border-slate-200
-              bg-slate-50
-              px-5
-              py-3
-              text-sm
-              font-bold
-              text-slate-700
-              transition-all
-              duration-300
-              hover:border-blue-300
-              hover:bg-blue-50
-              hover:text-blue-700
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              focus:ring-offset-2
-            "
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            <PlayCircle size={16} aria-hidden="true" />
+            <PlayCircle size={16} />
             Start Learning
           </Link>
         </div>
@@ -499,7 +281,7 @@ export default function CourseCard({ course }: CourseCardProps) {
 
 /* ============================================================
    COURSE META
-   ============================================================ */
+============================================================ */
 
 function CourseMeta({
   icon,
@@ -511,17 +293,7 @@ function CourseMeta({
   value: string;
 }) {
   return (
-    <div
-      className="
-        min-w-0
-        rounded-xl
-        border
-        border-slate-100
-        bg-slate-50
-        px-3
-        py-2.5
-      "
-    >
+    <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5">
       <div className="flex min-w-0 items-center gap-1.5 text-slate-400">
         {icon}
 
@@ -531,13 +303,7 @@ function CourseMeta({
       </div>
 
       <p
-        className="
-          mt-1
-          truncate
-          text-xs
-          font-black
-          text-slate-800
-        "
+        className="mt-1 truncate text-xs font-black text-slate-800"
         title={value}
       >
         {value}
@@ -547,8 +313,8 @@ function CourseMeta({
 }
 
 /* ============================================================
-   DURATION FORMATTER
-   ============================================================ */
+   DURATION
+============================================================ */
 
 function formatDuration(minutes: number) {
   if (!Number.isFinite(minutes) || minutes <= 0) {
