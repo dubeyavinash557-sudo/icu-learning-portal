@@ -22,10 +22,29 @@ type Props = {
 type ProgressResponse = {
   success?: boolean;
   message?: string;
-  progress?: number;
-  completedLessons?: number;
-  totalLessons?: number;
-  courseCompleted?: boolean;
+  error?: string;
+
+  data?: {
+    lessonId?: string;
+    lessonTitle?: string;
+    courseId?: string;
+    courseTitle?: string;
+    isFreeDemo?: boolean;
+    isPremium?: boolean;
+    lessonCompleted?: boolean;
+    completedLessons?: number;
+    totalLessons?: number;
+    progress?: number;
+    courseCompleted?: boolean;
+
+    certificate?: {
+      id?: string;
+      certificateNo?: string;
+      issuedAt?: string;
+      courseId?: string;
+      userId?: string;
+    } | null;
+  };
 };
 
 type CertificateResponse = {
@@ -44,16 +63,25 @@ export default function CompleteLessonButton({
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [showCompletion, setShowCompletion] = useState(false);
-  const [certificateId, setCertificateId] = useState<string | null>(
-    null
-  );
+
+  const [showCompletion, setShowCompletion] =
+    useState(false);
+
+  const [certificateId, setCertificateId] =
+    useState<string | null>(null);
+
   const [certificateLoading, setCertificateLoading] =
     useState(false);
-  const [certificateError, setCertificateError] = useState<
-    string | null
-  >(null);
-  const [error, setError] = useState<string | null>(null);
+
+  const [certificateError, setCertificateError] =
+    useState<string | null>(null);
+
+  const [error, setError] =
+    useState<string | null>(null);
+
+  // ==========================================================
+  // COMPLETE LESSON
+  // ==========================================================
 
   const completeLesson = async () => {
     if (loading || isCompleted) {
@@ -64,15 +92,18 @@ export default function CompleteLessonButton({
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/lesson-progress", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          lessonId,
-        }),
-      });
+      const response = await fetch(
+        "/api/lesson-progress",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            lessonId,
+          }),
+        }
+      );
 
       let data: ProgressResponse = {};
 
@@ -81,6 +112,10 @@ export default function CompleteLessonButton({
       } catch {
         data = {};
       }
+
+      // ======================================================
+      // API ERROR
+      // ======================================================
 
       if (!response.ok) {
         setError(
@@ -91,26 +126,86 @@ export default function CompleteLessonButton({
         return;
       }
 
+      // ======================================================
+      // VALIDATE SUCCESS RESPONSE
+      // ======================================================
+
+      if (!data.success) {
+        setError(
+          data.message ||
+            "Unable to complete this lesson. Please try again."
+        );
+
+        return;
+      }
+
       /*
-       * Course completed
+       * IMPORTANT
        *
-       * The lesson-progress API creates the certificate when
-       * the final lesson is completed. We then fetch the latest
-       * certificate through the existing protected endpoint.
+       * lesson-progress API returns:
+       *
+       * {
+       *   success: true,
+       *   data: {
+       *     courseCompleted: true,
+       *     certificate: {...}
+       *   }
+       * }
+       *
+       * Therefore courseCompleted must be read from:
+       *
+       * data.data.courseCompleted
        */
-      if (data.courseCompleted) {
+
+      const courseCompleted =
+        data.data?.courseCompleted === true;
+
+      // ======================================================
+      // COURSE COMPLETED
+      // ======================================================
+
+      if (courseCompleted) {
         setShowCompletion(true);
         setCertificateLoading(true);
         setCertificateError(null);
 
-        try {
-          const certificateResponse = await fetch(
-            "/api/certificates/latest",
-            {
-              method: "GET",
-              cache: "no-store",
-            }
+        /*
+         * The lesson-progress API may already return
+         * the certificate created by the server.
+         *
+         * Prefer that certificate first.
+         */
+        const createdCertificateId =
+          data.data?.certificate?.id;
+
+        if (createdCertificateId) {
+          setCertificateId(
+            createdCertificateId
           );
+
+          setCertificateLoading(false);
+
+          router.refresh();
+
+          return;
+        }
+
+        /*
+         * Fallback:
+         *
+         * If the progress API completed the course but
+         * did not return a certificate ID, use the protected
+         * latest-certificate endpoint.
+         */
+        try {
+          const certificateResponse =
+            await fetch(
+              "/api/certificates/latest",
+              {
+                method: "GET",
+                cache: "no-store",
+              }
+            );
 
           if (!certificateResponse.ok) {
             throw new Error(
@@ -122,7 +217,9 @@ export default function CompleteLessonButton({
             await certificateResponse.json();
 
           if (certificateData?.id) {
-            setCertificateId(certificateData.id);
+            setCertificateId(
+              certificateData.id
+            );
           } else {
             setCertificateError(
               "Your course is complete, but the certificate is still being prepared. Please check the Certificates section."
@@ -142,20 +239,23 @@ export default function CompleteLessonButton({
         }
 
         router.refresh();
+
         return;
       }
 
-      /*
-       * Move directly to the next lesson.
-       */
+      // ======================================================
+      // MOVE TO NEXT LESSON
+      // ======================================================
+
       if (nextLessonUrl) {
         router.push(nextLessonUrl);
         return;
       }
 
-      /*
-       * Fallback when no next lesson exists.
-       */
+      // ======================================================
+      // FALLBACK
+      // ======================================================
+
       router.refresh();
     } catch (requestError) {
       console.error(
@@ -171,14 +271,20 @@ export default function CompleteLessonButton({
     }
   };
 
+  // ==========================================================
+  // CLOSE COMPLETION PANEL
+  // ==========================================================
+
   const closeCompletionPanel = () => {
     setShowCompletion(false);
+
     router.refresh();
   };
 
-  /*
-   * Course completion success state
-   */
+  // ==========================================================
+  // COURSE COMPLETION UI
+  // ==========================================================
+
   if (showCompletion) {
     return (
       <div
@@ -186,6 +292,10 @@ export default function CompleteLessonButton({
         role="status"
         aria-live="polite"
       >
+        {/* ==================================================
+            HEADER
+        ================================================== */}
+
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
@@ -198,13 +308,13 @@ export default function CompleteLessonButton({
               </p>
 
               <h3 className="mt-1 text-xl font-bold text-slate-900">
-                Congratulations! 🎉
+                Congratulations!
               </h3>
 
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                You have successfully completed this course.
-                Your achievement has been recorded in your
-                learning profile.
+                You have successfully completed this
+                course. Your achievement has been
+                recorded in your learning profile.
               </p>
             </div>
           </div>
@@ -219,6 +329,10 @@ export default function CompleteLessonButton({
           </button>
         </div>
 
+        {/* ==================================================
+            CERTIFICATE LOADING
+        ================================================== */}
+
         {certificateLoading && (
           <div className="mt-6 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
             <Loader2
@@ -232,18 +346,31 @@ export default function CompleteLessonButton({
           </div>
         )}
 
-        {certificateError && !certificateLoading && (
-          <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-800">
-            <AlertCircle
-              size={18}
-              className="mt-0.5 shrink-0"
-            />
+        {/* ==================================================
+            CERTIFICATE ERROR
+        ================================================== */}
 
-            <span>{certificateError}</span>
-          </div>
-        )}
+        {certificateError &&
+          !certificateLoading && (
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-5 text-amber-800">
+              <AlertCircle
+                size={18}
+                className="mt-0.5 shrink-0"
+              />
+
+              <span>
+                {certificateError}
+              </span>
+            </div>
+          )}
+
+        {/* ==================================================
+            ACTIONS
+        ================================================== */}
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {/* Download Certificate */}
+
           {certificateId && (
             <a
               href={`/api/certificates/latest/${certificateId}`}
@@ -255,10 +382,14 @@ export default function CompleteLessonButton({
             </a>
           )}
 
+          {/* My Certificates */}
+
           <button
             type="button"
             onClick={() =>
-              router.push("/dashboard/certificates")
+              router.push(
+                "/dashboard/certificates"
+              )
             }
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
           >
@@ -267,9 +398,13 @@ export default function CompleteLessonButton({
             My Certificates
           </button>
 
+          {/* Dashboard */}
+
           <button
             type="button"
-            onClick={() => router.push("/dashboard")}
+            onClick={() =>
+              router.push("/dashboard")
+            }
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
           >
             <LayoutDashboard size={18} />
@@ -281,12 +416,18 @@ export default function CompleteLessonButton({
     );
   }
 
+  // ==========================================================
+  // NORMAL LESSON STATE
+  // ==========================================================
+
   return (
     <div className="flex flex-col items-start gap-3">
       <button
         type="button"
         onClick={completeLesson}
-        disabled={loading || isCompleted}
+        disabled={
+          loading || isCompleted
+        }
         aria-busy={loading}
         className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${
           isCompleted
@@ -315,6 +456,10 @@ export default function CompleteLessonButton({
             <ArrowRight size={17} />
           )}
       </button>
+
+      {/* ====================================================
+          ERROR
+      ==================================================== */}
 
       {error && (
         <div
