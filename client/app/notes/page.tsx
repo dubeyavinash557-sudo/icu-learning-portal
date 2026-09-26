@@ -1,975 +1,1023 @@
-import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
+  ArrowLeft,
   ArrowRight,
   BookOpen,
   CheckCircle2,
-  Clock3,
   Crown,
-  FileLock2,
+  Download,
+  FileText,
   GraduationCap,
-  Languages,
   LockKeyhole,
-  PlayCircle,
+  Search,
   ShieldCheck,
   Sparkles,
-  Star,
-  Users,
+  Stethoscope,
   Video,
 } from "lucide-react";
 
-import { getCourses } from "@/lib/course";
+import { auth } from "@/auth";
+import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-type PremiumCourse = Awaited<
-  ReturnType<typeof getCourses>
->[number];
+type LessonItem = {
+  id: string;
+  title: string;
+  description: string;
+  duration: number;
+  lessonOrder: number;
+  notesUrl: string | null;
+  videoUrl: string | null;
+};
 
-function getCourseCategory(course: PremiumCourse) {
-  const value = `${course.slug} ${course.title}`.toLowerCase();
-
-  if (
-    value.includes("abg") ||
-    value.includes("blood gas")
-  ) {
-    return "Critical Care • ABG";
-  }
-
-  if (
-    value.includes("ecg") ||
-    value.includes("electrocard")
-  ) {
-    return "Critical Care • ECG";
-  }
-
-  if (
-    value.includes("ventilator") ||
-    value.includes("mechanical ventilation")
-  ) {
-    return "Critical Care • Ventilation";
-  }
-
-  if (
-    value.includes("emergency") ||
-    value.includes("emergency care")
-  ) {
-    return "Critical Care • Emergency";
-  }
-
-  if (
-    value.includes("medical coding") ||
-    value.includes("coding")
-  ) {
-    return "Healthcare • Medical Coding";
-  }
-
-  if (
-    value.includes("icu nursing") ||
-    value.includes("critical care nursing") ||
-    value.includes("icu")
-  ) {
-    return "Critical Care • Nursing";
-  }
-
-  return "Professional Healthcare Education";
-}
-
-function formatPrice(price: unknown) {
-  const value = Number(price);
-
-  if (!Number.isFinite(value) || value <= 0) {
-    return "Premium Access";
-  }
-
-  return `₹${value.toLocaleString("en-IN")}`;
-}
+type CourseItem = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  isPremium: boolean;
+  level: string;
+  language: string;
+  instructor: string;
+  lessons: LessonItem[];
+};
 
 function formatDuration(minutes: number) {
   if (!Number.isFinite(minutes) || minutes <= 0) {
     return "Self-paced";
   }
 
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (hours === 0) {
+  if (minutes < 60) {
     return `${minutes} min`;
   }
 
-  if (remainingMinutes === 0) {
+  const hours = Math.floor(minutes / 60);
+  const remaining = minutes % 60;
+
+  if (remaining === 0) {
     return `${hours} hr`;
   }
 
-  return `${hours}h ${remainingMinutes}m`;
+  return `${hours}h ${remaining}m`;
 }
 
-function getResourceSummary(course: PremiumCourse) {
-  const slug = course.slug.toLowerCase();
-  const title = course.title.toLowerCase();
-
-  if (
-    slug.includes("abg") ||
-    title.includes("abg")
-  ) {
-    return [
-      "Normal ABG values",
-      "Acid-base disorders",
-      "ABG interpretation",
-      "Clinical case practice",
-    ];
+function formatPrice(price: number) {
+  if (!Number.isFinite(price) || price <= 0) {
+    return "Free";
   }
 
-  if (
-    slug.includes("ecg") ||
-    title.includes("ecg")
-  ) {
-    return [
-      "ECG fundamentals",
-      "Waveform analysis",
-      "Cardiac rhythms",
-      "Emergency ECG",
-    ];
-  }
+  return `₹${price.toLocaleString("en-IN")}`;
+}
 
-  if (
-    slug.includes("ventilator") ||
-    title.includes("ventilator")
-  ) {
-    return [
-      "Ventilator modes",
-      "Ventilator settings",
-      "Alarm management",
-      "Weaning & nursing care",
-    ];
-  }
-
-  if (
-    slug.includes("emergency") ||
-    title.includes("emergency")
-  ) {
-    return [
-      "Emergency assessment",
-      "Crash cart concepts",
-      "Emergency medicines",
-      "Critical response",
-    ];
-  }
-
-  if (
-    slug.includes("medical-coding") ||
-    title.includes("medical coding")
-  ) {
-    return [
-      "Medical terminology",
-      "ICD-10-CM concepts",
-      "CPT fundamentals",
-      "Coding practice",
-    ];
-  }
-
-  return [
-    "ICU fundamentals",
-    "Patient monitoring",
-    "Emergency care",
-    "Practical ICU skills",
-  ];
+function getInitials(name: string) {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join("") || "IL"
+  );
 }
 
 export default async function NotesPage() {
-  const courses = await getCourses();
+  // ==========================================================
+  // 1. AUTHENTICATION
+  // ==========================================================
 
-  const premiumCourses = courses.filter(
-    (course) => course.isPremium
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    redirect("/login?callbackUrl=/notes");
+  }
+
+  // ==========================================================
+  // 2. CURRENT USER
+  // ==========================================================
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: session.user.email,
+    },
+
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      role: true,
+      isPremium: true,
+
+      enrollments: {
+        orderBy: {
+          enrolledAt: "desc",
+        },
+
+        select: {
+          id: true,
+          courseId: true,
+          enrolledAt: true,
+
+          course: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              price: true,
+              isPremium: true,
+              level: true,
+              language: true,
+              instructor: true,
+
+              lessons: {
+                orderBy: {
+                  lessonOrder: "asc",
+                },
+
+                select: {
+                  id: true,
+                  title: true,
+                  description: true,
+                  duration: true,
+                  lessonOrder: true,
+                  notesUrl: true,
+                  videoUrl: true,
+                },
+              },
+            },
+          },
+        },
+      },
+
+      lessonProgress: {
+        where: {
+          completed: true,
+        },
+
+        select: {
+          lessonId: true,
+        },
+      },
+    },
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // ==========================================================
+  // 3. SUCCESSFUL PAYMENTS
+  //
+  // Dashboard/UI access is not enough for protected notes.
+  // The actual notes API also verifies access server-side.
+  // Here we only calculate the UI state.
+  // ==========================================================
+
+  const successfulPayments =
+    await prisma.payment.findMany({
+      where: {
+        userId: user.id,
+        status: "SUCCESS",
+      },
+
+      select: {
+        courseId: true,
+        amount: true,
+        transactionId: true,
+        razorpayPaymentId: true,
+        razorpayOrderId: true,
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+  // ==========================================================
+  // 4. BUILD VERIFIED PAYMENT COURSE SET
+  // ==========================================================
+
+  const paidCourseIds = new Set<string>();
+
+  for (const payment of successfulPayments) {
+    if (!payment.courseId) {
+      continue;
+    }
+
+    const hasIdentifier =
+      Boolean(
+        payment.razorpayPaymentId?.trim()
+      ) ||
+      Boolean(
+        payment.transactionId?.trim()
+      );
+
+    if (hasIdentifier) {
+      paidCourseIds.add(payment.courseId);
+    }
+  }
+
+  // ==========================================================
+  // 5. ENROLLED COURSES
+  // ==========================================================
+
+  const enrolledCourses: CourseItem[] =
+    user.enrollments.map(
+      (enrollment) =>
+        enrollment.course
+    );
+
+  const completedLessonIds = new Set(
+    user.lessonProgress.map(
+      (progress) =>
+        progress.lessonId
+    )
   );
 
-  const totalLessons = premiumCourses.reduce(
-  (total, course) =>
-    total + course._count.lessons,
-  0
-);
+  // ==========================================================
+  // 6. COURSE RESOURCE COUNTS
+  // ==========================================================
 
-  const totalLearners = premiumCourses.reduce(
-    (total, course) =>
-      total + Number(course.students || 0),
-    0
+  let totalLessons = 0;
+  let totalNotes = 0;
+  let totalVideos = 0;
+
+  for (const course of enrolledCourses) {
+    totalLessons += course.lessons.length;
+
+    for (const lesson of course.lessons) {
+      if (lesson.notesUrl) {
+        totalNotes += 1;
+      }
+
+      if (lesson.videoUrl) {
+        totalVideos += 1;
+      }
+    }
+  }
+
+  const completedLessons =
+    user.lessonProgress.length;
+
+  const notesCoverage =
+    totalLessons > 0
+      ? Math.round(
+          (totalNotes / totalLessons) *
+            100
+        )
+      : 0;
+
+  // ==========================================================
+  // 7. DISPLAY DATA
+  // ==========================================================
+
+  const firstName =
+    user.fullName
+      .trim()
+      .split(/\s+/)[0] ||
+    "Learner";
+
+  const initials = getInitials(
+    user.fullName
   );
+
+  const isAdmin =
+    user.role === "ADMIN";
 
   return (
-    <main className="min-h-screen bg-[#020617] text-white">
-      {/* =========================================================
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      {/* ======================================================
           HEADER
-      ========================================================== */}
+      ====================================================== */}
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#020617]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Link
-            href="/"
-            className="group flex items-center gap-3"
+            href="/dashboard"
+            className="inline-flex items-center gap-3"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 ring-1 ring-cyan-400/10 transition group-hover:bg-cyan-500/15">
-              <GraduationCap size={21} />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-slate-950 via-blue-900 to-cyan-700 text-white shadow-lg">
+              <GraduationCap
+                size={21}
+              />
             </div>
 
-            <div>
-              <p className="text-sm font-black text-white">
-                ICU Learning
+            <div className="hidden sm:block">
+              <p className="text-sm font-black text-slate-950">
+                ICU Learning Portal
               </p>
 
-              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
-                Premium Study Library
+              <p className="text-[9px] font-black uppercase tracking-[0.18em] text-cyan-600">
+                Student Notes Center
               </p>
             </div>
           </Link>
 
-          <Link
-            href="/courses"
-            className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-black text-slate-200 transition hover:border-cyan-400/20 hover:bg-white/10 sm:inline-flex"
-          >
-            Browse Premium Courses
-            <ArrowRight size={15} />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700 transition hover:border-cyan-300 hover:text-cyan-700"
+            >
+              <ArrowLeft size={15} />
+              <span className="hidden sm:inline">
+                Dashboard
+              </span>
+            </Link>
+
+            <Link
+              href="/courses"
+              className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-3 py-2.5 text-xs font-black text-white transition hover:bg-blue-800"
+            >
+              <BookOpen size={15} />
+              <span className="hidden sm:inline">
+                Courses
+              </span>
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* =========================================================
-          HERO
-      ========================================================== */}
+      {/* ======================================================
+          PAGE
+      ====================================================== */}
 
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        {/* ====================================================
+            HERO
+        ==================================================== */}
 
-          <div className="absolute -right-32 top-0 h-[28rem] w-[28rem] rounded-full bg-blue-600/10 blur-3xl" />
+        <section className="relative overflow-hidden rounded-[30px] bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-900 text-white shadow-2xl">
+          <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
 
-          <div className="absolute bottom-[-14rem] left-1/2 h-[28rem] w-[28rem] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-3xl" />
-        </div>
+          <div className="absolute -bottom-32 left-1/4 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl" />
 
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-            backgroundSize: "36px 36px",
-          }}
-        />
-
-        <div className="relative mx-auto max-w-7xl px-5 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="relative grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center lg:p-10">
             {/* LEFT */}
 
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-cyan-300">
-                <LockKeyhole size={14} />
-                Premium Study Library
-              </div>
-
-              <h1 className="mt-5 max-w-4xl text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                ICU Nursing Notes
-                <span className="block bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
-                  Premium Learning Library
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-cyan-200">
+                  <FileText
+                    size={13}
+                  />
+                  Student Notes Center
                 </span>
-              </h1>
 
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                Access structured ICU learning resources,
-                nursing notes, mechanical ventilation material,
-                ECG, ABG and critical-care study content through
-                authenticated premium course access.
-              </p>
-
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-6 py-3.5 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/20 transition hover:bg-cyan-400"
-                >
-                  Explore Premium Courses
-                  <ArrowRight size={17} />
-                </Link>
-
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-black text-white transition hover:bg-white/10"
-                >
-                  <PlayCircle size={17} />
-                  My Learning
-                </Link>
+                {user.isPremium && (
+                  <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-amber-200">
+                    <Crown size={13} />
+                    Premium Member
+                  </span>
+                )}
               </div>
 
-              <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-xs font-bold text-slate-400">
-                <TrustItem label="Premium Access" />
-                <TrustItem label="Structured Notes" />
-                <TrustItem label="Course Resources" />
-                <TrustItem label="Protected Downloads" />
-              </div>
-            </div>
-
-            {/* RIGHT */}
-
-            <div className="lg:justify-self-end lg:w-full lg:max-w-md">
-              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.05] p-5 shadow-2xl backdrop-blur-xl sm:p-6">
-                <div className="rounded-2xl border border-cyan-400/10 bg-cyan-400/[0.04] p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-                      <FileLock2 size={27} />
-                    </div>
-
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-300">
-                        Protected Resources
-                      </p>
-
-                      <h2 className="mt-1 text-xl font-black text-white">
-                        Premium Only
-                      </h2>
-                    </div>
-                  </div>
+              <div className="mt-5 flex items-center gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-lg font-black text-white ring-1 ring-white/10">
+                  {initials}
                 </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <HeroStat
-                    value={String(premiumCourses.length)}
-                    label="Premium Courses"
-                    icon={<Crown size={18} />}
-                  />
-
-                  <HeroStat
-                    value={String(totalLessons)}
-                    label="Lessons"
-                    icon={<Video size={18} />}
-                  />
-
-                  <HeroStat
-                    value={totalLearners.toLocaleString("en-IN")}
-                    label="Learners"
-                    icon={<Users size={18} />}
-                  />
-
-                  <HeroStat
-                    value="100%"
-                    label="Premium Access"
-                    icon={<ShieldCheck size={18} />}
-                  />
-                </div>
-
-                <div className="mt-4 rounded-2xl border border-amber-400/10 bg-amber-400/5 p-5">
-                  <div className="flex gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-400/10 text-amber-300">
-                      <Crown size={19} />
-                    </div>
-
-                    <div>
-                      <p className="font-black text-white">
-                        Premium course resources
-                      </p>
-
-                      <p className="mt-1 text-xs leading-5 text-slate-400">
-                        Study notes and protected learning
-                        resources are available only after
-                        verified premium course access.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          LIBRARY INTRO
-      ========================================================== */}
-
-      <section className="border-b border-white/10 bg-[#071022]">
-        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-cyan-400">
-                <Sparkles size={15} />
-                Premium Study Library
-              </div>
-
-              <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
-                Premium Notes & Learning Resources
-              </h2>
-
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-                Public free-download buttons are not available.
-                Study resources are connected to premium
-                course access and are intended to remain inside
-                the LMS.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-amber-400/10 bg-amber-400/5 px-5 py-4">
-              <div className="flex items-center gap-3">
-                <Crown
-                  size={20}
-                  className="text-amber-300"
-                />
 
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-wider text-amber-300">
-                    Premium
+                  <p className="text-sm font-bold text-cyan-100">
+                    Welcome back,{" "}
+                    {firstName}
                   </p>
 
-                  <p className="mt-1 text-sm font-black text-white">
-                    Protected Course Resources
-                  </p>
+                  <h1 className="mt-1 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+                    Your Learning Notes
+                  </h1>
                 </div>
               </div>
+
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                Access lesson notes connected to
+                your enrolled ICU learning programs.
+                Premium resources remain protected
+                behind verified course access.
+              </p>
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href="#my-notes"
+                  className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
+                >
+                  <FileText
+                    size={17}
+                  />
+                  Open My Notes
+                </Link>
+
+                <Link
+                  href="/courses"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/15"
+                >
+                  Explore Courses
+                  <ArrowRight
+                    size={17}
+                  />
+                </Link>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-            {/* =========================================================
-          COURSE GRID
-      ========================================================== */}
+            {/* RIGHT STATS */}
 
-      <section className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16">
-        <div className="max-w-3xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-400">
-            Premium Resources
-          </p>
-
-          <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
-            Choose Your Study Program
-          </h2>
-
-          <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">
-            Select the premium course that matches your
-            learning goal. Protected study resources remain
-            available through authorized course access.
-          </p>
-        </div>
-
-        {premiumCourses.length === 0 ? (
-          <EmptyLibrary />
-        ) : (
-          <div className="mt-9 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {premiumCourses.map((course) => (
-              <PremiumCourseCard
-                key={course.id}
-                course={course}
+            <div className="grid grid-cols-2 gap-3">
+              <ResourceStat
+                icon={
+                  <BookOpen
+                    size={19}
+                  />
+                }
+                value={String(
+                  enrolledCourses.length
+                )}
+                label="Enrolled Courses"
               />
-            ))}
-          </div>
-        )}
-      </section>
 
-      {/* =========================================================
-          PREMIUM POLICY
-      ========================================================== */}
+              <ResourceStat
+                icon={
+                  <FileText
+                    size={19}
+                  />
+                }
+                value={String(
+                  totalNotes
+                )}
+                label="Available Notes"
+              />
 
-      <section className="border-y border-white/10 bg-[#071022]">
-        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-5 md:grid-cols-3">
-            <PolicyCard
-              icon={<LockKeyhole size={21} />}
-              title="Protected Resources"
-              description="Course notes are treated as premium learning resources rather than public downloads."
-            />
+              <ResourceStat
+                icon={
+                  <Video
+                    size={19}
+                  />
+                }
+                value={String(
+                  totalVideos
+                )}
+                label="Video Lessons"
+              />
 
-            <PolicyCard
-              icon={<ShieldCheck size={21} />}
-              title="Verified Access"
-              description="Premium course access should be verified on the server before protected resources are delivered."
-            />
-
-            <PolicyCard
-              icon={<Crown size={21} />}
-              title="Premium Learning"
-              description="Learners purchase the relevant course to access its structured study material."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          SECURITY BANNER
-      ========================================================== */}
-
-      <section className="bg-[#071022]">
-        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
-          <div className="overflow-hidden rounded-[2rem] border border-cyan-400/10 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-indigo-950/40 p-7 shadow-2xl sm:p-10">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-black text-emerald-300">
-                  <ShieldCheck size={14} />
-                  Protected Learning
-                </div>
-
-                <h2 className="mt-4 text-2xl font-black text-white sm:text-3xl">
-                  Your Premium Resources Stay Inside the LMS
-                </h2>
-
-                <p className="mt-3 text-sm leading-7 text-slate-400">
-                  The notes page does not expose public free
-                  download actions. Protected files should be
-                  delivered only after the server validates the
-                  learner&apos;s premium course access.
-                </p>
-              </div>
-
-              <Link
-                href="/courses"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-black text-slate-950 transition hover:bg-cyan-50"
-              >
-                Browse Premium Courses
-                <ArrowRight size={17} />
-              </Link>
+              <ResourceStat
+                icon={
+                  <CheckCircle2
+                    size={19}
+                  />
+                }
+                value={`${notesCoverage}%`}
+                label="Notes Coverage"
+              />
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* =========================================================
-          FOOTER CTA
-      ========================================================== */}
+        {/* ====================================================
+            RESOURCE TRUST BAR
+        ==================================================== */}
 
-      <section className="bg-[#020617]">
-        <div className="mx-auto max-w-7xl px-5 py-14 text-center sm:px-6 lg:px-8">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300">
-            <BookOpen size={22} />
+        <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <TrustCard
+            icon={
+              <ShieldCheck
+                size={20}
+              />
+            }
+            title="Protected Access"
+            text="Notes are delivered through the authenticated LMS."
+          />
+
+          <TrustCard
+            icon={
+              <LockKeyhole
+                size={20}
+              />
+            }
+            title="Premium Security"
+            text="Paid resources require verified course access."
+          />
+
+          <TrustCard
+            icon={
+              <Stethoscope
+                size={20}
+              />
+            }
+            title="ICU Focused"
+            text="Resources are organized around your learning programs."
+          />
+
+          <TrustCard
+            icon={
+              <Sparkles
+                size={20}
+              />
+            }
+            title="Study Faster"
+            text="Open notes directly from the lesson you are studying."
+          />
+        </section>
+
+        {/* ====================================================
+            NOTES SECTION
+        ==================================================== */}
+
+        <section
+          id="my-notes"
+          className="mt-10"
+        >
+          <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-600">
+                My Learning Resources
+              </p>
+
+              <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+                Course Notes
+              </h2>
+
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                Select a course and open the lesson
+                notes you are authorized to access.
+              </p>
+            </div>
+
+            <div className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-black text-slate-600 shadow-sm">
+              <Search
+                size={15}
+              />
+              {totalNotes} resources
+            </div>
           </div>
 
-          <h2 className="mt-5 text-2xl font-black text-white sm:text-3xl">
-            Build Your Critical Care Knowledge
-          </h2>
+          {enrolledCourses.length === 0 ? (
+            <EmptyNotes />
+          ) : (
+            <div className="mt-7 space-y-6">
+              {enrolledCourses.map(
+                (course) => {
+                  const isFreeCourse =
+                    course.price === 0 &&
+                    course.isPremium ===
+                      false;
 
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500">
-            Study ICU nursing, mechanical ventilation, ECG,
-            ABG and other critical-care topics through
-            structured premium programs.
-          </p>
+                  const hasPayment =
+                    paidCourseIds.has(
+                      course.id
+                    );
 
-          <Link
-            href="/courses"
-            className="mt-7 inline-flex items-center gap-2 rounded-2xl bg-cyan-500 px-6 py-3.5 text-sm font-black text-slate-950 transition hover:bg-cyan-400"
-          >
-            View Premium Courses
-            <ArrowRight size={17} />
-          </Link>
-        </div>
-      </section>
+                  const courseCompletedCount =
+                    course.lessons.filter(
+                      (lesson) =>
+                        completedLessonIds.has(
+                          lesson.id
+                        )
+                    ).length;
+
+                  const courseProgress =
+                    course.lessons.length >
+                    0
+                      ? Math.round(
+                          (courseCompletedCount /
+                            course.lessons
+                              .length) *
+                            100
+                        )
+                      : 0;
+
+                  const accessible =
+                    isAdmin ||
+                    isFreeCourse ||
+                    hasPayment;
+
+                  const notesLessons =
+                    course.lessons.filter(
+                      (lesson) =>
+                        Boolean(
+                          lesson.notesUrl
+                        )
+                    );
+
+                  return (
+                    <article
+                      key={course.id}
+                      className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm"
+                    >
+                      {/* COURSE HEADER */}
+
+                      <div className="border-b border-slate-200 bg-gradient-to-r from-slate-950 to-blue-950 p-5 text-white sm:p-7">
+                        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-full bg-cyan-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
+                                {course.level}
+                              </span>
+
+                              <span className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-300">
+                                {course.language}
+                              </span>
+
+                              {isFreeCourse ? (
+                                <span className="rounded-full bg-emerald-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                                  Free Demo
+                                </span>
+                              ) : (
+                                <span className="rounded-full bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
+                                  Premium
+                                </span>
+                              )}
+                            </div>
+
+                            <h3 className="mt-4 text-xl font-black sm:text-2xl">
+                              {course.title}
+                            </h3>
+
+                            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+                              {course.description}
+                            </p>
+
+                            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold text-slate-400">
+                              <span>
+                                Instructor:{" "}
+                                <span className="text-slate-200">
+                                  {
+                                    course.instructor
+                                  }
+                                </span>
+                              </span>
+
+                              <span>
+                                {course.lessons.length}{" "}
+                                lessons
+                              </span>
+
+                              <span>
+                                {notesLessons.length}{" "}
+                                notes
+                              </span>
+
+                              <span>
+                                {formatPrice(
+                                  course.price
+                                )}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <div className="flex items-center justify-between text-xs font-bold">
+                              <span className="text-slate-300">
+                                Course Progress
+                              </span>
+
+                              <span className="text-cyan-300">
+                                {courseProgress}%
+                              </span>
+                            </div>
+
+                            <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all"
+                                style={{
+                                  width: `${courseProgress}%`,
+                                }}
+                              />
+                            </div>
+
+                            <p className="mt-3 text-xs text-slate-400">
+                              {courseCompletedCount} of{" "}
+                              {
+                                course.lessons
+                                  .length
+                              }{" "}
+                              lessons completed
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* ACCESS MESSAGE */}
+
+                      {!accessible && (
+                        <div className="border-b border-amber-200 bg-amber-50 px-5 py-4 sm:px-7">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                                <LockKeyhole
+                                  size={19}
+                                />
+                              </div>
+
+                              <div>
+                                <p className="text-sm font-black text-amber-950">
+                                  Premium notes are locked
+                                </p>
+
+                                <p className="mt-1 text-xs leading-5 text-amber-800">
+                                  Complete the course purchase to
+                                  unlock protected study resources.
+                                </p>
+                              </div>
+                            </div>
+
+                            <Link
+                              href={`/courses/${course.id}`}
+                              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-xs font-black text-white transition hover:bg-amber-700"
+                            >
+                              View Course
+                              <ArrowRight
+                                size={15}
+                              />
+                            </Link>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* LESSON NOTES */}
+
+                      <div className="p-5 sm:p-7">
+                        {notesLessons.length ===
+                        0 ? (
+                          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-7 text-center">
+                            <FileText
+                              size={30}
+                              className="mx-auto text-slate-400"
+                            />
+
+                            <h4 className="mt-3 text-base font-black text-slate-800">
+                              Notes not available yet
+                            </h4>
+
+                            <p className="mt-1 text-sm text-slate-500">
+                              This course currently has no
+                              lesson notes configured.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            {notesLessons.map(
+                              (lesson) => {
+                                const completed =
+                                  completedLessonIds.has(
+                                    lesson.id
+                                  );
+
+                                const noteLocked =
+                                  !accessible;
+
+                                return (
+                                  <div
+                                    key={
+                                      lesson.id
+                                    }
+                                    className={`group rounded-2xl border p-4 transition ${
+                                      noteLocked
+                                        ? "border-slate-200 bg-slate-50"
+                                        : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-md"
+                                    }`}
+                                  >
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="flex min-w-0 items-start gap-3">
+                                        <div
+                                          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                                            noteLocked
+                                              ? "bg-slate-200 text-slate-500"
+                                              : "bg-cyan-50 text-cyan-700"
+                                          }`}
+                                        >
+                                          {noteLocked ? (
+                                            <LockKeyhole
+                                              size={
+                                                18
+                                              }
+                                            />
+                                          ) : (
+                                            <FileText
+                                              size={
+                                                18
+                                              }
+                                            />
+                                          )}
+                                        </div>
+
+                                        <div className="min-w-0">
+                                          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                            Lesson{" "}
+                                            {
+                                              lesson.lessonOrder
+                                            }
+                                          </p>
+
+                                          <h4 className="mt-1 line-clamp-2 text-sm font-black leading-5 text-slate-900">
+                                            {
+                                              lesson.title
+                                            }
+                                          </h4>
+                                        </div>
+                                      </div>
+
+                                      {completed && (
+                                        <CheckCircle2
+                                          size={
+                                            18
+                                          }
+                                          className="shrink-0 text-emerald-500"
+                                        />
+                                      )}
+                                    </div>
+
+                                    <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-bold text-slate-500">
+                                      <span className="rounded-lg bg-slate-100 px-2 py-1">
+                                        {formatDuration(
+                                          lesson.duration
+                                        )}
+                                      </span>
+
+                                      {lesson.videoUrl && (
+                                        <span className="rounded-lg bg-blue-50 px-2 py-1 text-blue-700">
+                                          Video
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="mt-4">
+                                      {noteLocked ? (
+                                        <Link
+                                          href={`/courses/${course.id}`}
+                                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-600 transition hover:border-amber-300 hover:text-amber-700"
+                                        >
+                                          <LockKeyhole
+                                            size={
+                                              14
+                                            }
+                                          />
+                                          Unlock Notes
+                                        </Link>
+                                      ) : (
+                                        <a
+                                          href={`/api/lesson-notes?lessonId=${encodeURIComponent(
+                                            lesson.id
+                                          )}`}
+                                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 px-3 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-cyan-700"
+                                        >
+                                          <Download
+                                            size={
+                                              14
+                                            }
+                                          />
+                                          Open Notes
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </article>
+                  );
+                }
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* ====================================================
+            STUDY TIP
+        ==================================================== */}
+
+        <section className="mt-8 rounded-[26px] border border-blue-100 bg-gradient-to-r from-blue-50 to-cyan-50 p-6 sm:p-7">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-blue-700">
+              <Sparkles size={23} />
+            </div>
+
+            <div>
+              <h2 className="text-lg font-black text-slate-950">
+                Smart Study Workflow
+              </h2>
+
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                Study the lesson, review its notes,
+                complete the lesson, and then move to
+                the next lesson or assessment. Your
+                progress is recorded in your LMS account.
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2 text-xs font-black">
+                <span className="rounded-xl bg-white px-3 py-2 text-slate-700 shadow-sm">
+                  1. Learn
+                </span>
+
+                <span className="rounded-xl bg-white px-3 py-2 text-slate-700 shadow-sm">
+                  2. Review Notes
+                </span>
+
+                <span className="rounded-xl bg-white px-3 py-2 text-slate-700 shadow-sm">
+                  3. Complete Lesson
+                </span>
+
+                <span className="rounded-xl bg-white px-3 py-2 text-slate-700 shadow-sm">
+                  4. Take Quiz
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
 
-/* ================================================================
-   PREMIUM COURSE CARD
-================================================================ */
+// ============================================================
+// RESOURCE STAT
+// ============================================================
 
-function PremiumCourseCard({
-  course,
-}: {
-  course: PremiumCourse;
-}) {
-  const students = Number(course.students || 0);
-  const rating = Number(course.rating || 0);
-  const lessons = course._count.lessons;
-
-  const price = formatPrice(course.price);
-  const category = getCourseCategory(course);
-  const resourceSummary = getResourceSummary(course);
-
-  return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b1428] shadow-xl transition duration-300 hover:-translate-y-1 hover:border-cyan-400/20 hover:shadow-cyan-950/30">
-      {/* IMAGE */}
-
-      <div className="relative h-52 overflow-hidden bg-slate-900">
-        {course.image ? (
-          <Image
-            src={course.image}
-            alt={`${course.title} premium course`}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-            className="object-cover transition duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-cyan-700 via-blue-700 to-indigo-800">
-            <GraduationCap
-              size={65}
-              className="text-white/80"
-            />
-          </div>
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-
-        {/* PREMIUM BADGE */}
-
-        <div className="absolute left-4 top-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-400/95 px-3 py-2 text-[10px] font-black text-amber-950 shadow-lg">
-            <Crown size={13} />
-            PREMIUM
-          </span>
-        </div>
-
-        {/* LEVEL */}
-
-        <div className="absolute bottom-4 left-4">
-          <span className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1.5 text-[10px] font-black text-slate-200 backdrop-blur">
-            {course.level}
-          </span>
-        </div>
-
-        {/* RATING */}
-
-        <div className="absolute bottom-4 right-4">
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/80 px-3 py-1.5 text-xs font-black text-white backdrop-blur">
-            <Star
-              size={13}
-              className="fill-amber-400 text-amber-400"
-            />
-            {rating.toFixed(1)}
-          </span>
-        </div>
-      </div>
-
-      {/* BODY */}
-
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <span className="truncate text-[10px] font-black uppercase tracking-[0.14em] text-cyan-400">
-            {category}
-          </span>
-
-          <span className="shrink-0 text-[10px] font-bold text-slate-500">
-            {course.language}
-          </span>
-        </div>
-
-        <h3 className="mt-3 line-clamp-2 min-h-[3.5rem] text-xl font-black leading-7 text-white">
-          {course.title}
-        </h3>
-
-        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-400">
-          {course.description}
-        </p>
-
-        {/* META */}
-
-        <div className="mt-5 grid grid-cols-2 gap-2">
-          <DarkMeta
-            icon={<BookOpen size={14} />}
-            value={`${lessons} Lessons`}
-          />
-
-          <DarkMeta
-            icon={<Clock3 size={14} />}
-            value={formatDuration(course.duration)}
-          />
-
-          <DarkMeta
-            icon={<Languages size={14} />}
-            value={course.language}
-          />
-
-          <DarkMeta
-            icon={<Users size={14} />}
-            value={`${students.toLocaleString(
-              "en-IN"
-            )} Learners`}
-          />
-        </div>
-
-        {/* PROTECTED RESOURCES */}
-
-        <div className="mt-5 rounded-2xl border border-cyan-400/10 bg-cyan-400/[0.04] p-4">
-          <div className="flex gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
-              <LockKeyhole size={17} />
-            </div>
-
-            <div className="min-w-0">
-              <p className="text-sm font-black text-white">
-                Premium Notes Protected
-              </p>
-
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                Protected study resources are available after
-                verified premium course access.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 grid gap-2">
-            {resourceSummary.map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-2 rounded-xl bg-slate-950/60 px-3 py-2"
-              >
-                <CheckCircle2
-                  size={13}
-                  className="shrink-0 text-cyan-400"
-                />
-
-                <span className="text-[10px] font-bold text-slate-500">
-                  {item}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* PRICE */}
-
-        <div className="mt-5 border-t border-white/5 pt-5">
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-600">
-                Course Access
-              </p>
-
-              <p className="mt-1 text-2xl font-black text-cyan-400">
-                {price}
-              </p>
-            </div>
-
-            <div className="text-right">
-              <p className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-600">
-                Access
-              </p>
-
-              <p className="mt-1 inline-flex items-center gap-1 text-xs font-black text-amber-300">
-                <Crown size={12} />
-                PREMIUM
-              </p>
-            </div>
-          </div>
-
-          <Link
-            href={`/courses/${course.id}`}
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3.5 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/10 transition hover:bg-cyan-400"
-          >
-            Unlock Premium Notes
-            <ArrowRight
-              size={17}
-              className="transition-transform group-hover:translate-x-1"
-            />
-          </Link>
-        </div>
-      </div>
-    </article>
-  );
-}
-
-/* ================================================================
-   DARK META
-================================================================ */
-
-function DarkMeta({
+function ResourceStat({
   icon,
   value,
+  label,
 }: {
   icon: React.ReactNode;
   value: string;
+  label: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 rounded-xl bg-slate-950/70 px-3 py-2.5">
-      <span className="shrink-0 text-cyan-400">
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-cyan-300">
         {icon}
-      </span>
+      </div>
 
-      <span className="truncate text-[10px] font-bold text-slate-500">
+      <p className="mt-4 text-2xl font-black text-white">
         {value}
-      </span>
-    </div>
-  );
-}
-
-/* ================================================================
-   POLICY CARD
-================================================================ */
-
-function PolicyCard({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0b1428] p-6 transition hover:border-cyan-400/20">
-      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-        {icon}
-      </div>
-
-      <h3 className="mt-5 text-lg font-black text-white">
-        {title}
-      </h3>
-
-      <p className="mt-2 text-sm leading-6 text-slate-500">
-        {description}
       </p>
-    </div>
-  );
-}
 
-/* ================================================================
-   TRUST ITEM
-================================================================ */
-
-function TrustItem({
-  label,
-}: {
-  label: string;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <CheckCircle2
-        size={14}
-        className="text-emerald-400"
-      />
-
-      {label}
-    </div>
-  );
-}
-
-/* ================================================================
-   HERO STAT
-================================================================ */
-
-function HeroStat({
-  value,
-  label,
-  icon,
-}: {
-  value: string;
-  label: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-2xl font-black text-white">
-          {value}
-        </p>
-
-        <span className="text-cyan-300">
-          {icon}
-        </span>
-      </div>
-
-      <p className="mt-1 text-[10px] font-bold text-slate-500">
+      <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-slate-400">
         {label}
       </p>
     </div>
   );
 }
 
-/* ================================================================
-   EMPTY LIBRARY
-================================================================ */
+// ============================================================
+// TRUST CARD
+// ============================================================
 
-function EmptyLibrary() {
+function TrustCard({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
   return (
-    <div className="mt-9 rounded-[2rem] border border-white/10 bg-[#0b1428] p-10 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-400/10 text-cyan-300">
-        <BookOpen size={30} />
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700">
+        {icon}
       </div>
 
-      <h2 className="mt-5 text-xl font-black text-white">
-        Premium Library Coming Soon
-      </h2>
+      <h3 className="mt-4 text-sm font-black text-slate-900">
+        {title}
+      </h3>
 
-      <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
-        Premium study resources will appear here when
-        premium courses are published.
+      <p className="mt-2 text-xs leading-5 text-slate-500">
+        {text}
       </p>
-
-      <Link
-        href="/courses"
-        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-400"
-      >
-        Browse Premium Courses
-        <ArrowRight size={16} />
-      </Link>
     </div>
   );
 }
 
-/* ================================================================
-   DURATION
-================================================================ */
+// ============================================================
+// EMPTY NOTES
+// ============================================================
 
-function CourseDuration(minutes: number) {
-  if (!Number.isFinite(minutes) || minutes <= 0) {
-    return "Self-paced";
-  }
-
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (hours === 0) {
-    return `${minutes} min`;
-  }
-
-  if (remainingMinutes === 0) {
-    return `${hours} hr`;
-  }
-
-  return `${hours}h ${remainingMinutes}m`;
-}
-
-/*
-  Compatibility alias.
-
-  Keeping the formatter separate makes the component easy to
-  extend later without changing every course-card call site.
-*/
-
-/* ================================================================
-   OPTIONAL RESOURCE LABEL
-================================================================ */
-
-function PremiumResourceLabel({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function EmptyNotes() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-400/10 bg-cyan-400/[0.05] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-cyan-300">
-      <LockKeyhole size={12} />
-      {children}
-    </span>
+    <div className="mt-7 overflow-hidden rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm sm:p-14">
+      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-cyan-50 text-cyan-600">
+        <BookOpen size={36} />
+      </div>
+
+      <h3 className="mt-5 text-xl font-black text-slate-950">
+        No Enrolled Courses Yet
+      </h3>
+
+      <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-500">
+        Enroll in a free demo course or purchase a
+        premium course to access your lesson notes
+        from this learning center.
+      </p>
+
+      <Link
+        href="/courses"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-800"
+      >
+        Browse Courses
+        <ArrowRight size={17} />
+      </Link>
+    </div>
   );
 }
-
-/* ================================================================
-   ACCESS BADGE
-================================================================ */
-
-function PremiumAccessBadge() {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-amber-300">
-      <Crown size={12} />
-      Premium Access
-    </span>
-  );
-}
-
-/* ================================================================
-   NOTE:
-   These helper components intentionally do not contain any
-   public download link or public file URL.
-================================================================ */
-
-/*
-  End of app/notes/page.tsx
-
-  Premium-access rule for this page:
-
-  1. Only courses with isPremium === true are displayed.
-  2. No public "Download PDF" action is rendered.
-  3. No public notesUrl is exposed from this page.
-  4. Every resource CTA points toward the premium course.
-  5. Actual file authorization must be enforced server-side
-     before returning any protected notes/PDF bytes.
-*/
