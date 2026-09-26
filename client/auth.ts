@@ -13,46 +13,91 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: "credentials",
 
       credentials: {
-        email: {},
-        password: {},
+        email: {
+          label: "Email",
+          type: "email",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+        },
       },
 
       async authorize(credentials) {
-        console.log("========== AUTHORIZE CALLED ==========");
+        /*
+         * ------------------------------------------------------
+         * 1. VALIDATE CREDENTIALS
+         * ------------------------------------------------------
+         *
+         * IMPORTANT:
+         * Never log credentials, passwords, password hashes,
+         * or complete user records in production logs.
+         */
 
-        console.log("Credentials:", credentials);
+        const email =
+          typeof credentials?.email === "string"
+            ? credentials.email.trim().toLowerCase()
+            : "";
 
-        if (!credentials?.email || !credentials?.password) {
-          console.log("❌ Missing Email or Password");
+        const password =
+          typeof credentials?.password === "string"
+            ? credentials.password
+            : "";
+
+        if (!email || !password) {
           return null;
         }
+
+        /*
+         * ------------------------------------------------------
+         * 2. FIND USER
+         * ------------------------------------------------------
+         *
+         * Only fetch the fields required by authentication.
+         * Do not load the complete Prisma user record.
+         */
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email as string,
+            email,
+          },
+
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            password: true,
+            role: true,
+            isPremium: true,
           },
         });
 
-        console.log("User Found:", user);
-
         if (!user) {
-          console.log("❌ User Not Found");
           return null;
         }
 
+        /*
+         * ------------------------------------------------------
+         * 3. VERIFY PASSWORD
+         * ------------------------------------------------------
+         */
+
         const passwordMatch = await bcrypt.compare(
-          credentials.password as string,
+          password,
           user.password
         );
 
-        console.log("Password Match:", passwordMatch);
-
         if (!passwordMatch) {
-          console.log("❌ Invalid Password");
           return null;
         }
 
-        console.log("✅ Login Successful");
+        /*
+         * ------------------------------------------------------
+         * 4. RETURN SAFE SESSION USER
+         * ------------------------------------------------------
+         *
+         * Never return the password or password hash.
+         */
 
         return {
           id: user.id,
@@ -68,6 +113,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
 
+    /*
+     * --------------------------------------------------------
+     * JWT
+     * --------------------------------------------------------
+     */
+
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role;
@@ -77,10 +128,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return token;
     },
 
+    /*
+     * --------------------------------------------------------
+     * SESSION
+     * --------------------------------------------------------
+     */
+
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).role = token.role;
-        (session.user as any).isPremium = token.isPremium;
+        (session.user as any).isPremium =
+          token.isPremium;
       }
 
       return session;
