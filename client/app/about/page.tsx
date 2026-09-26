@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -7,55 +8,55 @@ import {
   Clock3,
   GraduationCap,
   HeartPulse,
+  MessageCircle,
   ShieldCheck,
   Stethoscope,
-  Target,
-  Users,
 } from "lucide-react";
 
-import Navbar from "../../components/layout/Navbar";
-import Footer from "../../components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/Footer";
 
-const courses = [
+export const metadata: Metadata = {
+  title: "About ICU Learning Portal | Instructor & Mission",
+  description:
+    "Meet the founder of ICU Learning Portal and learn about the platform's focus on structured ICU nursing and critical-care education.",
+};
+
+const credentials = [
   {
-    title: "ICU Nursing Mastery Program",
-    description:
-      "ICU nursing fundamentals, patient monitoring, bedside responsibilities, documentation, and critical-care workflow.",
+    icon: GraduationCap,
+    title: "B.Sc. Biology",
+    text: "Academic foundation in biological sciences.",
   },
   {
-    title: "Mechanical Ventilation & Respiratory Care",
-    description:
-      "Ventilator modes, settings, alarms, respiratory assessment, and practical ICU learning.",
+    icon: Stethoscope,
+    title: "GNM Nursing",
+    text: "Professional nursing qualification supporting the portal's nursing education focus.",
   },
   {
-    title: "ECG & Cardiac Rhythm Interpretation",
-    description:
-      "ECG basics, rhythm recognition, cardiac monitoring, and common critical-care patterns.",
+    icon: Clock3,
+    title: "4 Years ICU Experience",
+    text: "Practical ICU experience used to shape clinically relevant learning topics.",
   },
   {
-    title: "ABG Analysis & Acid-Base Disorders",
-    description:
-      "ABG interpretation, respiratory and metabolic disorders, compensation, and clinical case practice.",
+    icon: Award,
+    title: "BLS + ACLS",
+    text: "Resuscitation-focused certifications listed in the instructor profile.",
   },
   {
-    title: "ICU Emergency Drugs",
-    description:
-      "Critical-care pharmacology, emergency medication awareness, precautions, and nursing responsibilities.",
-  },
-  {
-    title: "Critical Care Procedures & Bedside Skills",
-    description:
-      "Practical ICU procedures, infection prevention, patient safety, and bedside clinical skills.",
+    icon: BookOpen,
+    title: "CPC Training Completed",
+    text: "Additional professional training supporting healthcare education and terminology.",
   },
 ];
 
-const learningBenefits = [
-  "Structured ICU nursing lessons",
-  "Hindi and English learning support",
-  "Practical bedside-focused explanations",
-  "Topic-wise quizzes and revision",
-  "Interview and clinical viva preparation",
-  "Course resources and learning materials",
+const learningPrinciples = [
+  "Structured ICU and critical-care curriculum",
+  "Hindi + English explanations where useful",
+  "Lesson-by-lesson progress tracking",
+  "Quizzes and revision-oriented assessment",
+  "Course resources and protected premium content",
+  "Completion and certificate pathway for eligible courses",
 ];
 
 export default function AboutPage() {
@@ -64,340 +65,246 @@ export default function AboutPage() {
       <Navbar />
 
       <main className="min-h-screen bg-slate-50 text-slate-900">
-        {/* Hero Section */}
         <section className="relative overflow-hidden bg-slate-950">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(14,165,233,0.22),_transparent_42%),radial-gradient(circle_at_bottom_left,_rgba(16,185,129,0.16),_transparent_38%)]" />
+          <div className="absolute -left-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute -bottom-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-cyan-400/10 blur-3xl" />
 
-          <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8">
-            <div>
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200">
-                <HeartPulse className="h-4 w-4" />
-                ICU Learning Portal
+          <div className="relative mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-8 lg:py-20">
+            <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.15em] text-cyan-200">
+                  <HeartPulse size={15} />
+                  About ICU Learning Portal
+                </div>
+
+                <h1 className="mt-6 max-w-3xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+                  Practical ICU learning for students and healthcare
+                  professionals.
+                </h1>
+
+                <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+                  ICU Learning Portal is built as a focused online learning
+                  platform for ICU nursing, critical-care concepts, practical
+                  revision, assessments and course completion pathways.
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    href="/courses"
+                    className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-cyan-300"
+                  >
+                    Explore Courses
+                    <ArrowRight size={17} />
+                  </Link>
+
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10"
+                  >
+                    Contact Support
+                    <MessageCircle size={17} />
+                  </Link>
+                </div>
               </div>
 
-              <h1 className="max-w-3xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Learn Critical Care with
-                <span className="block text-cyan-300">
-                  Practical ICU Guidance
-                </span>
-              </h1>
-
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                ICU Learning Portal is a professional learning platform
-                created to help nursing students, ICU nurses, and healthcare
-                learners improve their critical-care knowledge through
-                structured courses, practical explanations, quizzes, and
-                revision resources.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-6 py-3 font-bold text-slate-950 transition hover:bg-cyan-300"
-                >
-                  Explore Courses
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-6 py-3 font-bold text-white transition hover:bg-white/10"
-                >
-                  Contact Us
-                </Link>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="rounded-3xl border border-white/10 bg-white/10 p-6 shadow-2xl backdrop-blur">
-                <div className="rounded-2xl bg-white p-6">
-                  <div className="mb-6 flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
-                      <Stethoscope className="h-9 w-9" />
+              <div className="rounded-[2rem] border border-white/10 bg-white/10 p-5 shadow-2xl backdrop-blur">
+                <div className="rounded-[1.5rem] bg-white p-6 sm:p-8">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-700 to-cyan-500 text-2xl font-black text-white shadow-lg">
+                      AD
                     </div>
 
                     <div>
-                      <p className="text-sm font-semibold uppercase tracking-wider text-cyan-700">
-                        Founder Profile
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700">
+                        Founder & Educator
                       </p>
-                      <h2 className="text-2xl font-black text-slate-950">
+
+                      <h2 className="mt-1 text-2xl font-black text-slate-950">
                         Avinash Dubey
                       </h2>
+
+                      <p className="mt-1 text-sm font-semibold text-slate-500">
+                        ICU Nursing & Critical-Care Education
+                      </p>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <GraduationCap className="mt-1 h-5 w-5 shrink-0 text-cyan-700" />
-                      <div>
-                        <p className="font-bold text-slate-900">
-                          B.Sc. Nursing
-                        </p>
-                        <p className="text-sm text-slate-600">
-                          Professional nursing education background
-                        </p>
-                      </div>
-                    </div>
+                  <div className="mt-7 space-y-4">
+                    <ProfileLine
+                      icon={<GraduationCap size={18} />}
+                      title="Qualifications"
+                      text="B.Sc. Biology + GNM Nursing"
+                    />
 
-                    <div className="flex items-start gap-3">
-                      <Clock3 className="mt-1 h-5 w-5 shrink-0 text-cyan-700" />
-                      <div>
-                        <p className="font-bold text-slate-900">
-                          5 Years of ICU Nursing Experience
-                        </p>
-                        <p className="text-sm text-slate-600">
-                          Critical-care nursing and bedside learning
-                        </p>
-                      </div>
-                    </div>
+                    <ProfileLine
+                      icon={<Clock3 size={18} />}
+                      title="Clinical experience"
+                      text="4 years of ICU experience"
+                    />
 
-                    <div className="flex items-start gap-3">
-                      <BookOpen className="mt-1 h-5 w-5 shrink-0 text-cyan-700" />
-                      <div>
-                        <p className="font-bold text-slate-900">
-                          Founder & ICU Nursing Educator
-                        </p>
-                        <p className="text-sm text-slate-600">
-                          Focused on structured ICU education
-                        </p>
-                      </div>
-                    </div>
+                    <ProfileLine
+                      icon={<Award size={18} />}
+                      title="Certifications"
+                      text="BLS, ACLS + CPC training completed"
+                    />
+
+                    <ProfileLine
+                      icon={<ShieldCheck size={18} />}
+                      title="Learning focus"
+                      text="Structured ICU education, revision and assessment"
+                    />
                   </div>
+
+                  <p className="mt-6 rounded-2xl bg-slate-50 p-4 text-xs leading-6 text-slate-500">
+                    The profile above is an educational introduction. Course
+                    content is designed for learning and revision and does not
+                    replace supervised clinical training or institutional
+                    protocols.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Founder Introduction */}
-        <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-            <div className="rounded-3xl bg-gradient-to-br from-cyan-700 to-slate-900 p-8 text-white shadow-xl">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15">
-                <Award className="h-9 w-9" />
+        <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8 lg:px-8 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            <div className="rounded-3xl bg-gradient-to-br from-blue-700 to-slate-950 p-7 text-white shadow-xl sm:p-9">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                <HeartPulse size={24} />
               </div>
 
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-cyan-200">
-                Our Mission
+              <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-cyan-200">
+                Why this portal exists
               </p>
 
-              <h2 className="mt-4 text-3xl font-black">
-                Make ICU learning simple, structured, and practical.
+              <h2 className="mt-3 text-3xl font-black tracking-tight">
+                Make ICU learning easier to follow, revise and practise.
               </h2>
 
-              <p className="mt-5 leading-7 text-cyan-50">
-                The goal of ICU Learning Portal is to provide easy-to-follow
-                educational content that connects nursing theory with
-                critical-care practice.
+              <p className="mt-5 text-sm leading-7 text-blue-100 sm:text-base">
+                ICU topics can become difficult when learners have to search
+                across disconnected notes, videos and question banks. The
+                portal brings structured lessons, course resources,
+                assessments and progress into one learning workflow.
               </p>
             </div>
 
             <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-cyan-700">
-                About the Founder
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
+                Founder story
               </p>
 
               <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Meet Avinash Dubey
+                Built around practical critical-care learning.
               </h2>
 
-              <p className="mt-5 leading-8 text-slate-600">
-                Avinash Dubey is the founder of ICU Learning Portal and an ICU
-                nursing educator with a B.Sc. Nursing degree and 5 years of ICU
-                nursing experience. The platform was created to support
-                learners who want to build strong foundations in intensive
-                care nursing and critical-care concepts.
+              <p className="mt-5 text-base leading-8 text-slate-600">
+                ICU Learning Portal was created to give nursing students and
+                healthcare learners a more organised way to study important
+                ICU topics such as patient monitoring, mechanical ventilation,
+                ECG, ABG analysis, emergency care, infection control and
+                bedside skills.
               </p>
 
-              <p className="mt-4 leading-8 text-slate-600">
-                The learning approach focuses on clear explanations,
-                practical examples, topic-wise revision, clinical terminology,
-                quizzes, and interview-oriented preparation. Courses are
-                designed for students and nursing professionals who want to
-                revise important ICU topics in a structured way.
+              <p className="mt-4 text-base leading-8 text-slate-600">
+                The platform is intentionally structured as an LMS rather than
+                a simple collection of articles. Learners can discover a
+                course, review the curriculum, study lessons, complete
+                assessments, track progress and work toward eligible course
+                certificates.
               </p>
 
-              <div className="mt-7 grid gap-4 sm:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <GraduationCap className="h-7 w-7 text-cyan-700" />
-                  <p className="mt-3 font-bold text-slate-900">
-                    B.Sc. Nursing
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Nursing education foundation
-                  </p>
-                </div>
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                {learningPrinciples.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                  >
+                    <CheckCircle2
+                      className="mt-0.5 shrink-0 text-emerald-600"
+                      size={18}
+                    />
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <Clock3 className="h-7 w-7 text-cyan-700" />
-                  <p className="mt-3 font-bold text-slate-900">
-                    5 Years ICU Experience
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Critical-care nursing exposure
-                  </p>
-                </div>
+                    <span className="text-sm font-semibold leading-6 text-slate-700">
+                      {item}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Why Trust the Platform */}
-        <section className="bg-white py-16">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="text-sm font-bold uppercase tracking-widest text-cyan-700">
-                Why Choose ICU Learning Portal
+        <section className="border-y border-slate-200 bg-white">
+          <div className="mx-auto max-w-7xl px-6 py-14 sm:px-8 lg:px-8 lg:py-20">
+            <div className="max-w-3xl">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
+                Credentials & background
               </p>
 
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Built for focused ICU learning
+              <h2 className="mt-3 text-3xl font-black text-slate-950 sm:text-4xl">
+                Who is behind the learning platform?
               </h2>
 
-              <p className="mt-4 leading-7 text-slate-600">
-                Our courses are organized to help learners study important
-                concepts step by step instead of searching for disconnected
-                information.
+              <p className="mt-4 text-base leading-8 text-slate-600">
+                The platform founder profile is presented openly so learners
+                can understand the educational background behind the portal
+                before choosing a course.
               </p>
             </div>
 
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {learningBenefits.map((benefit) => (
-                <div
-                  key={benefit}
-                  className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-5"
-                >
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-                  <p className="font-semibold text-slate-800">{benefit}</p>
-                </div>
-              ))}
+            <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+              {credentials.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <article
+                    key={item.title}
+                    className="rounded-3xl border border-slate-200 bg-slate-50 p-5"
+                  >
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm">
+                      <Icon size={20} />
+                    </div>
+
+                    <h3 className="mt-5 text-sm font-black text-slate-950">
+                      {item.title}
+                    </h3>
+
+                    <p className="mt-2 text-xs leading-6 text-slate-500">
+                      {item.text}
+                    </p>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* Courses Created */}
-        <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-          <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-cyan-700">
-                Course Collection
-              </p>
-
-              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Courses created for ICU learners
-              </h2>
-
-              <p className="mt-4 max-w-2xl leading-7 text-slate-600">
-                Explore the major learning programs available on ICU Learning
-                Portal.
-              </p>
-            </div>
-
-            <Link
-              href="/courses"
-              className="inline-flex items-center gap-2 font-bold text-cyan-700 hover:text-cyan-900"
-            >
-              View All Courses
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </div>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course, index) => (
-              <article
-                key={course.title}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100 font-black text-cyan-700">
-                  {String(index + 1).padStart(2, "0")}
-                </div>
-
-                <h3 className="mt-5 text-xl font-black text-slate-950">
-                  {course.title}
-                </h3>
-
-                <p className="mt-3 text-sm leading-7 text-slate-600">
-                  {course.description}
+        <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8 lg:px-8 lg:py-20">
+          <div className="rounded-[2rem] border border-blue-100 bg-blue-50 p-7 sm:p-10">
+            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
+                  Ready to learn?
                 </p>
 
-                <Link
-                  href="/courses"
-                  className="mt-5 inline-flex items-center gap-2 font-bold text-cyan-700"
-                >
-                  Explore Program
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </article>
-            ))}
-          </div>
-        </section>
+                <h2 className="mt-2 text-2xl font-black text-slate-950 sm:text-3xl">
+                  Start with a free demo or explore the premium catalogue.
+                </h2>
 
-        {/* Trust and Safety */}
-        <section className="bg-slate-950 py-16 text-white">
-          <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-2 lg:px-8">
-            <div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/15 text-cyan-300">
-                <ShieldCheck className="h-8 w-8" />
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+                  Review the curriculum and course details before making a
+                  purchase.
+                </p>
               </div>
 
-              <h2 className="mt-5 text-3xl font-black">
-                Education with responsibility
-              </h2>
-
-              <p className="mt-4 leading-8 text-slate-300">
-                ICU Learning Portal provides educational content for learning,
-                revision, and professional development. Course material does
-                not replace hospital protocols, clinical supervision, or
-                instructions from qualified healthcare professionals.
-              </p>
-            </div>
-
-            <div>
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-300">
-                <Target className="h-8 w-8" />
-              </div>
-
-              <h2 className="mt-5 text-3xl font-black">
-                Our learner-first approach
-              </h2>
-
-              <p className="mt-4 leading-8 text-slate-300">
-                We aim to make difficult ICU topics easier to understand using
-                organized lessons, clinical terminology, practical examples,
-                quizzes, and continuous revision.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="bg-cyan-50 py-16">
-          <div className="mx-auto max-w-4xl px-6 text-center">
-            <Users className="mx-auto h-12 w-12 text-cyan-700" />
-
-            <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-              Ready to improve your ICU knowledge?
-            </h2>
-
-            <p className="mx-auto mt-4 max-w-2xl leading-7 text-slate-600">
-              Start learning with structured ICU courses designed for nursing
-              students and critical-care professionals.
-            </p>
-
-            <div className="mt-7 flex flex-wrap justify-center gap-4">
               <Link
                 href="/courses"
-                className="inline-flex items-center gap-2 rounded-xl bg-cyan-700 px-6 py-3 font-bold text-white transition hover:bg-cyan-800"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-700 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800"
               >
                 Browse Courses
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 rounded-xl border border-cyan-700 px-6 py-3 font-bold text-cyan-800 transition hover:bg-cyan-100"
-              >
-                Contact Founder
+                <ArrowRight size={18} />
               </Link>
             </div>
           </div>
@@ -406,5 +313,33 @@ export default function AboutPage() {
 
       <Footer />
     </>
+  );
+}
+
+function ProfileLine({
+  icon,
+  title,
+  text,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+        {icon}
+      </div>
+
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">
+          {title}
+        </p>
+
+        <p className="mt-1 text-sm font-bold text-slate-800">
+          {text}
+        </p>
+      </div>
+    </div>
   );
 }
