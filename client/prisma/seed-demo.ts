@@ -74,7 +74,7 @@ const demoCourses: DemoCourse[] = [
           "Learn the basic ICU environment, ICU team, patient safety and the role of an ICU nurse.\n\nइस lesson में ICU का परिचय, ICU nurse की responsibilities और basic patient safety समझाई जाएगी.",
         duration: 10,
         lessonOrder: 1,
-        videoUrl: "",
+        videoUrl: "https://youtu.be/fIRn6-4fPXI",
       },
       {
         title:
@@ -667,6 +667,7 @@ main()
     );
     process.exit(1);
   })
+  
   .finally(async () => {
     await prisma.$disconnect();
   });
