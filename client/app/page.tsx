@@ -5,10 +5,6 @@ import {
   Award,
   BookOpen,
   CheckCircle2,
-  ChevronRight,
-  Clock3,
-  Crown,
-  GraduationCap,
   PlayCircle,
   ShieldCheck,
   Sparkles,
@@ -550,63 +546,14 @@ export default async function Home() {
               {/* Certificate preview */}
 
               <div className="rounded-[2rem] border border-slate-200 bg-white p-3 shadow-2xl sm:p-6">
-                <div className="relative overflow-hidden border-[8px] border-slate-950 bg-gradient-to-br from-white via-slate-50 to-blue-50 px-5 py-8 sm:border-[12px] sm:px-10 sm:py-12">
-                  <div className="absolute -left-16 -top-16 h-40 w-40 rounded-full bg-blue-100/70 blur-3xl" />
-                  <div className="absolute -bottom-20 -right-20 h-48 w-48 rounded-full bg-cyan-100/70 blur-3xl" />
-
-                  <div className="relative text-center">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border-4 border-blue-700 text-blue-700 sm:h-16 sm:w-16">
-                      <Award size={28} />
-                    </div>
-
-                    <p className="mt-5 text-[10px] font-black uppercase tracking-[0.3em] text-blue-700">
-                      ICU Learning Portal
-                    </p>
-
-                    <h3 className="mt-3 text-2xl font-black text-slate-950 sm:text-4xl">
-                      Certificate of Completion
-                    </h3>
-
-                    <p className="mt-4 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
-                      Design Preview — Not an Issued Certificate
-                    </p>
-
-                    <div className="mx-auto mt-8 max-w-xl border-y border-slate-200 py-7">
-                      <p className="text-xs text-slate-500">
-                        This certifies that
-                      </p>
-
-                      <p className="mt-2 text-2xl font-black text-slate-950">
-                        Student Name
-                      </p>
-
-                      <p className="mt-3 text-sm text-slate-600">
-                        has successfully completed the required learning
-                        pathway for
-                      </p>
-
-                      <p className="mt-3 text-lg font-black text-blue-700">
-                        ICU Nursing & Critical Care Program
-                      </p>
-                    </div>
-
-                    <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                      <CertificateMeta
-                        title="Certificate No."
-                        value="ICULP-XXXX-XXXX"
-                      />
-
-                      <CertificateMeta
-                        title="Issued"
-                        value="Completion Date"
-                      />
-
-                      <CertificateMeta
-                        title="Verification"
-                        value="LMS Record"
-                      />
-                    </div>
-                  </div>
+                <div className="relative overflow-hidden rounded-2xl bg-slate-100">
+                  <Image
+                    src="/images/certificate-preview.svg"
+                    alt="ICU Learning Portal certificate design preview"
+                    width={1200}
+                    height={800}
+                    className="h-auto w-full"
+                  />
                 </div>
               </div>
             </div>
@@ -619,69 +566,47 @@ export default async function Home() {
 
         <section className="bg-white py-20 sm:py-24">
           <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
-            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-7 sm:p-10">
-              <div className="flex flex-col items-center gap-7 text-center sm:flex-row sm:text-left">
-                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-blue-700 to-cyan-500 text-2xl font-black text-white shadow-xl">
-                  AD
+            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-7 shadow-sm sm:p-10">
+              <div className="flex flex-col gap-8 sm:flex-row sm:items-center">
+                <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-3xl border border-white bg-slate-200 shadow-xl ring-4 ring-blue-50">
+                  <Image
+                    src="/images/instructor-avinash.jpg"
+                    alt="Avinash Dubey, ICU Nursing and Critical-Care Educator"
+                    fill
+                    sizes="128px"
+                    className="object-cover"
+                  />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700">
-                    Platform & Instructor Profile
+                    Instructor Profile
                   </p>
 
-                  <h2 className="mt-2 text-2xl font-black text-slate-950">
-                    ICU Learning Portal
+                  <h2 className="mt-2 text-2xl font-black text-slate-950 sm:text-3xl">
+                    Avinash Dubey
                   </h2>
 
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
-                    The platform is focused on structured ICU nursing and
-                    critical-care education, practical learning resources
-                    and an organized digital learning experience.
+                  <p className="mt-1 text-sm font-bold text-slate-500">
+                    ICU Nursing &amp; Critical-Care Education
                   </p>
 
-                  <div className="mt-5 flex flex-wrap justify-center gap-2 sm:justify-start">
-                    <ProfileBadge text="ICU-focused learning" />
-                    <ProfileBadge text="Structured curriculum" />
-                    <ProfileBadge text="Student LMS" />
+                  <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600">
+                    ICU Learning Portal is built around structured ICU nursing
+                    and critical-care education, practical learning resources,
+                    revision and assessment. The curriculum is designed to
+                    organize complex ICU topics into a clear digital learning
+                    pathway for nursing learners.
+                  </p>
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <ProfileBadge text="B.Sc. Biology" />
+                    <ProfileBadge text="GNM Nursing" />
+                    <ProfileBadge text="4 Years ICU Experience" />
+                    <ProfileBadge text="ICU-focused education" />
                   </div>
                 </div>
               </div>
-
-              <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-                <strong>Important:</strong> Replace the initials above with
-                your real professional photograph when you are ready. Do
-                not use a stock or AI-generated person as an instructor
-                identity.
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
-            TESTIMONIAL PLACEHOLDER — NO FAKE REVIEWS
-        ====================================================== */}
-
-        <section className="bg-slate-50 py-20 sm:py-24">
-          <div className="mx-auto max-w-5xl px-5 text-center sm:px-6 lg:px-8">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
-              Student Feedback
-            </p>
-
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-              Real learner experiences will appear here.
-            </h2>
-
-            <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-slate-600">
-              We will publish verified student feedback instead of
-              fabricated testimonials. This keeps the portal trustworthy
-              as the learner community grows.
-            </p>
-
-            <div className="mt-9 grid gap-4 md:grid-cols-3">
-              <FeedbackPlaceholder />
-              <FeedbackPlaceholder />
-              <FeedbackPlaceholder />
             </div>
           </div>
         </section>
@@ -962,30 +887,6 @@ function Checklist({ text }: { text: string }) {
 }
 
 /* ============================================================
-   CERTIFICATE META
-============================================================ */
-
-function CertificateMeta({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 text-left">
-      <p className="text-[9px] font-black uppercase tracking-[0.12em] text-slate-400">
-        {title}
-      </p>
-
-      <p className="mt-1 text-xs font-black text-slate-800">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-/* ============================================================
    PROFILE BADGE
 ============================================================ */
 
@@ -994,28 +895,6 @@ function ProfileBadge({ text }: { text: string }) {
     <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black text-slate-600">
       {text}
     </span>
-  );
-}
-
-/* ============================================================
-   FEEDBACK PLACEHOLDER
-============================================================ */
-
-function FeedbackPlaceholder() {
-  return (
-    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-6">
-      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-        <GraduationCap size={20} />
-      </div>
-
-      <p className="mt-4 text-sm font-black text-slate-500">
-        Verified student feedback
-      </p>
-
-      <p className="mt-2 text-xs leading-5 text-slate-400">
-        This space will be populated with genuine learner feedback.
-      </p>
-    </div>
   );
 }
 
