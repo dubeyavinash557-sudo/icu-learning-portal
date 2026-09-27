@@ -30,7 +30,6 @@ import {
   Star,
   Stethoscope,
   Target,
-  Users,
   Video,
 } from "lucide-react";
 
@@ -378,11 +377,11 @@ export default async function CourseDetailsPage({
     );
 
   // ==========================================================
-  // 13. STUDENT COUNT
+  // 13. PUBLIC TRUST METRICS
   // ==========================================================
-
-  const studentCount =
-    course.enrollments.length;
+  // Do not expose enrollment counts as a marketing metric.
+  // Public learner totals are intentionally omitted because the
+  // portal should only display verified social-proof figures.
 
   // ==========================================================
   // 14. COURSE COMPLETION
@@ -536,19 +535,6 @@ export default async function CourseDetailsPage({
                   <span>course rating</span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Users
-                    size={18}
-                    className="text-cyan-300"
-                  />
-
-                  <span>
-                    {studentCount.toLocaleString(
-                      "en-IN"
-                    )}{" "}
-                    learners
-                  </span>
-                </div>
               </div>
 
               <div className="mt-9 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4">
@@ -662,7 +648,8 @@ export default async function CourseDetailsPage({
     <Link
       href="/dashboard/certificates"
       className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4 font-black text-white shadow-lg transition hover:from-emerald-700 hover:to-teal-700"
-    >
+
+          >
       <Award size={20} />
       View Your Certificate
       <ArrowRight size={18} />
@@ -743,7 +730,7 @@ export default async function CourseDetailsPage({
 
       <section className="relative -mt-6 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-xl sm:grid-cols-2 lg:grid-cols-4">
             <CourseStat
               icon={<Clock3 size={20} />}
               label="Duration"
@@ -758,13 +745,6 @@ export default async function CourseDetailsPage({
               label="Lessons"
               value={`${totalLessons} Lessons`}
               className="border-b border-slate-200 lg:border-b-0 lg:border-r"
-            />
-
-            <CourseStat
-              icon={<Users size={20} />}
-              label="Learners"
-              value={`${studentCount} Students`}
-              className="border-b border-slate-200 sm:border-r lg:border-b-0"
             />
 
             <CourseStat
@@ -1319,6 +1299,8 @@ function CourseStat({
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
           {icon}
+
+
         </div>
 
         <div>

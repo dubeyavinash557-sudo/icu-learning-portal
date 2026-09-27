@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   Siren,
   Stethoscope,
-  Users,
   Video,
   Zap,
 } from "lucide-react";
@@ -190,8 +189,6 @@ export default async function EmergencyCarePage() {
 
   const duration = course?.duration ?? 0;
 
-  const students = Number(course?.students ?? 0);
-
   const rating = Number(course?.rating ?? 4.9);
 
   const price = Number(course?.price ?? 2299);
@@ -290,15 +287,6 @@ export default async function EmergencyCarePage() {
                   <span className="text-slate-400">
                     Professional learner rating
                   </span>
-                </div>
-
-                <div className="flex items-center gap-2 text-slate-300">
-                  <Users
-                    size={16}
-                    className="text-cyan-300"
-                  />
-
-                  {students.toLocaleString("en-IN")}+ learners
                 </div>
 
                 <div className="flex items-center gap-2 text-slate-300">
@@ -432,9 +420,9 @@ export default async function EmergencyCarePage() {
                     />
 
                     <SummaryStat
-                      icon={<Users size={17} />}
-                      value={`${students.toLocaleString("en-IN")}+`}
-                      label="Learners"
+                      icon={<Award size={17} />}
+                      value="Eligible"
+                      label="Certificate"
                     />
 
                     <SummaryStat

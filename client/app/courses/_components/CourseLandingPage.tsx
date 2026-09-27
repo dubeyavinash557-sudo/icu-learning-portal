@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
-  Users,
 } from "lucide-react";
 
 export type CourseLandingData = {
@@ -305,15 +304,6 @@ export default function CourseLandingPage({
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-slate-300">
-                  <Users
-                    size={16}
-                    aria-hidden="true"
-                  />
-
-                  {course.students} learners
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-slate-300">
                   <Clock3
                     size={16}
                     aria-hidden="true"
@@ -444,9 +434,9 @@ export default function CourseLandingPage({
                     />
 
                     <SummaryStat
-                      icon={<Users size={17} />}
-                      label="Learners"
-                      value={course.students}
+                      icon={<Award size={17} />}
+                      label="Certificate"
+                      value="Eligible"
                     />
                   </div>
 
@@ -787,12 +777,6 @@ export default function CourseLandingPage({
                   icon={<GraduationCap size={17} />}
                   label="Level"
                   value={course.level}
-                />
-
-                <SnapshotRow
-                  icon={<Users size={17} />}
-                  label="Learners"
-                  value={course.students}
                 />
 
                 <SnapshotRow

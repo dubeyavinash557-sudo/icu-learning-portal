@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
-  Users,
   Video,
 } from "lucide-react";
 
@@ -41,7 +40,7 @@ export const revalidate = 60;
    - Curriculum preview
    - Pricing
    - Ratings
-   - Learner statistics
+   - Trust-safe course statistics
    - Premium access messaging
    - Responsive desktop/tablet/mobile layout
 ================================================================ */
@@ -64,12 +63,6 @@ export default async function CoursesPage() {
   const totalLessons = courses.reduce(
   (total, course) =>
     total + course._count.lessons,
-  0
-);
-
-  const totalStudents = courses.reduce(
-  (total, course) =>
-    total + Number(course.students || 0),
   0
 );
 
@@ -243,11 +236,9 @@ export default async function CoursesPage() {
                   />
 
                   <HeroStat
-                    value={totalStudents.toLocaleString(
-                      "en-IN"
-                    )}
-                    label="Learners"
-                    icon={<Users size={18} />}
+                    value="Ready"
+                    label="Certificate Path"
+                    icon={<Award size={18} />}
                   />
                 </div>
 
@@ -348,8 +339,8 @@ export default async function CoursesPage() {
               />
 
               <CatalogStat
-                value={totalStudents}
-                label="Learners"
+                value={2}
+                label="Languages"
               />
             </div>
           </div>
@@ -567,10 +558,6 @@ function ProfessionalCourseCard({
       ? course.price
       : Number(course.price);
 
-  const students = Number(
-    course.students || 0
-  );
-
   const rating = Number(
     course.rating || 0
   );
@@ -712,10 +699,8 @@ const previewLessons = [
           />
 
           <CourseMeta
-            icon={<Users size={15} />}
-            value={`${students.toLocaleString(
-              "en-IN"
-            )} Learners`}
+            icon={<Award size={15} />}
+            value="Certificate Path"
           />
         </div>
 
