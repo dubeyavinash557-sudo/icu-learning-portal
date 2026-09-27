@@ -600,8 +600,8 @@ export default async function Home() {
                   </p>
 
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <ProfileBadge text="B.Sc. Biology" />
-                    <ProfileBadge text="GNM Nursing" />
+                    <ProfileBadge text="B.Sc. Nursing" />
+                    <ProfileBadge text="M.Sc. Nursing" />
                     <ProfileBadge text="4 Years ICU Experience" />
                     <ProfileBadge text="ICU-focused education" />
                   </div>

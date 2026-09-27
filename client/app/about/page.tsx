@@ -25,12 +25,12 @@ export const metadata: Metadata = {
 const credentials = [
   {
     icon: GraduationCap,
-    title: "B.Sc. Biology",
-    text: "Academic foundation in biological sciences.",
+    title: "B.Sc. Nursing",
+    text: "Academic foundation in nursing science.",
   },
   {
     icon: Stethoscope,
-    title: "GNM Nursing",
+    title: "M.Sc. Nursing",
     text: "Professional nursing qualification supporting the portal's nursing education focus.",
   },
   {
@@ -133,7 +133,7 @@ export default function AboutPage() {
                     <ProfileLine
                       icon={<GraduationCap size={18} />}
                       title="Qualifications"
-                      text="B.Sc. Biology + GNM Nursing"
+                      text="B.Sc. Nursing + M.Sc. Nursing"
                     />
 
                     <ProfileLine
