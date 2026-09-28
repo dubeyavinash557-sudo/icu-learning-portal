@@ -1,25 +1,108 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Award,
   BookOpen,
   ChevronRight,
   GraduationCap,
   Mail,
-  MessageCircle,
+  MapPin,
   Phone,
   ShieldCheck,
   Stethoscope,
 } from "lucide-react";
 
-const whatsappNumber = "918177084179";
+/* =========================================================
+   SOCIAL ICONS
+   Inline SVGs are used so this works with the current
+   lucide-react version without requiring package changes.
+========================================================= */
 
-const whatsappMessage = encodeURIComponent(
-  "Hello ICU Learning Portal Support,\n\nI need help with:\n\nIssue:\n\nCourse/Page:\n\nRegistered Email:\n\nThank you."
-);
+function InstagramIcon({
+  size = 19,
+}: {
+  size?: number;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect
+        x="3"
+        y="3"
+        width="18"
+        height="18"
+        rx="5"
+      />
 
-const whatsappUrl =
-  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+      <circle
+        cx="12"
+        cy="12"
+        r="4"
+      />
+
+      <circle
+        cx="17.5"
+        cy="6.5"
+        r="1"
+        fill="currentColor"
+        stroke="none"
+      />
+    </svg>
+  );
+}
+
+function YouTubeIcon({
+  size = 19,
+}: {
+  size?: number;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M21.6 7.2a2.8 2.8 0 0 0-1.97-1.98C17.9 4.75 12 4.75 12 4.75s-5.9 0-7.63.47A2.8 2.8 0 0 0 2.4 7.2C1.93 8.93 1.93 12 1.93 12s0 3.07.47 4.8a2.8 2.8 0 0 0 1.97 1.98c1.73.47 7.63.47 7.63.47s5.9 0 7.63-.47a2.8 2.8 0 0 0 1.97-1.98c.47-1.73.47-4.8.47-4.8s0-3.07-.47-4.8Z"
+        fill="currentColor"
+      />
+
+      <path
+        d="m10 15.5 5-3.5-5-3.5v7Z"
+        fill="rgb(2 6 23)"
+      />
+    </svg>
+  );
+}
+
+/* =========================================================
+   LINKS
+========================================================= */
+
+const socialLinks = [
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/iculearningportal/",
+    description: "Follow us for ICU learning updates",
+    icon: InstagramIcon,
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/@ICULearningPortal",
+    description: "Watch nursing & critical-care lessons",
+    icon: YouTubeIcon,
+  },
+];
 
 const courseLinks = [
   {
@@ -65,16 +148,20 @@ const learningLinks = [
 
 const companyLinks = [
   {
+    label: "Home",
+    href: "/",
+  },
+  {
     label: "About Us",
     href: "/about",
   },
   {
-    label: "FAQ",
-    href: "/faq",
-  },
-  {
     label: "Contact",
     href: "/contact",
+  },
+  {
+    label: "FAQ",
+    href: "/faq",
   },
   {
     label: "Login",
@@ -101,17 +188,43 @@ const legalLinks = [
   },
 ];
 
+/* =========================================================
+   WHATSAPP SUPPORT
+========================================================= */
+
+const whatsappNumber = "918177084179";
+
+const whatsappMessage = encodeURIComponent(
+  "Hello ICU Learning Portal Support,\n\nI need help with:\n\nIssue:\n\nCourse/Page:\n\nRegistered Email:\n\nThank you."
+);
+
+const whatsappUrl =
+  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden bg-slate-950 text-white">
+
+      {/* Background decoration */}
       <div className="pointer-events-none absolute -left-40 top-0 h-96 w-96 rounded-full bg-blue-600/10 blur-3xl" />
 
       <div className="pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
 
+      {/* Main Footer */}
       <div className="relative mx-auto max-w-7xl px-6 py-14 sm:py-16 lg:px-8 lg:py-20">
+
+        {/* =================================================
+            LEARNING CTA
+        ================================================= */}
         <div className="mb-14 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-blue-600/15 via-cyan-500/10 to-indigo-600/15 p-6 sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+
             <div className="flex items-start gap-4">
+
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-300 ring-1 ring-blue-400/20">
                 <GraduationCap size={24} />
               </div>
@@ -126,11 +239,11 @@ export default function Footer() {
                 </h2>
 
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-                  Structured courses, practical lessons, assessments,
-                  protected resources and completion pathways for serious
-                  learners.
+                  Learn through structured courses, practical lessons,
+                  clinical resources and assessments.
                 </p>
               </div>
+
             </div>
 
             <Link
@@ -144,11 +257,20 @@ export default function Footer() {
                 className="transition-transform group-hover:translate-x-1"
               />
             </Link>
+
           </div>
         </div>
 
+        {/* =================================================
+            FOOTER COLUMNS
+        ================================================= */}
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+
+          {/* =================================================
+              BRAND
+          ================================================= */}
           <div className="max-w-sm">
+
             <Link
               href="/"
               className="inline-flex items-center gap-3"
@@ -175,80 +297,172 @@ export default function Footer() {
             </Link>
 
             <p className="mt-6 text-sm leading-7 text-slate-400">
-              A structured learning platform for nursing students, ICU nurses
-              and healthcare learners building knowledge in critical care.
+              A structured learning platform for healthcare
+              professionals building knowledge in ICU nursing,
+              mechanical ventilation, ECG, ABG and critical care.
             </p>
 
+            {/* Trust Points */}
             <div className="mt-6 space-y-3">
-              <TrustPoint
-                icon={<ShieldCheck size={17} />}
-                text="Secure payment flow via Razorpay"
-              />
 
-              <TrustPoint
-                icon={<BookOpen size={17} />}
-                text="Hindi + English learning support"
-              />
+              <div className="flex items-center gap-3 text-sm text-slate-400">
+                <ShieldCheck
+                  size={17}
+                  className="shrink-0 text-emerald-400"
+                />
 
-              <TrustPoint
-                icon={<Award size={17} />}
-                text="Eligible course completion certificates"
-              />
+                Structured professional learning
+              </div>
+
+              <div className="flex items-center gap-3 text-sm text-slate-400">
+                <BookOpen
+                  size={17}
+                  className="shrink-0 text-cyan-400"
+                />
+
+                Practical ICU learning resources
+              </div>
+
             </div>
 
+            {/* Platform Status */}
+            <div className="mt-7 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3.5 py-2 text-xs font-bold text-emerald-300">
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+
+              Professional Learning Platform
+            </div>
+
+            {/* =================================================
+                SOCIAL MEDIA
+            ================================================= */}
+            <div className="mt-8 border-t border-white/10 pt-6">
+
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                Follow ICU Learning Portal
+              </p>
+
+              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+
+                {socialLinks.map((social) => {
+                  const Icon = social.icon;
+
+                  return (
+                    <a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Visit ICU Learning Portal on ${social.label}`}
+                      className="group rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-blue-400/30 hover:bg-white/[0.06]"
+                    >
+                      <div className="flex items-center gap-3">
+
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-300 ring-1 ring-blue-400/10 transition group-hover:bg-blue-500/20">
+                          <Icon size={19} />
+                        </span>
+
+                        <span className="min-w-0">
+
+                          <span className="block text-sm font-black text-white">
+                            {social.label}
+                          </span>
+
+                          <span className="mt-0.5 block text-[10px] leading-4 text-slate-500">
+                            {social.description}
+                          </span>
+
+                        </span>
+
+                      </div>
+                    </a>
+                  );
+                })}
+
+              </div>
+            </div>
+
+            {/* =================================================
+                WHATSAPP
+            ================================================= */}
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5 text-xs font-black text-emerald-300 transition hover:bg-emerald-400/10"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5 text-xs font-black text-emerald-300 transition hover:bg-emerald-400/10"
             >
-              <MessageCircle size={16} />
+              <span
+                aria-hidden="true"
+                className="text-base"
+              >
+                💬
+              </span>
+
               WhatsApp Support
             </a>
+
           </div>
 
+          {/* =================================================
+              COURSES
+          ================================================= */}
           <FooterColumn title="Courses">
+
             {courseLinks.map((link) => (
               <FooterLink
-                key={link.href}
+                key={link.label}
                 href={link.href}
               >
                 {link.label}
               </FooterLink>
             ))}
+
           </FooterColumn>
 
+          {/* =================================================
+              LEARNING
+          ================================================= */}
           <FooterColumn title="Learning">
+
             {learningLinks.map((link) => (
               <FooterLink
-                key={link.href}
+                key={link.label}
                 href={link.href}
               >
                 {link.label}
               </FooterLink>
             ))}
+
           </FooterColumn>
 
+          {/* =================================================
+              COMPANY + CONTACT
+          ================================================= */}
           <div>
+
             <FooterColumn title="Company">
+
               {companyLinks.map((link) => (
                 <FooterLink
-                  key={link.href}
+                  key={link.label}
                   href={link.href}
                 >
                   {link.label}
                 </FooterLink>
               ))}
+
             </FooterColumn>
 
+            {/* Contact */}
             <div className="mt-8 border-t border-white/10 pt-6">
+
               <p className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
-                Support
+                Contact
               </p>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
+
                 <a
-                  href="mailto:support@iculearningportal.com"
+                  href="mailto:dubeyavinash557@gmail.com"
                   className="flex items-start gap-3 text-sm text-slate-400 transition hover:text-white"
                 >
                   <Mail
@@ -257,7 +471,7 @@ export default function Footer() {
                   />
 
                   <span className="break-all">
-                    support@iculearningportal.com
+                    dubeyavinash557@gmail.com
                   </span>
                 </a>
 
@@ -270,17 +484,41 @@ export default function Footer() {
                     className="shrink-0 text-blue-400"
                   />
 
-                  <span>+91 8177084179</span>
+                  <span>
+                    +91 8177084179
+                  </span>
                 </a>
+
+                <div className="flex items-center gap-3 text-sm text-slate-400">
+                  <MapPin
+                    size={16}
+                    className="shrink-0 text-blue-400"
+                  />
+
+                  <span>
+                    Ghaziabad, India
+                  </span>
+                </div>
+
               </div>
             </div>
+
           </div>
+
         </div>
 
+        {/* =================================================
+            DIVIDER
+        ================================================= */}
         <div className="my-10 h-px bg-white/10" />
 
+        {/* =================================================
+            BOTTOM FOOTER
+        ================================================= */}
         <div className="flex flex-col gap-5 text-sm md:flex-row md:items-start md:justify-between">
+
           <div>
+
             <p className="text-slate-500">
               © {new Date().getFullYear()} ICU Learning Portal.
               All rights reserved.
@@ -291,9 +529,11 @@ export default function Footer() {
               replace supervised clinical training, institutional protocols or
               professional medical judgement.
             </p>
+
           </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+
             {legalLinks.map((link) => (
               <Link
                 key={link.href}
@@ -312,30 +552,19 @@ export default function Footer() {
 
               <ChevronRight size={14} />
             </Link>
+
           </div>
+
         </div>
+
       </div>
     </footer>
   );
 }
 
-function TrustPoint({
-  icon,
-  text,
-}: {
-  icon: React.ReactNode;
-  text: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 text-sm text-slate-400">
-      <span className="text-cyan-400">
-        {icon}
-      </span>
-
-      {text}
-    </div>
-  );
-}
+/* =========================================================
+   FOOTER COLUMN
+========================================================= */
 
 function FooterColumn({
   title,
@@ -346,6 +575,7 @@ function FooterColumn({
 }) {
   return (
     <div>
+
       <h3 className="text-sm font-black uppercase tracking-[0.14em] text-white">
         {title}
       </h3>
@@ -353,9 +583,14 @@ function FooterColumn({
       <div className="mt-5 space-y-3">
         {children}
       </div>
+
     </div>
   );
 }
+
+/* =========================================================
+   FOOTER LINK
+========================================================= */
 
 function FooterLink({
   href,
