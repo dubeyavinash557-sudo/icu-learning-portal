@@ -38,13 +38,7 @@ const supportTopics = [
   },
 ];
 
-const whatsappNumber = "918177084179";
-
-const whatsappMessage = encodeURIComponent(
-  "Hello ICU Learning Portal Support,\n\nI need help with the following issue:\n\nIssue:\n\nCourse/Page:\n\nRegistered Email:\n\nThank you."
-);
-
-const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+const supportEmail = "support@iculearningportal.com";
 
 export default function ContactPage() {
   return (
@@ -108,95 +102,67 @@ export default function ContactPage() {
           </div>
 
           {/* ===================================================
-              WHATSAPP + EMAIL SUPPORT
+              EMAIL SUPPORT
           ==================================================== */}
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-            {/* WhatsApp Support */}
-            <div className="rounded-3xl border border-emerald-200 bg-white p-6 shadow-sm sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-600 text-white">
-                  <MessageCircle size={21} />
-                </div>
-
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-600">
-                    WhatsApp Support
-                  </p>
-
-                  <h2 className="mt-1 text-xl font-black text-slate-950">
-                    Need help? Message us on WhatsApp
-                  </h2>
-                </div>
+          <div className="mt-10 rounded-3xl border border-blue-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
+                <Mail size={21} />
               </div>
 
-              <p className="mt-5 text-sm leading-7 text-slate-600">
-                If you are facing a course, login, account, technical or
-                payment-related issue, send us a WhatsApp message. Please
-                explain the problem clearly so we can understand and resolve
-                it.
-              </p>
-
-              <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-                <p className="text-sm font-bold text-emerald-900">
-                  What should you send?
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600">
+                  Official Support Email
                 </p>
 
-                <ul className="mt-3 space-y-2 text-sm leading-6 text-emerald-800">
-                  <li>• Your registered email address</li>
-                  <li>• Course or page where the issue appears</li>
-                  <li>• Exact problem or error message</li>
-                  <li>• Screenshot, if available</li>
-                </ul>
+                <h2 className="mt-1 text-xl font-black text-slate-950">
+                  Contact ICU Learning Portal Support
+                </h2>
               </div>
-
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700 sm:w-auto"
-              >
-                <MessageCircle size={18} />
-                Chat on WhatsApp
-                <ArrowRight size={17} />
-              </a>
-
-              <p className="mt-3 text-xs text-slate-400">
-                WhatsApp Support: +91 8177084179
-              </p>
             </div>
 
-            {/* Email Support */}
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
-                  <Mail size={21} />
-                </div>
+            <p className="mt-5 max-w-3xl text-sm leading-7 text-slate-600">
+              For course, account, payment or technical questions, contact
+              our official support email. Please include your registered email
+              address and a clear description of the issue so our support team
+              can assist you efficiently.
+            </p>
 
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600">
-                    Email Support
-                  </p>
-
-                  <h2 className="mt-1 text-xl font-black text-slate-950">
-                    Send us your question
-                  </h2>
-                </div>
-              </div>
-
-              <p className="mt-5 text-sm leading-7 text-slate-600">
-                For course, account or technical questions, you can also send
-                a detailed email with your registered email address and the
-                issue you are facing.
+            <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-blue-600">
+                Official Support Email
               </p>
 
               <a
-                href="mailto:support@iculearningportal.com"
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800"
+                href={`mailto:${supportEmail}`}
+                className="mt-2 inline-flex break-all text-lg font-black text-slate-950 transition hover:text-blue-700"
               >
-                Email Support
-                <ArrowRight size={17} />
+                {supportEmail}
               </a>
             </div>
+
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm font-bold text-slate-900">
+                What should you include?
+              </p>
+
+              <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+                <li>• Your registered email address</li>
+                <li>• Course or page where the issue appears</li>
+                <li>• Exact problem or error message</li>
+                <li>• Screenshot, if available</li>
+                <li>• Payment/order details only when required for support</li>
+              </ul>
+            </div>
+
+            <a
+              href={`mailto:${supportEmail}`}
+              className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800"
+            >
+              <Mail size={18} />
+              Email Support
+              <ArrowRight size={17} />
+            </a>
           </div>
 
           {/* ===================================================
@@ -214,8 +180,10 @@ export default function ContactPage() {
             <ul className="mt-5 grid gap-3 text-sm leading-6 text-slate-300 md:grid-cols-2">
               <li>• Mention the page or course where the issue appears.</li>
               <li>• Include the exact error message, if available.</li>
-              <li>• Do not share your password or payment credentials.</li>
+              <li>• Never share your password, OTP or full card details.</li>
               <li>• Add a screenshot when reporting a technical issue.</li>
+              <li>• Use your registered email when discussing account issues.</li>
+              <li>• Include relevant payment/order information only when necessary.</li>
             </ul>
           </div>
 
