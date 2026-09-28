@@ -564,11 +564,112 @@ function ProfessionalCourseCard({
 
   const lessons = course._count.lessons;
 
-const previewLessons = [
-  "ICU fundamentals and patient assessment",
-  "Clinical monitoring and emergency care",
-  "Practical skills and professional learning",
+const courseCurriculum: Record<string, string[]> = {
+  "abg-analysis": [
+    "ABG values, pH and acid-base fundamentals",
+    "Respiratory and metabolic acidosis/alkalosis",
+    "Compensation, interpretation and clinical correlation",
+  ],
+
+  "acute-kidney-injury": [
+    "AKI recognition, staging and risk assessment",
+    "Urine output, renal function and electrolyte monitoring",
+    "Fluid balance, nursing care and critical complications",
+  ],
+
+  "airway-management": [
+    "Airway assessment and emergency airway priorities",
+    "Intubation assistance, suctioning and airway devices",
+    "Endotracheal tube care and airway safety",
+  ],
+
+  "cardiac-icu": [
+    "Cardiac ICU assessment and continuous monitoring",
+    "Acute coronary syndromes and cardiac emergencies",
+    "Hemodynamic observation and critical cardiac nursing care",
+  ],
+
+  "critical-care-monitoring": [
+    "ECG, SpO₂, blood pressure and vital-sign monitoring",
+    "CVP, hemodynamic trends and clinical observation",
+    "Early recognition of deterioration and escalation of care",
+  ],
+
+  "critical-care-nursing": [
+    "Comprehensive ICU patient assessment and nursing priorities",
+    "Hemodynamic, respiratory and neurological monitoring",
+    "Documentation, handover and advanced bedside nursing care",
+  ],
+
+  "critical-care-procedures": [
+    "Essential ICU procedures and patient preparation",
+    "Aseptic technique, infection prevention and safety",
+    "Procedure monitoring, documentation and complication awareness",
+  ],
+
+  "ecg-cardiac-rhythm": [
+    "ECG waves, intervals and systematic interpretation",
+    "Normal and abnormal cardiac rhythms",
+    "AF, VT, VF, heart blocks and emergency rhythm recognition",
+  ],
+
+  "icu-emergency-drugs": [
+    "Common emergency drugs used in critical care",
+    "Drug indications, preparation and administration safety",
+    "High-alert medication monitoring and adverse reactions",
+  ],
+
+  "icu-emergency-management": [
+    "Recognition and first response to ICU emergencies",
+    "Cardiac arrest, shock and acute deterioration",
+    "Emergency team response, monitoring and documentation",
+  ],
+
+  "icu-nursing-mastery": [
+    "Complete ICU nursing assessment and patient management",
+    "Ventilator, monitoring and critical-care nursing skills",
+    "Advanced bedside practice, emergencies and clinical documentation",
+  ],
+
+  "mechanical-ventilation": [
+    "Ventilator modes, settings and basic principles",
+    "FiO₂, PEEP, alarms and patient-ventilator assessment",
+    "ABG correlation, weaning and ventilator safety",
+  ],
+
+  "neuro-icu": [
+    "Neurological assessment, GCS and pupil examination",
+    "Stroke, seizures and neurological emergencies",
+    "ICP concepts, neuro-monitoring and critical nursing care",
+  ],
+
+  "renal-critical-care": [
+    "Critical renal assessment and fluid balance",
+    "Electrolyte abnormalities and renal complications",
+    "Renal replacement therapy concepts and nursing care",
+  ],
+
+  "respiratory-failure": [
+    "Types and recognition of acute respiratory failure",
+    "Oxygen therapy, ABG interpretation and respiratory monitoring",
+    "Ventilatory support, escalation and patient assessment",
+  ],
+
+  "sepsis-shock": [
+    "Early recognition of sepsis and clinical deterioration",
+    "Septic, hypovolemic and other shock states",
+    "Hemodynamic monitoring, resuscitation principles and nursing care",
+  ],
+};
+
+const defaultCurriculum = [
+  "ICU patient assessment and critical-care fundamentals",
+  "Clinical monitoring and evidence-based nursing care",
+  "Emergency management, practical skills and documentation",
 ];
+
+const previewLessons =
+  courseCurriculum[course.slug] ?? defaultCurriculum;
 
   const formattedPrice =
     Number.isFinite(price) && price > 0
