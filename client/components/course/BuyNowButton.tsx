@@ -1,16 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  BadgeCheck,
   CheckCircle2,
   CreditCard,
   Loader2,
+  LockKeyhole,
   ShieldCheck,
   Sparkles,
-  LockKeyhole,
-  BadgeCheck,
 } from "lucide-react";
 
 type Props = {
@@ -25,7 +26,6 @@ type Props = {
 type CreateOrderResponse = {
   success?: boolean;
   message?: string;
-
   keyId?: string;
 
   alreadyPurchased?: boolean;
@@ -143,9 +143,7 @@ declare global {
   }
 }
 
-async function readJson<T>(
-  response: Response
-): Promise<T> {
+async function readJson<T>(response: Response): Promise<T> {
   try {
     return (await response.json()) as T;
   } catch {
@@ -177,39 +175,25 @@ export default function BuyNowButton({
 
   const displayPrice = formatPrice(price);
 
-  async function verifyPayment(
-    response: RazorpayResponse
-  ) {
-    const verifyResponse = await fetch(
-      "/api/payments/verify",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: "no-store",
-        body: JSON.stringify({
-          courseId,
-          razorpayOrderId:
-            response.razorpay_order_id,
-          razorpayPaymentId:
-            response.razorpay_payment_id,
-          razorpaySignature:
-            response.razorpay_signature,
-        }),
-      }
-
-          );
+  async function verifyPayment(response: RazorpayResponse) {
+    const verifyResponse = await fetch("/api/payments/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      body: JSON.stringify({
+        courseId,
+        razorpayOrderId: response.razorpay_order_id,
+        razorpayPaymentId: response.razorpay_payment_id,
+        razorpaySignature: response.razorpay_signature,
+      }),
+    });
 
     const verifyData =
-      await readJson<VerifyResponse>(
-        verifyResponse
-      );
+      await readJson<VerifyResponse>(verifyResponse);
 
-    if (
-      !verifyResponse.ok ||
-      !verifyData.success
-    ) {
+    if (!verifyResponse.ok || !verifyData.success) {
       throw new Error(
         verifyData.message ||
           "Payment verification failed. If your payment was deducted, please contact support."
@@ -247,10 +231,7 @@ export default function BuyNowButton({
       return;
     }
 
-    if (
-      !Number.isFinite(price) ||
-      price <= 0
-    ) {
+    if (!Number.isFinite(price) || price <= 0) {
       setError(
         "This course has an invalid price configuration."
       );
@@ -295,15 +276,9 @@ export default function BuyNowButton({
         );
       }
 
-      const orderId =
-        orderData.order?.id;
-
-      const orderAmount =
-
-              orderData.order?.amount;
-
-      const orderCurrency =
-        orderData.order?.currency;
+      const orderId = orderData.order?.id;
+      const orderAmount = orderData.order?.amount;
+      const orderCurrency = orderData.order?.currency;
 
       if (
         !orderData.success ||
@@ -320,8 +295,7 @@ export default function BuyNowButton({
         );
       }
 
-      const RazorpayCheckout =
-        window.Razorpay;
+      const RazorpayCheckout = window.Razorpay;
 
       if (!RazorpayCheckout) {
         throw new Error(
@@ -352,8 +326,7 @@ export default function BuyNowButton({
 
         notes: {
           courseId,
-          courseTitle:
-            courseTitle.slice(0, 240),
+          courseTitle: courseTitle.slice(0, 240),
         },
 
         theme: {
@@ -371,17 +344,14 @@ export default function BuyNowButton({
         ) => {
           try {
             await verifyPayment(response);
-          } catch (
-            verificationError
-          ) {
+          } catch (verificationError) {
             console.error(
               "RAZORPAY PAYMENT VERIFICATION ERROR:",
               verificationError
             );
 
             setError(
-              verificationError instanceof
-                Error
+              verificationError instanceof Error
                 ? verificationError.message
                 : "Payment verification failed."
             );
@@ -396,12 +366,13 @@ export default function BuyNowButton({
 
       razorpay.on(
         "payment.failed",
-        (response: RazorpayPaymentFailedResponse) => {
+        (
+          response: RazorpayPaymentFailedResponse
+        ) => {
           console.error(
             "RAZORPAY PAYMENT FAILED:",
             response.error
-
-                      );
+          );
 
           const failureReason =
             response.error?.description ||
@@ -409,7 +380,7 @@ export default function BuyNowButton({
             "The payment could not be completed.";
 
           setError(
-            `Payment failed: ${failureReason} If money was deducted from your account, please do not pay again immediately. Contact ICU Learning Portal support on WhatsApp with your payment details.`
+            `Payment failed: ${failureReason} If money was deducted from your account, please do not pay again immediately. Contact ICU Learning Portal support with your payment details.`
           );
 
           setLoading(false);
@@ -502,8 +473,7 @@ export default function BuyNowButton({
             hover:from-cyan-700
             hover:via-blue-700
             hover:to-indigo-700
-
-                        hover:shadow-2xl
+            hover:shadow-2xl
             focus:outline-none
             focus:ring-2
             focus:ring-blue-500
@@ -532,6 +502,27 @@ export default function BuyNowButton({
             </>
           )}
         </button>
+
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="text-center text-xs leading-5 text-slate-600">
+            By continuing to payment, you acknowledge that
+            you have reviewed the applicable{" "}
+            <Link
+              href="/terms"
+              className="font-extrabold text-blue-700 underline underline-offset-2 transition hover:text-blue-900"
+            >
+              Terms & Conditions
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/refund"
+              className="font-extrabold text-blue-700 underline underline-offset-2 transition hover:text-blue-900"
+            >
+              Refund & Cancellation Policy
+            </Link>
+            .
+          </p>
+        </div>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
           <div className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-600">
