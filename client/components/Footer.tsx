@@ -40,18 +40,19 @@ const courseLinks = [
   },
 ];
 
+/*
+ * Notes and Quiz are intentionally removed from the
+ * public footer navigation because the website audit
+ * identified those public navigation entries as broken
+ * or empty destinations.
+ *
+ * The actual Quiz Dashboard remains available through
+ * the authenticated Dashboard area.
+ */
 const learningLinks = [
   {
     label: "All Courses",
     href: "/courses",
-  },
-  {
-    label: "Study Notes",
-    href: "/notes",
-  },
-  {
-    label: "Quizzes",
-    href: "/dashboard/quiz",
   },
   {
     label: "Certificates",
@@ -109,6 +110,8 @@ export default function Footer() {
       <div className="pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-6 py-14 sm:py-16 lg:px-8 lg:py-20">
+        {/* CTA */}
+
         <div className="mb-14 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-r from-blue-600/15 via-cyan-500/10 to-indigo-600/15 p-6 sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-start gap-4">
@@ -147,7 +150,11 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Main footer columns */}
+
         <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+          {/* Brand */}
+
           <div className="max-w-sm">
             <Link
               href="/"
@@ -207,6 +214,8 @@ export default function Footer() {
             </a>
           </div>
 
+          {/* Courses */}
+
           <FooterColumn title="Courses">
             {courseLinks.map((link) => (
               <FooterLink
@@ -218,6 +227,8 @@ export default function Footer() {
             ))}
           </FooterColumn>
 
+          {/* Learning */}
+
           <FooterColumn title="Learning">
             {learningLinks.map((link) => (
               <FooterLink
@@ -228,6 +239,8 @@ export default function Footer() {
               </FooterLink>
             ))}
           </FooterColumn>
+
+          {/* Company + Support */}
 
           <div>
             <FooterColumn title="Company">
@@ -277,7 +290,11 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Divider */}
+
         <div className="my-10 h-px bg-white/10" />
+
+        {/* Bottom */}
 
         <div className="flex flex-col gap-5 text-sm md:flex-row md:items-start md:justify-between">
           <div>
