@@ -8,268 +8,320 @@ import {
 
 const styles = StyleSheet.create({
   page: {
-    backgroundColor: "#f8fafc",
-    padding: 28,
+    backgroundColor: "#eef4f8",
+    padding: 24,
     fontFamily: "Helvetica",
   },
 
-  outerBorder: {
+  outerFrame: {
     flex: 1,
-    borderWidth: 3,
-    borderColor: "#0e7490",
-    padding: 8,
+    borderWidth: 4,
+    borderColor: "#0b7285",
+    padding: 7,
+    backgroundColor: "#ffffff",
   },
 
-  innerBorder: {
+  innerFrame: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#cbd5e1",
-    padding: 28,
+    borderColor: "#b8cbd3",
     position: "relative",
+    padding: 30,
+    backgroundColor: "#ffffff",
   },
 
-  topAccent: {
-    height: 7,
+  topGoldLine: {
+    height: 5,
     width: "100%",
-    backgroundColor: "#0891b2",
-    marginBottom: 22,
+    backgroundColor: "#c59b3b",
+    marginBottom: 18,
   },
 
-  brandRow: {
-    flexDirection: "row",
+  topHeader: {
     alignItems: "center",
     justifyContent: "center",
   },
 
-  brandMark: {
+  emblemOuter: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    borderWidth: 2,
+    borderColor: "#c59b3b",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f8fbfc",
+  },
+
+  emblemInner: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#0e7490",
+    backgroundColor: "#0b7285",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
   },
 
-  brandMarkText: {
+  emblemText: {
     color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "bold",
+    letterSpacing: 0.8,
+  },
+
+  organization: {
+    marginTop: 9,
     fontSize: 20,
     fontWeight: "bold",
+    color: "#12343b",
+    letterSpacing: 1.5,
+    textAlign: "center",
   },
 
-  brandText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#0f172a",
-    letterSpacing: 1.2,
-  },
-
-  brandSubtext: {
+  organizationSub: {
     marginTop: 4,
-    fontSize: 8,
-    color: "#0891b2",
-    letterSpacing: 2,
+    fontSize: 7,
+    fontWeight: "bold",
+    color: "#0b7285",
+    letterSpacing: 2.2,
+    textAlign: "center",
   },
 
   certificateLabel: {
-    marginTop: 28,
-    textAlign: "center",
-    fontSize: 10,
-    color: "#0e7490",
+    marginTop: 25,
+    fontSize: 9,
     fontWeight: "bold",
+    color: "#8a6a21",
     letterSpacing: 3,
-  },
-
-  title: {
-    marginTop: 8,
     textAlign: "center",
-    fontSize: 29,
-    fontWeight: "bold",
-    color: "#0f172a",
   },
 
-  divider: {
-    width: 100,
+  certificateTitle: {
+    marginTop: 7,
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#102a43",
+    textAlign: "center",
+    letterSpacing: 0.8,
+  },
+
+  goldDivider: {
+    marginTop: 11,
+    width: 130,
     height: 2,
-    backgroundColor: "#f59e0b",
+    backgroundColor: "#c59b3b",
     alignSelf: "center",
-    marginTop: 12,
-    marginBottom: 20,
   },
 
   presentedText: {
-    textAlign: "center",
-    fontSize: 11,
+    marginTop: 20,
+    fontSize: 10,
     color: "#64748b",
+    textAlign: "center",
   },
 
   studentName: {
-    marginTop: 12,
-    textAlign: "center",
-    fontSize: 26,
+    marginTop: 10,
+    fontSize: 27,
     fontWeight: "bold",
-    color: "#0e7490",
+    color: "#0b7285",
+    textAlign: "center",
   },
 
-  studentUnderline: {
-    width: 270,
+  nameLine: {
+    marginTop: 6,
+    width: 330,
     height: 1,
     backgroundColor: "#cbd5e1",
     alignSelf: "center",
-    marginTop: 8,
   },
 
   completionText: {
-    marginTop: 22,
-    textAlign: "center",
-    fontSize: 11,
+    marginTop: 19,
+    fontSize: 10,
     color: "#64748b",
+    textAlign: "center",
+  },
+
+  professionalLabel: {
+    marginTop: 9,
+    fontSize: 8,
+    fontWeight: "bold",
+    color: "#8a6a21",
+    letterSpacing: 2,
+    textAlign: "center",
   },
 
   courseTitle: {
-    marginTop: 10,
-    marginHorizontal: 35,
-    textAlign: "center",
-    fontSize: 19,
-    lineHeight: 1.35,
+    marginTop: 7,
+    marginHorizontal: 55,
+    fontSize: 20,
+    lineHeight: 1.3,
     fontWeight: "bold",
-    color: "#1e3a8a",
+    color: "#173f5f",
+    textAlign: "center",
   },
 
   achievementBox: {
-    marginTop: 22,
-    marginHorizontal: 45,
-    padding: 12,
+    marginTop: 17,
+    marginHorizontal: 55,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     borderWidth: 1,
-    borderColor: "#bae6fd",
-    backgroundColor: "#f0f9ff",
-    borderRadius: 6,
+    borderColor: "#c8dce2",
+    backgroundColor: "#f5fafb",
     alignItems: "center",
   },
 
   achievementTitle: {
-    fontSize: 9,
-    color: "#0e7490",
+    fontSize: 8,
     fontWeight: "bold",
-    letterSpacing: 1.3,
+    color: "#0b7285",
+    letterSpacing: 1.5,
+    textAlign: "center",
   },
 
   achievementText: {
     marginTop: 5,
-    fontSize: 9,
-    color: "#475569",
+    fontSize: 8,
+    lineHeight: 1.35,
+    color: "#52616b",
     textAlign: "center",
   },
 
-  verificationRow: {
-    marginTop: 20,
+  detailsArea: {
+    position: "absolute",
+    left: 30,
+    right: 30,
+    bottom: 55,
+    borderTopWidth: 1,
+    borderTopColor: "#d8e2e7",
+    paddingTop: 11,
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
+  },
+
+  detailColumnLeft: {
+    width: "30%",
+    alignItems: "flex-start",
+  },
+
+  detailColumnCenter: {
+    width: "30%",
     alignItems: "center",
   },
 
-  verifiedBadge: {
-    borderWidth: 1,
-    borderColor: "#86efac",
-    backgroundColor: "#f0fdf4",
-    borderRadius: 12,
-    paddingVertical: 5,
-    paddingHorizontal: 12,
-  },
-
-  verifiedText: {
-    fontSize: 8,
-    fontWeight: "bold",
-    color: "#15803d",
-    letterSpacing: 1,
-  },
-
-  detailsRow: {
-    position: "absolute",
-    left: 28,
-    right: 28,
-    bottom: 52,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-    paddingTop: 12,
-  },
-
-  detailColumn: {
-    width: "31%",
+  detailColumnRight: {
+    width: "30%",
+    alignItems: "flex-end",
   },
 
   detailLabel: {
-    fontSize: 7,
-    color: "#94a3b8",
-    textTransform: "uppercase",
+    fontSize: 6.5,
+    color: "#8a9aa5",
+    fontWeight: "bold",
     letterSpacing: 0.8,
+    textTransform: "uppercase",
   },
 
   detailValue: {
     marginTop: 4,
     fontSize: 8,
+    color: "#263943",
     fontWeight: "bold",
-    color: "#334155",
+  },
+
+  verificationBadge: {
+    position: "absolute",
+    left: 30,
+    bottom: 105,
+    borderWidth: 1,
+    borderColor: "#78a889",
+    backgroundColor: "#f4faf5",
+    borderRadius: 12,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+  },
+
+  verificationText: {
+    fontSize: 7,
+    color: "#287343",
+    fontWeight: "bold",
+    letterSpacing: 0.8,
+  },
+
+  website: {
+    position: "absolute",
+    right: 30,
+    bottom: 105,
+    fontSize: 7,
+    color: "#0b7285",
   },
 
   footer: {
     position: "absolute",
-    left: 28,
-    right: 28,
+    left: 30,
+    right: 30,
     bottom: 20,
-    textAlign: "center",
+    alignItems: "center",
+  },
+
+  footerLine: {
+    width: 180,
+    height: 1,
+    backgroundColor: "#d6e0e5",
+    marginBottom: 5,
   },
 
   footerText: {
-    fontSize: 7,
-    color: "#94a3b8",
-    letterSpacing: 0.7,
+    fontSize: 6.5,
+    color: "#8a9aa5",
+    letterSpacing: 0.5,
+    textAlign: "center",
   },
 
   cornerTopLeft: {
     position: "absolute",
-    left: 8,
-    top: 8,
-    width: 28,
-    height: 28,
+    left: 7,
+    top: 7,
+    width: 34,
+    height: 34,
     borderLeftWidth: 3,
     borderTopWidth: 3,
-    borderColor: "#f59e0b",
+    borderColor: "#c59b3b",
   },
 
   cornerTopRight: {
     position: "absolute",
-    right: 8,
-    top: 8,
-    width: 28,
-    height: 28,
+    right: 7,
+    top: 7,
+    width: 34,
+    height: 34,
     borderRightWidth: 3,
     borderTopWidth: 3,
-    borderColor: "#f59e0b",
+    borderColor: "#c59b3b",
   },
 
   cornerBottomLeft: {
     position: "absolute",
-    left: 8,
-    bottom: 8,
-    width: 28,
-    height: 28,
+    left: 7,
+    bottom: 7,
+    width: 34,
+    height: 34,
     borderLeftWidth: 3,
     borderBottomWidth: 3,
-    borderColor: "#f59e0b",
+    borderColor: "#c59b3b",
   },
 
   cornerBottomRight: {
     position: "absolute",
-    right: 8,
-    bottom: 8,
-    width: 28,
-    height: 28,
+    right: 7,
+    bottom: 7,
+    width: 34,
+    height: 34,
     borderRightWidth: 3,
     borderBottomWidth: 3,
-    borderColor: "#f59e0b",
+    borderColor: "#c59b3b",
   },
 });
 
@@ -296,9 +348,9 @@ export default function CertificatePDF({
 }: CertificatePDFProps) {
   return (
     <Document
-      title="ICU Learning Portal Certificate"
+      title="ICU Learning Portal Professional Certificate"
       author="ICU Learning Portal"
-      subject="Certificate of Completion"
+      subject="Professional Course Certificate"
       creator="ICU Learning Portal"
     >
       <Page
@@ -306,8 +358,8 @@ export default function CertificatePDF({
         orientation="landscape"
         style={styles.page}
       >
-        <View style={styles.outerBorder}>
-          <View style={styles.innerBorder}>
+        <View style={styles.outerFrame}>
+          <View style={styles.innerFrame}>
             {/* Decorative corners */}
             <View style={styles.cornerTopLeft} />
             <View style={styles.cornerTopRight} />
@@ -315,39 +367,39 @@ export default function CertificatePDF({
             <View style={styles.cornerBottomRight} />
 
             {/* Top accent */}
-            <View style={styles.topAccent} />
+            <View style={styles.topGoldLine} />
 
-            {/* Branding */}
-            <View style={styles.brandRow}>
-              <View style={styles.brandMark}>
-                <Text style={styles.brandMarkText}>
-                  ICU
-                </Text>
+            {/* Organization header */}
+            <View style={styles.topHeader}>
+              <View style={styles.emblemOuter}>
+                <View style={styles.emblemInner}>
+                  <Text style={styles.emblemText}>
+                    ICU
+                  </Text>
+                </View>
               </View>
 
-              <View>
-                <Text style={styles.brandText}>
-                  ICU LEARNING PORTAL
-                </Text>
+              <Text style={styles.organization}>
+                ICU LEARNING PORTAL
+              </Text>
 
-                <Text style={styles.brandSubtext}>
-                  PROFESSIONAL CRITICAL CARE EDUCATION
-                </Text>
-              </View>
+              <Text style={styles.organizationSub}>
+                PROFESSIONAL CRITICAL CARE EDUCATION
+              </Text>
             </View>
 
-            {/* Certificate title */}
+            {/* Certificate heading */}
             <Text style={styles.certificateLabel}>
-              VERIFIED LEARNING ACHIEVEMENT
+              PROFESSIONAL COURSE CERTIFICATE
             </Text>
 
-            <Text style={styles.title}>
+            <Text style={styles.certificateTitle}>
               Certificate of Completion
             </Text>
 
-            <View style={styles.divider} />
+            <View style={styles.goldDivider} />
 
-            {/* Student */}
+            {/* Learner */}
             <Text style={styles.presentedText}>
               This certificate is proudly presented to
             </Text>
@@ -356,42 +408,48 @@ export default function CertificatePDF({
               {studentName}
             </Text>
 
-            <View style={styles.studentUnderline} />
+            <View style={styles.nameLine} />
 
             {/* Course */}
             <Text style={styles.completionText}>
-              for successfully completing the course
+              for successfully completing the professional course
+            </Text>
+
+            <Text style={styles.professionalLabel}>
+              CRITICAL CARE &amp; NURSING EDUCATION
             </Text>
 
             <Text style={styles.courseTitle}>
               {courseTitle}
             </Text>
 
-            {/* Achievement */}
+            {/* Achievement statement */}
             <View style={styles.achievementBox}>
               <Text style={styles.achievementTitle}>
                 COURSE COMPLETION ACHIEVEMENT
               </Text>
 
               <Text style={styles.achievementText}>
-                The learner has successfully completed
-                the required course curriculum through
+                The learner has successfully completed the required
+                course curriculum and learning activities through
                 ICU Learning Portal.
               </Text>
             </View>
 
-            {/* Verification badge */}
-            <View style={styles.verificationRow}>
-              <View style={styles.verifiedBadge}>
-                <Text style={styles.verifiedText}>
-                  ✓ VERIFIED CERTIFICATE
-                </Text>
-              </View>
+            {/* Verification */}
+            <View style={styles.verificationBadge}>
+              <Text style={styles.verificationText}>
+                ✓ VERIFIED COURSE CERTIFICATE
+              </Text>
             </View>
 
+            <Text style={styles.website}>
+              iculearningportal.com
+            </Text>
+
             {/* Certificate details */}
-            <View style={styles.detailsRow}>
-              <View style={styles.detailColumn}>
+            <View style={styles.detailsArea}>
+              <View style={styles.detailColumnLeft}>
                 <Text style={styles.detailLabel}>
                   Certificate No.
                 </Text>
@@ -401,7 +459,7 @@ export default function CertificatePDF({
                 </Text>
               </View>
 
-              <View style={styles.detailColumn}>
+              <View style={styles.detailColumnCenter}>
                 <Text style={styles.detailLabel}>
                   Issue Date
                 </Text>
@@ -411,7 +469,7 @@ export default function CertificatePDF({
                 </Text>
               </View>
 
-              <View style={styles.detailColumn}>
+              <View style={styles.detailColumnRight}>
                 <Text style={styles.detailLabel}>
                   Issuing Organization
                 </Text>
@@ -424,8 +482,10 @@ export default function CertificatePDF({
 
             {/* Footer */}
             <View style={styles.footer}>
+              <View style={styles.footerLine} />
+
               <Text style={styles.footerText}>
-                ICU Learning Portal • Professional Critical Care Education
+                Professional course completion credential • ICU Learning Portal
               </Text>
             </View>
           </View>

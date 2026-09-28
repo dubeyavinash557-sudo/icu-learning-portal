@@ -1,74 +1,381 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="certificateTitle certificateDesc">
-  <title id="certificateTitle">ICU Learning Portal Certificate Preview</title>
-  <desc id="certificateDesc">Decorative certificate preview for ICU Learning Portal. This is a design preview and not an issued certificate.</desc>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 800"
+     role="img"
+     aria-labelledby="certificateTitle certificateDesc">
 
-  <rect width="1200" height="800" fill="#f8fafc"/>
-  <rect x="35" y="35" width="1130" height="730" rx="18" fill="#ffffff" stroke="#0f766e" stroke-width="6"/>
-  <rect x="55" y="55" width="1090" height="690" rx="12" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+  <title id="certificateTitle">
+    ICU Learning Portal Professional Certificate
+  </title>
 
-  <circle cx="600" cy="145" r="48" fill="#0f766e"/>
-  <path d="M580 145h40M600 125v40" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+  <desc id="certificateDesc">
+    Professional course completion certificate preview for ICU Learning Portal.
+    This is a design preview and not an issued certificate.
+  </desc>
 
-  <text x="600" y="245"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="46"
-        font-weight="700"
-        fill="#0f172a">
+  <rect width="1200" height="800" fill="#eef4f8"/>
+
+  <!-- Outer frame -->
+  <rect
+    x="30"
+    y="30"
+    width="1140"
+    height="740"
+    rx="12"
+    fill="#ffffff"
+    stroke="#0b7285"
+    stroke-width="6"
+  />
+
+  <!-- Inner frame -->
+  <rect
+    x="50"
+    y="50"
+    width="1100"
+    height="700"
+    rx="8"
+    fill="none"
+    stroke="#b8cbd3"
+    stroke-width="2"
+  />
+
+  <!-- Gold corner accents -->
+  <path
+    d="M58 94V58H94"
+    fill="none"
+    stroke="#c59b3b"
+    stroke-width="5"
+  />
+
+  <path
+    d="M1106 58H1142V94"
+    fill="none"
+    stroke="#c59b3b"
+    stroke-width="5"
+  />
+
+  <path
+    d="M58 706V742H94"
+    fill="none"
+    stroke="#c59b3b"
+    stroke-width="5"
+  />
+
+  <path
+    d="M1106 742H1142V706"
+    fill="none"
+    stroke="#c59b3b"
+    stroke-width="5"
+  />
+
+  <!-- Top gold line -->
+  <rect
+    x="85"
+    y="75"
+    width="1030"
+    height="5"
+    fill="#c59b3b"
+  />
+
+  <!-- Emblem -->
+  <circle
+    cx="600"
+    cy="145"
+    r="42"
+    fill="#ffffff"
+    stroke="#c59b3b"
+    stroke-width="3"
+  />
+
+  <circle
+    cx="600"
+    cy="145"
+    r="32"
+    fill="#0b7285"
+  />
+
+  <text
+    x="600"
+    y="151"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="16"
+    font-weight="700"
+    fill="#ffffff">
+    ICU
+  </text>
+
+  <!-- Organization -->
+  <text
+    x="600"
+    y="215"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="31"
+    font-weight="700"
+    letter-spacing="3"
+    fill="#12343b">
     ICU LEARNING PORTAL
   </text>
 
-  <text x="600" y="300"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="28"
-        font-weight="600"
-        fill="#0f766e">
-    CERTIFICATE OF COMPLETION
+  <text
+    x="600"
+    y="242"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="11"
+    font-weight="700"
+    letter-spacing="4"
+    fill="#0b7285">
+    PROFESSIONAL CRITICAL CARE EDUCATION
   </text>
 
-  <line x1="270" y1="340" x2="930" y2="340" stroke="#cbd5e1" stroke-width="2"/>
-
-  <text x="600" y="405"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="24"
-        fill="#64748b">
+  <!-- Certificate title -->
+  <text
+    x="600"
+    y="292"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="12"
+    font-weight="700"
+    letter-spacing="4"
+    fill="#8a6a21">
     PROFESSIONAL COURSE CERTIFICATE
   </text>
 
-  <rect x="330" y="445" width="540" height="80" rx="10" fill="#f1f5f9"/>
-
-  <text x="600" y="496"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="26"
-        font-weight="700"
-        fill="#475569">
-    CERTIFICATE PREVIEW
+  <text
+    x="600"
+    y="333"
+    text-anchor="middle"
+    font-family="Georgia, Times New Roman, serif"
+    font-size="38"
+    font-weight="700"
+    fill="#102a43">
+    CERTIFICATE OF COMPLETION
   </text>
 
-  <text x="600" y="575"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="20"
-        fill="#64748b">
-    Official certificates are issued after course completion.
+  <rect
+    x="520"
+    y="351"
+    width="160"
+    height="3"
+    fill="#c59b3b"
+  />
+
+  <!-- Learner -->
+  <text
+    x="600"
+    y="392"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="14"
+    fill="#64748b">
+    This certificate is proudly presented to
   </text>
 
-  <text x="600" y="615"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="17"
-        fill="#94a3b8">
-    ICU Learning Portal • Professional Nursing Education
+  <text
+    x="600"
+    y="435"
+    text-anchor="middle"
+    font-family="Georgia, Times New Roman, serif"
+    font-size="31"
+    font-weight="700"
+    fill="#0b7285">
+    STUDENT NAME
   </text>
 
-  <text x="600" y="700"
-        text-anchor="middle"
-        font-family="Arial, Helvetica, sans-serif"
-        font-size="15"
-        fill="#94a3b8">
-    Preview artwork
+  <line
+    x1="385"
+    y1="448"
+    x2="815"
+    y2="448"
+    stroke="#cbd5e1"
+    stroke-width="1"
+  />
+
+  <!-- Course -->
+  <text
+    x="600"
+    y="478"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="12"
+    fill="#64748b">
+    for successfully completing the professional course
   </text>
+
+  <text
+    x="600"
+    y="502"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="9"
+    font-weight="700"
+    letter-spacing="3"
+    fill="#8a6a21">
+    CRITICAL CARE &amp; NURSING EDUCATION
+  </text>
+
+  <text
+    x="600"
+    y="533"
+    text-anchor="middle"
+    font-family="Georgia, Times New Roman, serif"
+    font-size="23"
+    font-weight="700"
+    fill="#173f5f">
+    CRITICAL CARE NURSING
+  </text>
+
+  <!-- Achievement box -->
+  <rect
+    x="385"
+    y="555"
+    width="430"
+    height="58"
+    rx="8"
+    fill="#f5fafb"
+    stroke="#c8dce2"
+    stroke-width="1.5"
+  />
+
+  <text
+    x="600"
+    y="577"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="9"
+    font-weight="700"
+    letter-spacing="2"
+    fill="#0b7285">
+    COURSE COMPLETION ACHIEVEMENT
+  </text>
+
+  <text
+    x="600"
+    y="596"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="9"
+    fill="#52616b">
+    Successfully completed the required course curriculum
+  </text>
+
+  <!-- Verification badge -->
+  <rect
+    x="100"
+    y="635"
+    width="190"
+    height="27"
+    rx="13"
+    fill="#f4faf5"
+    stroke="#78a889"
+  />
+
+  <text
+    x="195"
+    y="653"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="9"
+    font-weight="700"
+    fill="#287343">
+    ✓ VERIFIED COURSE CERTIFICATE
+  </text>
+
+  <!-- Website -->
+  <text
+    x="1100"
+    y="652"
+    text-anchor="end"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="9"
+    fill="#0b7285">
+    iculearningportal.com
+  </text>
+
+  <!-- Bottom details -->
+  <line
+    x1="90"
+    y1="682"
+    x2="1110"
+    y2="682"
+    stroke="#d8e2e7"
+    stroke-width="1"
+  />
+
+  <text
+    x="100"
+    y="705"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="8"
+    font-weight="700"
+    fill="#8a9aa5">
+    CERTIFICATE NO.
+  </text>
+
+  <text
+    x="100"
+    y="721"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="10"
+    font-weight="700"
+    fill="#263943">
+    ILP-XXXXXXXX
+  </text>
+
+  <text
+    x="600"
+    y="705"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="8"
+    font-weight="700"
+    fill="#8a9aa5">
+    ISSUE DATE
+  </text>
+
+  <text
+    x="600"
+    y="721"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="10"
+    font-weight="700"
+    fill="#263943">
+    DD MONTH YYYY
+  </text>
+
+  <text
+    x="1100"
+    y="705"
+    text-anchor="end"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="8"
+    font-weight="700"
+    fill="#8a9aa5">
+    ISSUING ORGANIZATION
+  </text>
+
+  <text
+    x="1100"
+    y="721"
+    text-anchor="end"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="10"
+    font-weight="700"
+    fill="#263943">
+    ICU Learning Portal
+  </text>
+
+  <!-- Footer -->
+  <text
+    x="600"
+    y="746"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="7"
+    fill="#8a9aa5">
+    Professional course completion credential • ICU Learning Portal
+  </text>
+
 </svg>
