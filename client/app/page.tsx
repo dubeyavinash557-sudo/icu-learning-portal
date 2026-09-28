@@ -16,6 +16,7 @@ import {
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
+
 import CourseCard, {
   type Course as CourseCardData,
 } from "@/components/CourseCard";
@@ -81,8 +82,6 @@ export default async function Home() {
 
           <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
             <div className="grid items-center gap-14 lg:grid-cols-[1fr_0.95fr]">
-              {/* LEFT */}
-
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-blue-700 shadow-sm">
                   <Stethoscope size={15} />
@@ -151,8 +150,6 @@ export default async function Home() {
                   />
                 </div>
               </div>
-
-              {/* RIGHT */}
 
               <div className="relative mx-auto w-full max-w-[620px]">
                 <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 p-2 shadow-[0_35px_100px_rgba(15,23,42,0.2)]">
@@ -366,10 +363,7 @@ export default async function Home() {
             {premiumCourses.length > 0 ? (
               <div className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 {premiumCourses.map((course) => (
-                  <CourseCard
-                    key={course.id}
-                    course={course}
-                  />
+                  <CourseCard key={course.id} course={course} />
                 ))}
               </div>
             ) : (
@@ -450,7 +444,7 @@ export default async function Home() {
         </section>
 
         {/* =====================================================
-            LEARNING JOURNEY — BIG VERSION
+            LEARNING JOURNEY
         ====================================================== */}
 
         <section className="bg-slate-950 py-20 sm:py-24">
@@ -543,8 +537,6 @@ export default async function Home() {
                 </Link>
               </div>
 
-              {/* Certificate preview */}
-
               <div className="rounded-[2rem] border border-slate-200 bg-white p-3 shadow-2xl sm:p-6">
                 <div className="relative overflow-hidden rounded-2xl bg-slate-100">
                   <Image
@@ -607,6 +599,51 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =====================================================
+            LEARNER FEEDBACK — CLEARLY MARKED EXAMPLES
+        ====================================================== */}
+
+        <section className="bg-slate-50 py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+            <SectionHeading
+              eyebrow="LEARNER FEEDBACK"
+              title="What learners can expect"
+              highlight="From the Learning Experience"
+              description="These are illustrative feedback examples used for the current website design. They are not presented as verified student testimonials."
+            />
+
+            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+              <FeedbackExample
+                course="ICU Nursing"
+                feedback="Clear lesson structure can make it easier to revise important ICU concepts step by step."
+              />
+
+              <FeedbackExample
+                course="Mechanical Ventilation"
+                feedback="A focused course format helps learners move from basic concepts toward practical revision."
+              />
+
+              <FeedbackExample
+                course="ECG Interpretation"
+                feedback="Topic-specific lessons and quizzes provide a structured way to practise rhythm and ECG concepts."
+              />
+
+              <FeedbackExample
+                course="ABG Analysis"
+                feedback="Breaking ABG interpretation into focused learning steps can make revision more manageable."
+              />
+            </div>
+
+            <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-amber-200 bg-amber-50 p-5 text-center">
+              <p className="text-sm font-bold leading-7 text-amber-900">
+                <span className="font-black">Important:</span> Genuine student
+                reviews will replace these examples once verified learner
+                feedback is collected.
+              </p>
             </div>
           </div>
         </section>
@@ -683,9 +720,7 @@ function HeroFeature({
         </div>
 
         <div className="min-w-0">
-          <p className="text-xs font-black text-slate-950">
-            {title}
-          </p>
+          <p className="text-xs font-black text-slate-950">{title}</p>
 
           <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
             {text}
@@ -710,6 +745,7 @@ function VisualBadge({
   return (
     <div className="flex items-center gap-2 rounded-xl border border-white/15 bg-slate-950/70 px-3 py-2.5 text-white backdrop-blur-md">
       <div className="text-cyan-300">{icon}</div>
+
       <span className="text-[10px] font-black sm:text-[11px]">
         {text}
       </span>
@@ -737,13 +773,9 @@ function ValueItem({
       </div>
 
       <div>
-        <p className="text-sm font-black text-slate-950">
-          {title}
-        </p>
+        <p className="text-sm font-black text-slate-950">{title}</p>
 
-        <p className="mt-1 text-xs leading-5 text-slate-500">
-          {text}
-        </p>
+        <p className="mt-1 text-xs leading-5 text-slate-500">{text}</p>
       </div>
     </div>
   );
@@ -769,7 +801,11 @@ function SectionHeading({
   const centered = align === "center";
 
   return (
-    <div className={centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
+    <div
+      className={
+        centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"
+      }
+    >
       <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-[11px] font-black uppercase tracking-[0.15em] text-blue-700">
         <Sparkles size={13} />
         {eyebrow}
@@ -811,13 +847,9 @@ function BenefitCard({
         {icon}
       </div>
 
-      <h3 className="mt-5 text-lg font-black text-slate-950">
-        {title}
-      </h3>
+      <h3 className="mt-5 text-lg font-black text-slate-950">{title}</h3>
 
-      <p className="mt-2 text-sm leading-7 text-slate-600">
-        {text}
-      </p>
+      <p className="mt-2 text-sm leading-7 text-slate-600">{text}</p>
     </article>
   );
 }
@@ -849,13 +881,9 @@ function JourneyCard({
         </span>
       </div>
 
-      <h3 className="mt-7 text-xl font-black text-white">
-        {title}
-      </h3>
+      <h3 className="mt-7 text-xl font-black text-white">{title}</h3>
 
-      <p className="mt-3 text-sm leading-7 text-slate-400">
-        {text}
-      </p>
+      <p className="mt-3 text-sm leading-7 text-slate-400">{text}</p>
 
       <div className="mt-6 h-px bg-white/10" />
 
@@ -879,9 +907,7 @@ function Checklist({ text }: { text: string }) {
         className="mt-0.5 shrink-0 text-emerald-500"
       />
 
-      <span className="text-sm font-bold text-slate-700">
-        {text}
-      </span>
+      <span className="text-sm font-bold text-slate-700">{text}</span>
     </div>
   );
 }
@@ -895,6 +921,50 @@ function ProfileBadge({ text }: { text: string }) {
     <span className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-black text-slate-600">
       {text}
     </span>
+  );
+}
+
+/* ============================================================
+   LEARNER FEEDBACK EXAMPLE
+============================================================ */
+
+function FeedbackExample({
+  course,
+  feedback,
+}: {
+  course: string;
+  feedback: string;
+}) {
+  return (
+    <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex gap-1 text-amber-500" aria-label="Example feedback">
+          <span>★</span>
+          <span>★</span>
+          <span>★</span>
+          <span>★</span>
+          <span>★</span>
+        </div>
+
+        <span className="rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-700">
+          Example
+        </span>
+      </div>
+
+      <p className="mt-5 text-sm leading-7 text-slate-600">
+        “{feedback}”
+      </p>
+
+      <div className="mt-6 border-t border-slate-100 pt-4">
+        <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+          Learning topic
+        </p>
+
+        <p className="mt-1 text-sm font-black text-slate-900">
+          {course}
+        </p>
+      </div>
+    </article>
   );
 }
 
