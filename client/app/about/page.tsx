@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -110,11 +111,18 @@ export default function AboutPage() {
               <div className="rounded-[2rem] border border-white/10 bg-white/10 p-5 shadow-2xl backdrop-blur">
                 <div className="rounded-[1.5rem] bg-white p-6 sm:p-8">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-700 to-cyan-500 text-2xl font-black text-white shadow-lg">
-                      AD
+                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-3xl border border-slate-200 bg-slate-100 shadow-lg ring-4 ring-blue-50">
+                      <Image
+                        src="/images/instructor-avinash.jpg"
+                        alt="Avinash Dubey, ICU Nursing and Critical-Care Educator"
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                        priority
+                      />
                     </div>
 
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700">
                         Founder & Educator
                       </p>
@@ -336,9 +344,7 @@ function ProfileLine({
           {title}
         </p>
 
-        <p className="mt-1 text-sm font-bold text-slate-800">
-          {text}
-        </p>
+        <p className="mt-1 text-sm font-bold text-slate-800">{text}</p>
       </div>
     </div>
   );
