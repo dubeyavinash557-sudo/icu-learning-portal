@@ -5,6 +5,7 @@ import {
   CircleHelp,
   MessageCircle,
   Award,
+  BookOpenCheck,
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -25,17 +26,6 @@ const whatsappMessage = encodeURIComponent(
 const whatsappUrl =
   `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
-/*
- * Public navigation intentionally contains only stable
- * public destinations.
- *
- * Notes and Quiz are not shown here because the website
- * audit identified those public navigation entries as
- * broken/empty navigation paths.
- *
- * The actual Quiz Dashboard remains available from the
- * authenticated Dashboard area.
- */
 const publicNavigation = [
   {
     label: "Home",
@@ -44,6 +34,14 @@ const publicNavigation = [
   {
     label: "Courses",
     href: "/courses",
+  },
+  {
+    label: "Notes",
+    href: "/notes",
+  },
+  {
+    label: "Quiz",
+    href: "/dashboard/quiz",
   },
 ];
 
@@ -87,6 +85,7 @@ export default async function Navbar() {
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-[72px] items-center justify-between gap-4">
+
           {/* =====================================================
               BRAND
           ====================================================== */}
@@ -159,7 +158,10 @@ export default async function Navbar() {
           ====================================================== */}
 
           <div className="hidden items-center gap-2 lg:flex">
-            {/* Support */}
+
+            {/* =================================================
+                SUPPORT ACTIONS
+            ================================================== */}
 
             <a
               href={whatsappUrl}
@@ -214,12 +216,16 @@ export default async function Navbar() {
               </>
             ) : (
               <>
+                {/* Premium indicator */}
+
                 {isPremium && (
                   <div className="hidden items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-black text-amber-700 xl:flex">
                     <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                     Premium
                   </div>
                 )}
+
+                {/* Dashboard */}
 
                 <Link
                   href="/dashboard"
@@ -233,6 +239,7 @@ export default async function Navbar() {
 
                 <details className="relative">
                   <summary className="flex cursor-pointer list-none items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 transition hover:border-blue-200 hover:bg-white [&::-webkit-details-marker]:hidden">
+
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-xs font-black text-white">
                       {initials || "S"}
                     </div>
@@ -258,10 +265,12 @@ export default async function Navbar() {
                   </summary>
 
                   <div className="absolute right-0 top-14 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/10">
+
                     {/* Account header */}
 
                     <div className="mb-2 rounded-xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900 p-4 text-white">
                       <div className="flex items-center gap-3">
+
                         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-sm font-black ring-1 ring-white/10">
                           {initials || "S"}
                         </div>
@@ -275,9 +284,11 @@ export default async function Navbar() {
                             {user?.email}
                           </p>
                         </div>
+
                       </div>
 
                       <div className="mt-3 flex items-center gap-2">
+
                         <span
                           className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
                             isPremium
@@ -295,12 +306,14 @@ export default async function Navbar() {
                             Admin
                           </span>
                         )}
+
                       </div>
                     </div>
 
                     {/* Account links */}
 
                     <div className="space-y-1">
+
                       <AccountMenuLink
                         href="/dashboard"
                         icon={<LayoutDashboard size={16} />}
@@ -322,6 +335,13 @@ export default async function Navbar() {
                         description="View your achievements"
                       />
 
+                      <AccountMenuLink
+                        href="/dashboard/quiz"
+                        icon={<BookOpenCheck size={16} />}
+                        label="Quiz Dashboard"
+                        description="Practice & track scores"
+                      />
+
                       {isAdmin && (
                         <AccountMenuLink
                           href="/admin"
@@ -330,9 +350,12 @@ export default async function Navbar() {
                           description="Manage the LMS"
                         />
                       )}
+
                     </div>
 
-                    {/* Logout */}
+                    {/* =================================================
+                        DESKTOP LOGOUT
+                    ================================================== */}
 
                     <div className="my-2 border-t border-slate-100 pt-2">
                       <form action={handleLogout}>
@@ -361,10 +384,12 @@ export default async function Navbar() {
                         </button>
                       </form>
                     </div>
+
                   </div>
                 </details>
               </>
             )}
+
           </div>
 
           {/* =====================================================
@@ -372,6 +397,7 @@ export default async function Navbar() {
           ====================================================== */}
 
           <details className="relative lg:hidden">
+
             <summary
               className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 [&::-webkit-details-marker]:hidden"
               aria-label="Open navigation menu"
@@ -380,10 +406,13 @@ export default async function Navbar() {
             </summary>
 
             <div className="absolute right-0 top-14 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/10">
+
               {/* Mobile brand strip */}
 
               <div className="mb-3 rounded-xl bg-gradient-to-br from-slate-950 via-blue-950 to-blue-900 p-4 text-white">
+
                 <div className="flex items-center gap-3">
+
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-600/20">
                     <Activity size={19} />
                   </div>
@@ -397,6 +426,7 @@ export default async function Navbar() {
                       Professional LMS
                     </p>
                   </div>
+
                 </div>
 
                 {isLoggedIn && (
@@ -412,6 +442,7 @@ export default async function Navbar() {
                     </p>
                   </div>
                 )}
+
               </div>
 
               {/* Primary links */}
@@ -426,9 +457,12 @@ export default async function Navbar() {
                 ))}
               </div>
 
-              {/* Support */}
+              {/* =================================================
+                  SUPPORT
+              ================================================== */}
 
               <div className="mt-3 border-t border-slate-100 pt-3">
+
                 <p className="px-3 pb-2 text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
                   Support
                 </p>
@@ -444,84 +478,136 @@ export default async function Navbar() {
                   </span>
 
                   WhatsApp Support
+
+                  <ArrowRight
+                    size={14}
+                    className="ml-auto text-emerald-300"
+                  />
                 </a>
 
-                <MobileMenuLink
+                <MobileAccountLink
                   href="/contact"
-                  label="Contact Support"
+                  icon={<CircleHelp size={16} />}
+                  label="Help & Support"
                 />
 
-                <MobileMenuLink
-                  href="/faq"
-                  label="Frequently Asked Questions"
+                <MobileAccountLink
+                  href="/contact"
+                  icon={<MessageCircle size={16} />}
+                  label="Contact Us"
                 />
+
               </div>
 
-              {/* Account actions */}
+              {/* Logged-in links */}
+
+              {isLoggedIn && (
+                <div className="mt-3 border-t border-slate-100 pt-3">
+
+                  <p className="px-3 pb-2 text-[9px] font-black uppercase tracking-[0.16em] text-slate-400">
+                    My Learning
+                  </p>
+
+                  <MobileAccountLink
+                    href="/dashboard"
+                    icon={<LayoutDashboard size={16} />}
+                    label="Dashboard"
+                  />
+
+                  <MobileAccountLink
+                    href="/profile"
+                    icon={<UserRound size={16} />}
+                    label="My Profile"
+                  />
+
+                  <MobileAccountLink
+                    href="/dashboard/certificates"
+                    icon={<Award size={16} />}
+                    label="Certificates"
+                  />
+
+                  <MobileAccountLink
+                    href="/dashboard/quiz"
+                    icon={<BookOpenCheck size={16} />}
+                    label="Quiz Dashboard"
+                  />
+
+                  {isAdmin && (
+                    <MobileAccountLink
+                      href="/admin"
+                      icon={<ShieldCheck size={16} />}
+                      label="Admin Console"
+                    />
+                  )}
+
+                </div>
+              )}
+
+              {/* CTA */}
 
               <div className="mt-3 border-t border-slate-100 pt-3">
-                {!isLoggedIn ? (
+
+                {isLoggedIn ? (
+                  <div className="space-y-2">
+
+                    <Link
+                      href="/courses"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-700 to-cyan-600 px-4 py-3 text-sm font-black text-white shadow-md shadow-blue-700/20 transition hover:from-blue-800 hover:to-cyan-700"
+                    >
+                      Explore Courses
+                      <ArrowRight size={17} />
+                    </Link>
+
+                    {/* =================================================
+                        MOBILE LOGOUT
+                    ================================================== */}
+
+                    <form action={handleLogout}>
+                      <button
+                        type="submit"
+                        className="group flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:border-red-300 hover:bg-red-100"
+                      >
+                        <LogOut size={17} />
+                        Logout
+                      </button>
+                    </form>
+
+                  </div>
+                ) : (
                   <div className="grid grid-cols-2 gap-2">
+
                     <Link
                       href="/login"
-                      className="rounded-xl border border-slate-200 px-3 py-3 text-center text-sm font-bold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+                      className="flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50"
                     >
                       Login
                     </Link>
 
                     <Link
                       href="/register"
-                      className="rounded-xl bg-blue-600 px-3 py-3 text-center text-sm font-black text-white transition hover:bg-blue-700"
+                      className="flex items-center justify-center gap-1 rounded-xl bg-blue-700 px-4 py-3 text-sm font-black text-white shadow-md shadow-blue-700/20 transition hover:bg-blue-800"
                     >
-                      Start Learning
+                      Register
+                      <ArrowRight size={15} />
                     </Link>
-                  </div>
-                ) : (
-                  <div className="space-y-1">
-                    <MobileMenuLink
-                      href="/dashboard"
-                      label="My Dashboard"
-                    />
 
-                    <MobileMenuLink
-                      href="/profile"
-                      label="My Profile"
-                    />
-
-                    <MobileMenuLink
-                      href="/dashboard/certificates"
-                      label="Certificates"
-                    />
-
-                    {isAdmin && (
-                      <MobileMenuLink
-                        href="/admin"
-                        label="Admin Console"
-                      />
-                    )}
-
-                    <form
-                      action={handleLogout}
-                      className="mt-2 border-t border-slate-100 pt-2"
-                    >
-                      <button
-                        type="submit"
-                        className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold text-red-600 transition hover:bg-red-50"
-                      >
-                        <LogOut size={17} />
-                        Logout
-                      </button>
-                    </form>
                   </div>
                 )}
+
               </div>
+
             </div>
           </details>
+
         </div>
       </div>
     </header>
   );
 }
+
+/* =============================================================
+   DESKTOP ACCOUNT MENU LINK
+============================================================= */
 
 function AccountMenuLink({
   href,
@@ -539,12 +625,12 @@ function AccountMenuLink({
       href={href}
       className="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-blue-50"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500 transition group-hover:bg-blue-100 group-hover:text-blue-700">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-500 transition group-hover:bg-blue-100 group-hover:text-blue-700">
         {icon}
       </span>
 
       <span className="min-w-0">
-        <span className="block text-xs font-black text-slate-800">
+        <span className="block text-xs font-black text-slate-800 group-hover:text-blue-700">
           {label}
         </span>
 
@@ -561,6 +647,10 @@ function AccountMenuLink({
   );
 }
 
+/* =============================================================
+   MOBILE PRIMARY LINK
+============================================================= */
+
 function MobileMenuLink({
   href,
   label,
@@ -571,13 +661,45 @@ function MobileMenuLink({
   return (
     <Link
       href={href}
-      className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+      className="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
     >
-      <span>{label}</span>
+      {label}
 
       <ArrowRight
         size={15}
         className="text-slate-300"
+      />
+    </Link>
+  );
+}
+
+/* =============================================================
+   MOBILE ACCOUNT LINK
+============================================================= */
+
+function MobileAccountLink({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+    >
+      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-500">
+        {icon}
+      </span>
+
+      {label}
+
+      <ArrowRight
+        size={14}
+        className="ml-auto text-slate-300"
       />
     </Link>
   );
