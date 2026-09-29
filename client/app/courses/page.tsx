@@ -565,34 +565,25 @@ function ProfessionalCourseCard({
   const lessons = course._count.lessons;
 
 const courseCurriculum: Record<string, string[]> = {
-  "abg-analysis": [
-    "ABG values, pH and acid-base fundamentals",
-    "Respiratory and metabolic acidosis/alkalosis",
-    "Compensation, interpretation and clinical correlation",
+  // ============================================================
+  // ICU NURSING
+  // ============================================================
+  "icu-nursing-mastery-program": [
+    "ICU patient assessment, priorities and comprehensive nursing care",
+    "Ventilator, hemodynamic and multi-parameter patient monitoring",
+    "Emergency response, bedside practice and clinical documentation",
   ],
 
-  "acute-kidney-injury": [
-    "AKI recognition, staging and risk assessment",
-    "Urine output, renal function and electrolyte monitoring",
-    "Fluid balance, nursing care and critical complications",
+  "icu-nursing-mastery": [
+    "ICU patient assessment, priorities and comprehensive nursing care",
+    "Ventilator, hemodynamic and multi-parameter patient monitoring",
+    "Emergency response, bedside practice and clinical documentation",
   ],
 
-  "airway-management": [
-    "Airway assessment and emergency airway priorities",
-    "Intubation assistance, suctioning and airway devices",
-    "Endotracheal tube care and airway safety",
-  ],
-
-  "cardiac-icu": [
-    "Cardiac ICU assessment and continuous monitoring",
-    "Acute coronary syndromes and cardiac emergencies",
-    "Hemodynamic observation and critical cardiac nursing care",
-  ],
-
-  "critical-care-monitoring": [
-    "ECG, SpO₂, blood pressure and vital-sign monitoring",
-    "CVP, hemodynamic trends and clinical observation",
-    "Early recognition of deterioration and escalation of care",
+  "advanced-critical-care-nursing-program": [
+    "Advanced critical-care assessment and nursing priorities",
+    "Complex patient monitoring, escalation and multidisciplinary care",
+    "Clinical documentation, handover and advanced bedside practice",
   ],
 
   "critical-care-nursing": [
@@ -601,71 +592,236 @@ const courseCurriculum: Record<string, string[]> = {
     "Documentation, handover and advanced bedside nursing care",
   ],
 
-  "critical-care-procedures": [
-    "Essential ICU procedures and patient preparation",
-    "Aseptic technique, infection prevention and safety",
-    "Procedure monitoring, documentation and complication awareness",
+  "icu-nursing-interview-clinical-viva-masterclass": [
+    "ICU nursing interview preparation and clinical fundamentals",
+    "Scenario-based viva questions and bedside decision making",
+    "Emergency procedures, communication and professional readiness",
   ],
 
-  "ecg-cardiac-rhythm": [
-    "ECG waves, intervals and systematic interpretation",
-    "Normal and abnormal cardiac rhythms",
-    "AF, VT, VF, heart blocks and emergency rhythm recognition",
-  ],
-
-  "icu-emergency-drugs": [
-    "Common emergency drugs used in critical care",
-    "Drug indications, preparation and administration safety",
-    "High-alert medication monitoring and adverse reactions",
-  ],
-
-  "icu-emergency-management": [
-    "Recognition and first response to ICU emergencies",
-    "Cardiac arrest, shock and acute deterioration",
-    "Emergency team response, monitoring and documentation",
-  ],
-
-  "icu-nursing-mastery": [
-    "Complete ICU nursing assessment and patient management",
-    "Ventilator, monitoring and critical-care nursing skills",
-    "Advanced bedside practice, emergencies and clinical documentation",
+  // ============================================================
+  // MECHANICAL VENTILATION
+  // ============================================================
+  "mechanical-ventilation-respiratory-care-masterclass": [
+    "Ventilator modes, settings and core respiratory mechanics",
+    "FiO₂, PEEP, alarms and patient-ventilator assessment",
+    "ABG correlation, troubleshooting, weaning and ventilator safety",
   ],
 
   "mechanical-ventilation": [
-    "Ventilator modes, settings and basic principles",
+    "Ventilator modes, settings and core respiratory mechanics",
     "FiO₂, PEEP, alarms and patient-ventilator assessment",
-    "ABG correlation, weaning and ventilator safety",
+    "ABG correlation, troubleshooting, weaning and ventilator safety",
+  ],
+
+  "mechanical-ventilation-free-demo": [
+    "Basic ventilator terminology and respiratory support concepts",
+    "Common ventilator modes and essential settings",
+    "Ventilator alarms, patient assessment and safety basics",
+  ],
+
+  // ============================================================
+  // ECG
+  // ============================================================
+  "ecg-cardiac-rhythm-interpretation-masterclass": [
+    "ECG waves, intervals, rate calculation and systematic interpretation",
+    "Normal rhythms, atrial and ventricular arrhythmias",
+    "AF, VT, VF, heart blocks and critical-care rhythm recognition",
+  ],
+
+  "ecg-cardiac-rhythm": [
+    "ECG waves, intervals, rate calculation and systematic interpretation",
+    "Normal rhythms, atrial and ventricular arrhythmias",
+    "AF, VT, VF, heart blocks and critical-care rhythm recognition",
+  ],
+
+  "ecg-interpretation-free-demo": [
+    "ECG fundamentals, leads and normal waveform components",
+    "Heart-rate calculation and systematic rhythm assessment",
+    "Common rhythm patterns and basic clinical interpretation",
+  ],
+
+  // ============================================================
+  // ABG
+  // ============================================================
+  "abg-analysis-acid-base-disorders-masterclass": [
+    "ABG sampling, normal values and stepwise interpretation",
+    "Respiratory and metabolic acidosis and alkalosis",
+    "Compensation, mixed disorders and ICU case interpretation",
+  ],
+
+  "abg-analysis": [
+    "ABG sampling, normal values and stepwise interpretation",
+    "Respiratory and metabolic acidosis and alkalosis",
+    "Compensation, mixed disorders and ICU case interpretation",
+  ],
+
+  // ============================================================
+  // AIRWAY MANAGEMENT
+  // ============================================================
+  "airway-management": [
+    "Airway assessment and recognition of airway compromise",
+    "Intubation assistance, suctioning and airway devices",
+    "Endotracheal tube care, cuff monitoring and airway safety",
+  ],
+
+  // ============================================================
+  // CARDIAC ICU
+  // ============================================================
+  "cardiac-icu-hemodynamic-monitoring-masterclass": [
+    "Cardiac ICU assessment and continuous cardiac monitoring",
+    "Hemodynamic parameters, perfusion assessment and clinical trends",
+    "Acute cardiac emergencies and critical-care nursing priorities",
+  ],
+
+  "cardiac-icu": [
+    "Cardiac ICU assessment and continuous cardiac monitoring",
+    "Hemodynamic parameters, perfusion assessment and clinical trends",
+    "Acute cardiac emergencies and critical-care nursing priorities",
+  ],
+
+  // ============================================================
+  // CRITICAL CARE MONITORING
+  // ============================================================
+  "critical-care-monitoring": [
+    "ECG, SpO₂, blood pressure and continuous vital-sign monitoring",
+    "CVP, hemodynamic trends and multi-parameter assessment",
+    "Early recognition of deterioration and escalation of care",
+  ],
+
+  // ============================================================
+  // CRITICAL CARE PROCEDURES
+  // ============================================================
+  "critical-care-procedures-bedside-skills": [
+    "Essential ICU procedures and patient preparation",
+    "Aseptic technique, infection prevention and patient safety",
+    "Procedure monitoring, documentation and complication awareness",
+  ],
+
+  "critical-care-procedures": [
+    "Essential ICU procedures and patient preparation",
+    "Aseptic technique, infection prevention and patient safety",
+    "Procedure monitoring, documentation and complication awareness",
+  ],
+
+  // ============================================================
+  // EMERGENCY MANAGEMENT
+  // ============================================================
+  "icu-emergency-critical-care-management": [
+    "Recognition and first response to acute ICU emergencies",
+    "Cardiac arrest, shock and rapidly deteriorating patients",
+    "Emergency team response, monitoring and clinical documentation",
+  ],
+
+  "icu-emergency-management": [
+    "Recognition and first response to acute ICU emergencies",
+    "Cardiac arrest, shock and rapidly deteriorating patients",
+    "Emergency team response, monitoring and clinical documentation",
+  ],
+
+  // ============================================================
+  // ICU EMERGENCY DRUGS
+  // ============================================================
+  "icu-emergency-drugs-critical-care-pharmacology": [
+    "Emergency medication principles and ICU medication safety",
+    "Vasoactive drugs, sedatives, analgesics and common critical-care medicines",
+    "Preparation, administration, monitoring and adverse-reaction awareness",
+  ],
+
+  "icu-emergency-drugs": [
+    "Emergency medication principles and ICU medication safety",
+    "Vasoactive drugs, sedatives, analgesics and common critical-care medicines",
+    "Preparation, administration, monitoring and adverse-reaction awareness",
+  ],
+
+  // ============================================================
+  // NEURO ICU
+  // ============================================================
+  "neuro-icu-neurocritical-care-program": [
+    "Neurological assessment, GCS and pupil examination",
+    "Stroke, seizures, traumatic brain injury and neuro emergencies",
+    "ICP concepts, neurological monitoring and critical-care nursing",
   ],
 
   "neuro-icu": [
     "Neurological assessment, GCS and pupil examination",
-    "Stroke, seizures and neurological emergencies",
-    "ICP concepts, neuro-monitoring and critical nursing care",
+    "Stroke, seizures, traumatic brain injury and neuro emergencies",
+    "ICP concepts, neurological monitoring and critical-care nursing",
   ],
 
+  // ============================================================
+  // RENAL CRITICAL CARE
+  // ============================================================
   "renal-critical-care": [
-    "Critical renal assessment and fluid balance",
-    "Electrolyte abnormalities and renal complications",
+    "Critical renal assessment, urine output and fluid balance",
+    "Electrolyte abnormalities, acid-base changes and renal complications",
     "Renal replacement therapy concepts and nursing care",
   ],
 
+  // ============================================================
+  // RESPIRATORY FAILURE
+  // ============================================================
   "respiratory-failure": [
-    "Types and recognition of acute respiratory failure",
+    "Recognition and classification of acute respiratory failure",
     "Oxygen therapy, ABG interpretation and respiratory monitoring",
-    "Ventilatory support, escalation and patient assessment",
+    "Ventilatory support, escalation and patient reassessment",
+  ],
+
+  // ============================================================
+  // SEPSIS & SHOCK
+  // ============================================================
+  "sepsis-shock-multiorgan-failure-masterclass": [
+    "Early recognition of sepsis and clinical deterioration",
+    "Septic, hypovolemic and other shock states with perfusion assessment",
+    "Hemodynamic monitoring, resuscitation principles and organ dysfunction",
   ],
 
   "sepsis-shock": [
     "Early recognition of sepsis and clinical deterioration",
-    "Septic, hypovolemic and other shock states",
-    "Hemodynamic monitoring, resuscitation principles and nursing care",
+    "Septic, hypovolemic and other shock states with perfusion assessment",
+    "Hemodynamic monitoring, resuscitation principles and organ dysfunction",
+  ],
+
+  // ============================================================
+  // INFECTION CONTROL
+  // ============================================================
+  "infection-control": [
+    "Standard precautions, hand hygiene and transmission-based precautions",
+    "Central-line, catheter and ventilator-associated infection prevention",
+    "Aseptic practice, isolation principles and ICU infection surveillance",
+  ],
+
+  // ============================================================
+  // ICU TECHNICIAN
+  // ============================================================
+  "icu-technician-master": [
+    "ICU equipment, monitors and essential bedside setup",
+    "Patient monitoring, emergency equipment and safety checks",
+    "Basic procedures, infection control and technician responsibilities",
+  ],
+
+  // ============================================================
+  // EMERGENCY CARE
+  // ============================================================
+  "emergency-care": [
+    "Initial emergency assessment and prioritization",
+    "Basic emergency response, monitoring and stabilization",
+    "Common acute conditions, escalation and team communication",
+  ],
+
+  // ============================================================
+  // MEDICAL CODING
+  // ============================================================
+  "medical-coding": [
+    "Medical terminology, anatomy and clinical documentation basics",
+    "Diagnosis and procedure coding concepts",
+    "Coding workflow, documentation review and common healthcare coding scenarios",
   ],
 };
 
 const defaultCurriculum = [
-  "ICU patient assessment and critical-care fundamentals",
-  "Clinical monitoring and evidence-based nursing care",
-  "Emergency management, practical skills and documentation",
+  "Course-specific patient assessment and core concepts",
+  "Topic-specific clinical monitoring and learning objectives",
+  "Practical application, assessment and professional documentation",
 ];
 
 const previewLessons =
@@ -685,7 +841,7 @@ const previewLessons =
           IMAGE / COVER
       ========================================================== */}
 
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+      <div className="relative h-60 overflow-hidden">
         <Image
           src={image}
           alt={visual.alt}
@@ -694,7 +850,7 @@ const previewLessons =
           priority={index < 3}
           loading={index < 3 ? "eager" : "lazy"}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-          className="object-contain transition duration-500 group-hover:scale-[1.02]"
+          className="object-cover transition duration-700 group-hover:scale-105"
         />
 
         {/* Gradient overlay */}
