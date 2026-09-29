@@ -1,27 +1,26 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+
 import {
   ArrowRight,
   Award,
   BookOpen,
   CheckCircle2,
-  ChevronRight,
+  CircleHelp,
   CirclePlay,
   ClipboardCheck,
   Clock3,
+  Crown,
   GraduationCap,
-  LockKeyhole,
+  LogOut,
+  MessageCircle,
   ShieldCheck,
   Sparkles,
-  Trophy,
-  UserRound,
-  Crown,
   Target,
   TrendingUp,
-  CircleHelp,
-  MessageCircle,
-  LogOut,
+  Trophy,
+  UserRound,
 } from "lucide-react";
 
 import { auth, signOut } from "@/auth";
@@ -32,38 +31,51 @@ export const dynamic = "force-dynamic";
 const whatsappNumber = "918177084179";
 
 const whatsappMessage = encodeURIComponent(
-  "Hello ICU Learning Portal Support,\\n\\nI need help with:\\n\\nIssue:\\n\\nCourse/Page:\\n\\nRegistered Email:\\n\\nThank you."
+  [
+    "Hello ICU Learning Portal Support,",
+    "",
+    "I need help with:",
+    "",
+    "Issue:",
+    "",
+    "Course/Page:",
+    "",
+    "Registered Email:",
+    "",
+    "Thank you.",
+  ].join("\n")
 );
 
 const whatsappUrl =
   `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
-/*
- * ============================================================
- * HELPERS
- * ============================================================
- */
-
 function calculatePercent(
-  completedLessons: number,
-  totalLessons: number
-) {
-  if (totalLessons <= 0) {
-    return 0;
-  }
+  completed: number,
+  total: number
+): number {
+  if (total <= 0) return 0;
 
   return Math.min(
     100,
     Math.max(
       0,
-      Math.round(
-        (completedLessons / totalLessons) * 100
-      )
+      Math.round((completed / total) * 100)
     )
   );
 }
 
-function formatDate(date: Date) {
+function getInitials(name: string): string {
+  const initials = name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
+
+  return initials || "SL";
+}
+
+function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("en-IN", {
     day: "numeric",
     month: "short",
@@ -71,44 +83,14 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-function getProgressLabel(progress: number) {
-  if (progress === 0) {
-    return "Not started";
-  }
-
-  if (progress < 25) {
-    return "Getting started";
-  }
-
-  if (progress < 50) {
-    return "Making progress";
-  }
-
-  if (progress < 75) {
-    return "Good progress";
-  }
-
-  if (progress < 100) {
-    return "Almost complete";
-  }
-
+function progressLabel(progress: number): string {
+  if (progress === 0) return "Not started";
+  if (progress < 25) return "Getting started";
+  if (progress < 50) return "Making progress";
+  if (progress < 75) return "Good progress";
+  if (progress < 100) return "Almost complete";
   return "Completed";
 }
-
-function getInitials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join("");
-}
-
-/*
- * ============================================================
- * DASHBOARD PAGE
- * ============================================================
- */
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -116,12 +98,6 @@ export default async function DashboardPage() {
   if (!session?.user?.email) {
     redirect("/login?callbackUrl=/dashboard");
   }
-
-  /*
-   * ----------------------------------------------------------
-   * USER + LEARNING DATA
-   * ----------------------------------------------------------
-   */
 
   const user = await prisma.user.findUnique({
     where: {
@@ -148,7 +124,9 @@ export default async function DashboardPage() {
               id: true,
               title: true,
               description: true,
+              image: true,
               instructor: true,
+              price: true,
               duration: true,
               language: true,
               level: true,
@@ -186,6 +164,13 @@ export default async function DashboardPage() {
         },
       },
 
+      quizAttempts: {
+        select: {
+          percentage: true,
+          passed: true,
+        },
+      },
+
       certificates: {
         orderBy: {
           issuedAt: "desc",
@@ -206,10 +191,9 @@ export default async function DashboardPage() {
         },
       },
 
-      quizAttempts: {
+      _count: {
         select: {
-          percentage: true,
-          passed: true,
+          certificates: true,
         },
       },
     },
@@ -219,23 +203,11 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  /*
-   * ----------------------------------------------------------
-   * COMPLETED LESSON INDEX
-   * ----------------------------------------------------------
-   */
-
   const completedLessonIds = new Set(
     user.lessonProgress.map(
       (progress) => progress.lessonId
     )
   );
-
-  /*
-   * ----------------------------------------------------------
-   * ENROLLED COURSE PROGRESS
-   * ----------------------------------------------------------
-   */
 
   const enrolledCourses = user.enrollments.map(
     (enrollment) => {
@@ -266,19 +238,13 @@ export default async function DashboardPage() {
         totalLessons,
         completedLessons,
         progress,
+        nextLesson,
         completed:
           totalLessons > 0 &&
           completedLessons === totalLessons,
-        nextLesson,
       };
     }
   );
-
-  /*
-   * ----------------------------------------------------------
-   * COURSE STATISTICS
-   * ----------------------------------------------------------
-   */
 
   const totalCourses = enrolledCourses.length;
 
@@ -313,26 +279,17 @@ export default async function DashboardPage() {
     totalLessons - completedLessons
   );
 
-  const overallProgress =
-    calculatePercent(
-      completedLessons,
-      totalLessons
-    );
+  const overallProgress = calculatePercent(
+    completedLessons,
+    totalLessons
+  );
 
   const completionRate =
     totalCourses === 0
       ? 0
       : Math.round(
-          (completedCourses /
-            totalCourses) *
-            100
+          (completedCourses / totalCourses) * 100
         );
-
-  /*
-   * ----------------------------------------------------------
-   * QUIZ STATISTICS
-   * ----------------------------------------------------------
-   */
 
   const quizAttempts =
     user.quizAttempts.length;
@@ -342,8 +299,8 @@ export default async function DashboardPage() {
       ? 0
       : Math.round(
           user.quizAttempts.reduce(
-            (total, attempt) =>
-              total + attempt.percentage,
+            (sum, attempt) =>
+              sum + attempt.percentage,
             0
           ) / quizAttempts
         );
@@ -353,79 +310,47 @@ export default async function DashboardPage() {
       (attempt) => attempt.passed
     ).length;
 
-  const failedQuizzes = Math.max(
-    0,
-    quizAttempts - passedQuizzes
-  );
-
-  /*
-   * ----------------------------------------------------------
-   * CERTIFICATE
-   * ----------------------------------------------------------
-   */
+  const failedQuizzes =
+    Math.max(
+      0,
+      quizAttempts - passedQuizzes
+    );
 
   const latestCertificate =
     user.certificates[0] ?? null;
 
-  /*
-   * ----------------------------------------------------------
-   * CURRENT COURSE
-   *
-   * Prefer the course with the highest active progress.
-   * If no active course exists, fall back to the newest
-   * enrollment.
-   * ----------------------------------------------------------
-   */
+  const certificateCount =
+    user._count.certificates;
 
   const currentCourse =
     [...enrolledCourses]
       .filter(
         (course) => !course.completed
       )
-      .sort((first, second) => {
-        if (
-          second.progress !==
-          first.progress
-        ) {
-          return (
-            second.progress -
-            first.progress
-          );
+      .sort((a, b) => {
+        if (b.progress !== a.progress) {
+          return b.progress - a.progress;
         }
 
         return (
-          second.enrolledAt.getTime() -
-          first.enrolledAt.getTime()
+          b.enrolledAt.getTime() -
+          a.enrolledAt.getTime()
         );
       })[0] ??
     enrolledCourses[0] ??
     null;
 
-  /*
-   * ----------------------------------------------------------
-   * RECENT COURSES
-   * ----------------------------------------------------------
-   */
-
   const recentCourses =
     enrolledCourses.slice(0, 4);
 
-  /*
-   * ----------------------------------------------------------
-   * DISPLAY DATA
-   * ----------------------------------------------------------
-   */
+  const firstName =
+    user.fullName
+      .trim()
+      .split(/\s+/)[0] || "Student";
 
   const initials = getInitials(
     user.fullName
   );
-
-  const firstName =
-    user.fullName.trim().split(/\s+/)[0] ||
-    "Student";
-
-  const activeCoursePercent =
-    currentCourse?.progress ?? 0;
 
   const activeCourseHref =
     currentCourse?.nextLesson
@@ -453,12 +378,8 @@ export default async function DashboardPage() {
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto max-w-[1540px] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
 
-        {/* =====================================================
-            TOP HEADER
-        ====================================================== */}
-
         <header className="mb-7">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
 
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
@@ -483,11 +404,11 @@ export default async function DashboardPage() {
 
               <div className="mt-4 flex items-center gap-4">
 
-                <div className="hidden h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-950 via-blue-900 to-cyan-700 text-lg font-black text-white shadow-lg sm:flex">
-                  {initials || "SL"}
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-950 via-blue-900 to-cyan-700 text-lg font-black text-white shadow-lg">
+                  {initials}
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <h1 className="break-words text-2xl font-black tracking-tight text-slate-950 sm:text-3xl lg:text-4xl">
                     Welcome back, {firstName}
                   </h1>
@@ -507,7 +428,7 @@ export default async function DashboardPage() {
 
               <Link
                 href="/courses"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:text-cyan-700 hover:shadow-md"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:text-cyan-700"
               >
                 <BookOpen size={17} />
                 Browse Courses
@@ -515,7 +436,7 @@ export default async function DashboardPage() {
 
               <Link
                 href="/profile"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-lg shadow-slate-950/10 transition hover:-translate-y-0.5 hover:bg-blue-800"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-800"
               >
                 <UserRound size={17} />
                 My Profile
@@ -525,7 +446,7 @@ export default async function DashboardPage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700 transition hover:-translate-y-0.5 hover:border-emerald-300 hover:bg-emerald-100"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700 transition hover:-translate-y-0.5 hover:bg-emerald-100"
               >
                 <MessageCircle size={17} />
                 WhatsApp
@@ -533,7 +454,7 @@ export default async function DashboardPage() {
 
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-black text-blue-700 transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-100"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-black text-blue-700 transition hover:-translate-y-0.5 hover:bg-blue-100"
               >
                 <CircleHelp size={17} />
                 Help
@@ -542,7 +463,7 @@ export default async function DashboardPage() {
               <form action={handleLogout}>
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-black text-red-600 transition hover:-translate-y-0.5 hover:bg-red-100"
                 >
                   <LogOut size={17} />
                   Logout
@@ -553,23 +474,17 @@ export default async function DashboardPage() {
           </div>
         </header>
 
-        {/* =====================================================
-            HERO
-        ====================================================== */}
-
         <section className="relative mb-7 overflow-hidden rounded-[30px] bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-900 text-white shadow-2xl shadow-blue-950/15">
 
           <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
 
           <div className="absolute -bottom-32 left-1/4 h-96 w-96 rounded-full bg-blue-400/10 blur-3xl" />
 
-          <div className="absolute right-1/3 top-1/2 h-32 w-32 rounded-full bg-white/5 blur-2xl" />
-
           <div className="relative grid gap-8 p-6 sm:p-8 lg:p-10 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
 
             <div>
 
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-black uppercase tracking-[0.15em] text-cyan-100 backdrop-blur">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-black uppercase tracking-[0.15em] text-cyan-100">
                 <GraduationCap size={15} />
                 Professional ICU Learning
               </div>
@@ -595,9 +510,7 @@ export default async function DashboardPage() {
                   className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-black text-slate-950 shadow-xl transition hover:-translate-y-0.5 hover:bg-cyan-50"
                 >
                   <CirclePlay size={19} />
-
                   {activeCourseAction}
-
                   <ArrowRight
                     size={17}
                     className="transition-transform group-hover:translate-x-1"
@@ -606,7 +519,7 @@ export default async function DashboardPage() {
 
                 <Link
                   href="/dashboard/quiz"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-sm font-bold text-white backdrop-blur transition hover:bg-white/15"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-white/15"
                 >
                   <ClipboardCheck size={17} />
                   Practice Quiz
@@ -644,8 +557,6 @@ export default async function DashboardPage() {
 
             </div>
 
-            {/* HERO PROGRESS */}
-
             <div className="rounded-[26px] border border-white/15 bg-white/10 p-6 shadow-xl backdrop-blur-xl">
 
               <div className="flex items-start justify-between gap-4">
@@ -660,9 +571,7 @@ export default async function DashboardPage() {
                   </p>
 
                   <p className="mt-1 text-xs font-semibold text-blue-100">
-                    {getProgressLabel(
-                      overallProgress
-                    )}
+                    {progressLabel(overallProgress)}
                   </p>
                 </div>
 
@@ -685,32 +594,22 @@ export default async function DashboardPage() {
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
-
                 <HeroStat
-                  value={String(
-                    completedLessons
-                  )}
+                  value={String(completedLessons)}
                   label="Completed"
                 />
 
                 <HeroStat
-                  value={String(
-                    remainingLessons
-                  )}
+                  value={String(remainingLessons)}
                   label="Remaining"
                 />
-
               </div>
 
             </div>
           </div>
         </section>
 
-                {/* =====================================================
-            PREMIUM MEMBERSHIP BANNER
-        ====================================================== */}
-
-        {!user.isPremium && (
+                {!user.isPremium && (
           <section className="mb-7 overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-orange-50 shadow-sm">
 
             <div className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
@@ -749,10 +648,6 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {/* =====================================================
-            KEY METRICS
-        ====================================================== */}
-
         <section className="mb-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
           <MetricCard
@@ -761,7 +656,7 @@ export default async function DashboardPage() {
             description={
               totalCourses === 0
                 ? "No courses in your learning path yet"
-                : "Courses currently in your learning library"
+                : "Courses in your learning library"
             }
             icon={<BookOpen size={22} />}
             iconClass="bg-cyan-50 text-cyan-700"
@@ -774,7 +669,7 @@ export default async function DashboardPage() {
             description={
               totalCourses === 0
                 ? "Start a course to begin"
-                : `${completionRate}% of enrolled courses completed`
+                : `${completionRate}% completed`
             }
             icon={<CheckCircle2 size={22} />}
             iconClass="bg-emerald-50 text-emerald-700"
@@ -800,7 +695,7 @@ export default async function DashboardPage() {
             description={
               quizAttempts === 0
                 ? "No quiz attempts yet"
-                : `${passedQuizzes} of ${quizAttempts} attempts passed`
+                : `${passedQuizzes} of ${quizAttempts} passed`
             }
             icon={<ClipboardCheck size={22} />}
             iconClass="bg-violet-50 text-violet-700"
@@ -809,21 +704,9 @@ export default async function DashboardPage() {
 
         </section>
 
-        {/* =====================================================
-            MAIN DASHBOARD GRID
-        ====================================================== */}
-
         <section className="grid gap-7 xl:grid-cols-[minmax(0,1.55fr)_minmax(330px,0.75fr)]">
 
-          {/* ===================================================
-              LEFT CONTENT
-          ==================================================== */}
-
           <div className="space-y-7">
-
-            {/* -------------------------------------------------
-                CONTINUE LEARNING
-            -------------------------------------------------- */}
 
             <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
@@ -853,151 +736,89 @@ export default async function DashboardPage() {
                   </div>
 
                   {currentCourse && (
-                    <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-black text-blue-700">
-                      <Target size={13} />
-                      {getProgressLabel(
-                        currentCourse.progress
-                      )}
+                    <span className="inline-flex shrink-0 items-center rounded-full bg-cyan-50 px-3 py-1.5 text-xs font-black text-cyan-700">
+                      {currentCourse.progress}% complete
                     </span>
                   )}
 
                 </div>
+
               </div>
 
-              <div className="p-6 sm:p-7">
+              {currentCourse ? (
+                <div className="p-6 sm:p-7">
 
-                {currentCourse ? (
-                  <>
+                  <div className="grid gap-5 md:grid-cols-[150px_minmax(0,1fr)]">
 
-                    <div className="grid gap-4 sm:grid-cols-3">
-
-                      <MiniStat
-                        label="Course Progress"
-                        value={`${currentCourse.progress}%`}
-                      />
-
-                      <MiniStat
-                        label="Lessons"
-                        value={`${currentCourse.completedLessons}/${currentCourse.totalLessons}`}
-                      />
-
-                      <MiniStat
-                        label="Level"
-                        value={
-                          currentCourse.course.level
-                        }
-                      />
-
+                    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
+                      {currentCourse.course.image ? (
+                        <img
+                          src={currentCourse.course.image}
+                          alt={currentCourse.course.title}
+                          className="h-full min-h-[130px] w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full min-h-[130px] items-center justify-center text-cyan-700">
+                          <BookOpen size={34} />
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-6">
+                    <div className="min-w-0">
 
-                      <div className="mb-2 flex items-center justify-between gap-4 text-sm font-black">
-
-                        <span className="text-slate-700">
-                          Course progress
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase text-blue-700">
+                          {currentCourse.course.level}
                         </span>
 
-                        <span className="text-cyan-700">
-                          {currentCourse.progress}%
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-black uppercase text-slate-600">
+                          {currentCourse.course.language}
                         </span>
-
                       </div>
 
-                      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-
+                      <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-700 transition-all duration-500"
+                          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"
                           style={{
                             width: `${currentCourse.progress}%`,
                           }}
                         />
-
                       </div>
 
-                    </div>
+                      <div className="mt-2 flex items-center justify-between text-xs font-semibold text-slate-500">
+                        <span>
+                          {currentCourse.completedLessons} of{" "}
+                          {currentCourse.totalLessons} lessons
+                        </span>
 
-                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-
-                      <Link
-                        href={
-                          currentCourse.nextLesson
-                            ? `/courses/${currentCourse.course.id}/lesson/${currentCourse.nextLesson.id}`
-                            : `/courses/${currentCourse.course.id}`
-                        }
-                        className="group inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/15 transition hover:-translate-y-0.5 hover:bg-blue-800"
-                      >
-                        <CirclePlay size={18} />
-
-                        {currentCourse.nextLesson
-                          ? "Start Next Lesson"
-                          : "Review Course"}
-
-                        <ArrowRight
-                          size={17}
-                          className="transition-transform group-hover:translate-x-1"
-                        />
-                      </Link>
+                        <span>
+                          {currentCourse.progress}%
+                        </span>
+                      </div>
 
                       <Link
-                        href={`/courses/${currentCourse.course.id}`}
-                        className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-black text-slate-800 transition hover:border-blue-300 hover:text-blue-700"
+                        href={activeCourseHref}
+                        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-800"
                       >
-                        Course Overview
-                        <ChevronRight size={17} />
+                        {activeCourseAction}
+                        <ArrowRight size={17} />
                       </Link>
 
                     </div>
+                  </div>
 
-                    {currentCourse.nextLesson && (
-                      <div className="mt-6 rounded-2xl border border-cyan-100 bg-cyan-50/60 p-4">
+                </div>
+              ) : (
+                <EmptyState
+                  icon={<BookOpen size={28} />}
+                  title="Start your first course"
+                  description="Explore the ICU course catalogue and choose a structured learning program."
+                  href="/courses"
+                  action="Explore Courses"
+                />
+              )}
 
-                        <div className="flex items-start gap-3">
-
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-cyan-700 shadow-sm">
-                            <BookOpen size={18} />
-                          </div>
-
-                          <div className="min-w-0">
-                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-cyan-700">
-                              Up next
-                            </p>
-
-                            <p className="mt-1 break-words text-sm font-black text-slate-900">
-                              {currentCourse.nextLesson.title}
-                            </p>
-
-                            <p className="mt-1 text-xs text-slate-500">
-                              Lesson{" "}
-                              {currentCourse.nextLesson.lessonOrder}
-                              {" · "}
-                              {currentCourse.nextLesson.duration}{" "}
-                              minutes
-                            </p>
-                          </div>
-
-                        </div>
-
-                      </div>
-                    )}
-
-                  </>
-                ) : (
-                  <EmptyState
-                    icon={<GraduationCap size={28} />}
-                    title="Start your first course"
-                    description="Explore the ICU course catalogue and choose a structured learning program to begin tracking your progress."
-                    href="/courses"
-                    action="Explore Courses"
-                  />
-                )}
-
-              </div>
             </section>
-
-            {/* -------------------------------------------------
-                MY COURSES
-            -------------------------------------------------- */}
 
             <section>
 
@@ -1016,83 +837,61 @@ export default async function DashboardPage() {
                   <p className="mt-1 text-sm text-slate-600">
                     {totalCourses === 0
                       ? "Your enrolled courses will appear here."
-                      : `${totalCourses} course${
-                          totalCourses === 1
-                            ? ""
-                            : "s"
-                        } in your learning library.`}
+                      : `${totalCourses} course${totalCourses === 1 ? "" : "s"} in your learning library.`}
                   </p>
                 </div>
 
-                {totalCourses > 0 && (
-                  <Link
-                    href="/courses"
-                    className="inline-flex items-center gap-1.5 text-sm font-black text-blue-700 transition hover:text-blue-900"
-                  >
-                    Browse catalogue
-                    <ArrowRight size={16} />
-                  </Link>
-                )}
+                <Link
+                  href="/courses"
+                  className="inline-flex items-center gap-1.5 text-sm font-black text-blue-700 transition hover:text-blue-900"
+                >
+                  Browse catalogue
+                  <ArrowRight size={16} />
+                </Link>
 
               </div>
 
-              {totalCourses === 0 ? (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm sm:p-12">
-
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
-                    <BookOpen size={30} />
-                  </div>
-
-                  <h3 className="mt-5 text-xl font-black text-slate-950">
-                    No enrolled courses yet
-                  </h3>
-
-                  <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
-                    Start learning by exploring the
-                    available ICU courses and choose
-                    the program that matches your goals.
-                  </p>
-
-                  <Link
-                    href="/courses"
-                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-800"
-                  >
-                    Explore Courses
-                    <ArrowRight size={17} />
-                  </Link>
-
-                </div>
+              {recentCourses.length === 0 ? (
+                <EmptyState
+                  icon={<GraduationCap size={30} />}
+                  title="No enrolled courses yet"
+                  description="Start learning by exploring the available ICU courses."
+                  href="/courses"
+                  action="Explore Courses"
+                />
               ) : (
-                <div className="grid gap-5 lg:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
 
-                  {recentCourses.map((item) => (
-                    <CourseCard
-                      key={item.enrollmentId}
-                      item={item}
-                    />
-                  ))}
+                  {recentCourses.map(
+                    (item) => (
+                      <CourseCard
+                        key={item.enrollmentId}
+                        title={item.course.title}
+                        description={item.course.description}
+                        image={item.course.image}
+                        progress={item.progress}
+                        completedLessons={item.completedLessons}
+                        totalLessons={item.totalLessons}
+                        language={item.course.language}
+                        level={item.course.level}
+                        href={
+                          item.nextLesson
+                            ? `/courses/${item.course.id}/lesson/${item.nextLesson.id}`
+                            : `/courses/${item.course.id}`
+                        }
+                        action={
+                          item.nextLesson
+                            ? "Continue"
+                            : "Review"
+                        }
+                      />
+                    )
+                  )}
 
-                </div>
-              )}
-
-              {totalCourses >
-                recentCourses.length && (
-                <div className="mt-5 text-center">
-                  <Link
-                    href="/courses"
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 shadow-sm transition hover:border-cyan-300 hover:text-cyan-700"
-                  >
-                    View all learning options
-                    <ArrowRight size={17} />
-                  </Link>
                 </div>
               )}
 
             </section>
-
-            {/* -------------------------------------------------
-                LEARNING MILESTONES
-            -------------------------------------------------- */}
 
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
 
@@ -1137,7 +936,7 @@ export default async function DashboardPage() {
                   description="Lessons completed"
                   completed={
                     totalLessons > 0 &&
-                    completedLessons > 0
+                    completedLessons === totalLessons
                   }
                 />
 
@@ -1145,14 +944,12 @@ export default async function DashboardPage() {
                   icon={<Award size={20} />}
                   title="Certification"
                   value={
-                    latestCertificate
-                      ? "Earned"
+                    certificateCount > 0
+                      ? String(certificateCount)
                       : "In progress"
                   }
-                  description="Latest certificate"
-                  completed={
-                    Boolean(latestCertificate)
-                  }
+                  description="Certificates earned"
+                  completed={certificateCount > 0}
                 />
 
               </div>
@@ -1161,15 +958,7 @@ export default async function DashboardPage() {
 
           </div>
 
-                    {/* ===================================================
-              RIGHT SIDEBAR
-          ==================================================== */}
-
           <aside className="space-y-7">
-
-            {/* -------------------------------------------------
-                QUICK ACCESS
-            -------------------------------------------------- */}
 
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -1186,8 +975,7 @@ export default async function DashboardPage() {
                   </h2>
 
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Jump directly to the most useful
-                    areas of your LMS.
+                    Jump directly to the most useful areas of your LMS.
                   </p>
                 </div>
 
@@ -1231,10 +1019,6 @@ export default async function DashboardPage() {
 
             </section>
 
-            {/* -------------------------------------------------
-                SUPPORT & ACCOUNT
-            -------------------------------------------------- */}
-
             <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
               <div className="border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-white to-blue-50 p-6">
@@ -1269,9 +1053,9 @@ export default async function DashboardPage() {
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3.5 transition hover:border-emerald-200 hover:bg-emerald-50"
+                  className="group flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3.5 transition hover:bg-emerald-50"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
                     <MessageCircle size={19} />
                   </span>
 
@@ -1287,15 +1071,15 @@ export default async function DashboardPage() {
 
                   <ArrowRight
                     size={16}
-                    className="text-emerald-300 transition group-hover:translate-x-0.5 group-hover:text-emerald-600"
+                    className="text-emerald-300 group-hover:text-emerald-600"
                   />
                 </a>
 
                 <Link
                   href="/contact"
-                  className="group flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3.5 transition hover:border-blue-200 hover:bg-blue-50"
+                  className="group flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3.5 transition hover:bg-blue-50"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
                     <CircleHelp size={19} />
                   </span>
 
@@ -1311,16 +1095,16 @@ export default async function DashboardPage() {
 
                   <ArrowRight
                     size={16}
-                    className="text-blue-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600"
+                    className="text-blue-300 group-hover:text-blue-600"
                   />
                 </Link>
 
                 <form action={handleLogout}>
                   <button
                     type="submit"
-                    className="group flex w-full items-center gap-3 rounded-2xl border border-red-100 bg-red-50/70 p-3.5 text-left transition hover:border-red-200 hover:bg-red-50"
+                    className="group flex w-full items-center gap-3 rounded-2xl border border-red-100 bg-red-50/70 p-3.5 text-left transition hover:bg-red-50"
                   >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-red-500 shadow-sm">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-red-500 shadow-sm">
                       <LogOut size={19} />
                     </span>
 
@@ -1336,20 +1120,15 @@ export default async function DashboardPage() {
 
                     <ArrowRight
                       size={16}
-                      className="text-red-300 transition group-hover:translate-x-0.5 group-hover:text-red-600"
+                      className="text-red-300 group-hover:text-red-600"
                     />
                   </button>
                 </form>
 
               </div>
-
             </section>
 
-            {/* -------------------------------------------------
-                ACTIVE COURSE
-            -------------------------------------------------- */}
-
-            <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+                        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
               <div className="h-1.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-700" />
 
@@ -1376,9 +1155,9 @@ export default async function DashboardPage() {
                 </div>
 
                 {currentCourse ? (
-                  <>
+                  <div className="mt-6">
 
-                    <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
 
                       <div className="flex items-start gap-3">
 
@@ -1387,42 +1166,34 @@ export default async function DashboardPage() {
                         </div>
 
                         <div className="min-w-0">
-
                           <p className="break-words text-sm font-black text-slate-900">
                             {currentCourse.course.title}
                           </p>
 
                           <p className="mt-1 text-xs text-slate-500">
-                            {currentCourse.course.instructor}
+                            {currentCourse.progress}% complete
                           </p>
-
                         </div>
 
                       </div>
 
-                      <div className="mt-5">
+                      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white">
+                        <div
+                          className="h-full rounded-full bg-blue-600"
+                          style={{
+                            width: `${currentCourse.progress}%`,
+                          }}
+                        />
+                      </div>
 
-                        <div className="mb-2 flex items-center justify-between text-xs font-black">
-                          <span className="text-slate-600">
-                            Progress
-                          </span>
+                      <div className="mt-3 flex justify-between text-[11px] font-semibold text-slate-500">
+                        <span>
+                          {currentCourse.completedLessons} completed
+                        </span>
 
-                          <span className="text-blue-700">
-                            {activeCoursePercent}%
-                          </span>
-                        </div>
-
-                        <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
-
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-700"
-                            style={{
-                              width: `${activeCoursePercent}%`,
-                            }}
-                          />
-
-                        </div>
-
+                        <span>
+                          {currentCourse.totalLessons} total
+                        </span>
                       </div>
 
                     </div>
@@ -1435,9 +1206,10 @@ export default async function DashboardPage() {
                       <ArrowRight size={17} />
                     </Link>
 
-                  </>
+                  </div>
                 ) : (
                   <EmptyState
+                    compact
                     icon={<BookOpen size={25} />}
                     title="No active course"
                     description="Browse the course catalogue and start your learning pathway."
@@ -1448,10 +1220,6 @@ export default async function DashboardPage() {
 
               </div>
             </section>
-
-            {/* -------------------------------------------------
-                LEARNING ANALYTICS
-            -------------------------------------------------- */}
 
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -1511,10 +1279,6 @@ export default async function DashboardPage() {
 
             </section>
 
-            {/* -------------------------------------------------
-                QUIZ PERFORMANCE
-            -------------------------------------------------- */}
-
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
 
               <div className="flex items-start justify-between gap-4">
@@ -1530,8 +1294,7 @@ export default async function DashboardPage() {
                   </h2>
 
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Your real quiz performance from
-                    this account.
+                    Your real quiz performance from this account.
                   </p>
                 </div>
 
@@ -1579,9 +1342,9 @@ export default async function DashboardPage() {
                     </p>
 
                     <p className="mt-1 text-xs leading-5 text-violet-700">
-                      Keep practicing to improve your
-                      quiz average and strengthen your
-                      clinical knowledge.
+                      Keep practicing to improve your quiz
+                      performance and strengthen your clinical
+                      knowledge.
                     </p>
                   </div>
 
@@ -1598,10 +1361,6 @@ export default async function DashboardPage() {
               </Link>
 
             </section>
-
-                        {/* -------------------------------------------------
-                CERTIFICATE
-            -------------------------------------------------- */}
 
             <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
 
@@ -1625,9 +1384,9 @@ export default async function DashboardPage() {
               </div>
 
               {latestCertificate ? (
-                <>
+                <div className="mt-6">
 
-                  <div className="mt-6 rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50 p-5">
+                  <div className="rounded-2xl border border-amber-100 bg-gradient-to-br from-amber-50 to-orange-50 p-5">
 
                     <div className="flex items-start gap-3">
 
@@ -1645,60 +1404,17 @@ export default async function DashboardPage() {
                           {latestCertificate.course.title}
                         </h3>
 
+                        <p className="mt-2 text-xs text-slate-500">
+                          Issued {formatDate(latestCertificate.issuedAt)}
+                        </p>
+
+                        <p className="mt-1 text-xs font-semibold text-amber-700">
+                          Certificate #{latestCertificate.certificateNo}
+                        </p>
+
                       </div>
 
                     </div>
-
-                    <div className="mt-5 space-y-2">
-
-                      <p className="text-xs text-slate-600">
-                        Certificate No:{" "}
-                        <span className="font-black text-slate-900">
-                          {
-                            latestCertificate.certificateNo
-                          }
-                        </span>
-                      </p>
-
-                      <p className="text-xs text-slate-600">
-                        Issued on{" "}
-                        <span className="font-bold text-slate-900">
-                          {formatDate(
-                            latestCertificate.issuedAt
-                          )}
-                        </span>
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  <Link
-                    href={`/api/certificates/latest/${latestCertificate.id}`}
-                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-slate-800"
-                  >
-                    <Award size={17} />
-                    Download Certificate
-                  </Link>
-
-                </>
-              ) : (
-                <>
-
-                  <div className="mt-6 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-center">
-
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
-                      <LockKeyhole size={23} />
-                    </div>
-
-                    <p className="mt-4 text-sm font-black text-slate-800">
-                      Your certificate is waiting
-                    </p>
-
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      Complete an eligible course to
-                      unlock your certificate.
-                    </p>
 
                   </div>
 
@@ -1706,18 +1422,42 @@ export default async function DashboardPage() {
                     href="/dashboard/certificates"
                     className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 transition hover:border-amber-300 hover:text-amber-700"
                   >
-                    Certificate Information
+                    View Certificates
                     <ArrowRight size={17} />
                   </Link>
 
-                </>
+                </div>
+              ) : (
+                <div className="mt-6">
+
+                  <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center">
+
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                      <Award size={23} />
+                    </div>
+
+                    <p className="mt-4 text-sm font-black text-slate-800">
+                      Your certificate is waiting
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-slate-500">
+                      Complete an eligible course to earn your certificate.
+                    </p>
+
+                  </div>
+
+                  <Link
+                    href="/dashboard/certificates"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black text-slate-700 transition hover:border-amber-300 hover:text-amber-700"
+                  >
+                    Certificate Information
+                    <ArrowRight size={15} />
+                  </Link>
+
+                </div>
               )}
 
             </section>
-
-            {/* -------------------------------------------------
-                ACCOUNT STATUS
-            -------------------------------------------------- */}
 
             <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
@@ -1780,11 +1520,7 @@ export default async function DashboardPage() {
 
                   <AccountStat
                     label="Certificates"
-                    value={
-                      latestCertificate
-                        ? "1+"
-                        : "0"
-                    }
+                    value={String(certificateCount)}
                   />
 
                 </div>
@@ -1810,10 +1546,6 @@ export default async function DashboardPage() {
           </aside>
         </section>
 
-        {/* =====================================================
-            FOOTER STATUS
-        ====================================================== */}
-
         <footer className="mt-8 border-t border-slate-200 pt-6">
 
           <div className="flex flex-col gap-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
@@ -1825,34 +1557,29 @@ export default async function DashboardPage() {
               />
 
               <p>
-                ICU Learning Portal · Professional
-                Learning Dashboard
+                ICU Learning Portal · Professional Learning Dashboard
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-
-              <span
-                className={
-                  user.isPremium
-                    ? "inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 font-bold text-amber-700"
-                    : "inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 font-bold text-slate-600"
-                }
-              >
-                {user.isPremium ? (
-                  <>
-                    <Crown size={12} />
-                    Premium learning account
-                  </>
-                ) : (
-                  <>
-                    <UserRound size={12} />
-                    Free learning account
-                  </>
-                )}
-              </span>
-
-            </div>
+            <span
+              className={
+                user.isPremium
+                  ? "inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 font-bold text-amber-700"
+                  : "inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 font-bold text-slate-600"
+              }
+            >
+              {user.isPremium ? (
+                <>
+                  <Crown size={12} />
+                  Premium learning account
+                </>
+              ) : (
+                <>
+                  <UserRound size={12} />
+                  Free learning account
+                </>
+              )}
+            </span>
 
           </div>
 
@@ -1863,12 +1590,6 @@ export default async function DashboardPage() {
   );
 }
 
-/*
- * ============================================================
- * HERO STAT
- * ============================================================
- */
-
 function HeroStat({
   value,
   label,
@@ -1878,24 +1599,16 @@ function HeroStat({
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-
       <p className="text-lg font-black text-white">
         {value}
       </p>
 
-      <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-blue-100">
+      <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-blue-100">
         {label}
       </p>
-
     </div>
   );
 }
-
-/*
- * ============================================================
- * METRIC CARD
- * ============================================================
- */
 
 function MetricCard({
   title,
@@ -1915,239 +1628,229 @@ function MetricCard({
   return (
     <Link
       href={href}
-      className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-lg"
+      className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-md"
     >
       <div className="flex items-start justify-between gap-4">
 
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+            {title}
+          </p>
+
+          <p className="mt-2 text-3xl font-black tracking-tight text-slate-950">
+            {value}
+          </p>
+        </div>
+
         <div
-          className={`rounded-xl p-3 ${iconClass}`}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${iconClass}`}
         >
           {icon}
         </div>
 
-        <p className="text-3xl font-black tracking-tight text-slate-950">
-          {value}
-        </p>
-
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3">
-
-        <h2 className="text-sm font-black text-slate-900">
-          {title}
-        </h2>
-
-        <ArrowRight
-          size={15}
-          className="text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-cyan-600"
-        />
-
-      </div>
-
-      <p className="mt-1 text-xs leading-5 text-slate-500">
+      <p className="mt-3 text-xs leading-5 text-slate-500">
         {description}
       </p>
 
+      <div className="mt-4 flex items-center gap-1 text-xs font-black text-blue-700">
+        Open
+        <ArrowRight
+          size={14}
+          className="transition-transform group-hover:translate-x-0.5"
+        />
+      </div>
     </Link>
   );
 }
 
-/*
- * ============================================================
- * COURSE CARD
- * ============================================================
- */
-
 function CourseCard({
-  item,
+  title,
+  description,
+  image,
+  progress,
+  completedLessons,
+  totalLessons,
+  language,
+  level,
+  href,
+  action,
 }: {
-  item: {
-    enrollmentId: string;
-    enrolledAt: Date;
-
-    course: {
-      id: string;
-      title: string;
-      description: string;
-      instructor: string;
-      duration: number;
-      language: string;
-      level: string;
-
-      lessons: {
-        id: string;
-        title: string;
-        lessonOrder: number;
-        duration: number;
-      }[];
-    };
-
-    totalLessons: number;
-    completedLessons: number;
-    progress: number;
-    completed: boolean;
-
-    nextLesson: {
-      id: string;
-      title: string;
-      lessonOrder: number;
-      duration: number;
-    } | null;
-  };
+  title: string;
+  description: string;
+  image: string;
+  progress: number;
+  completedLessons: number;
+  totalLessons: number;
+  language: string;
+  level: string;
+  href: string;
+  action: string;
 }) {
   return (
-    <article className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-lg">
+    <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
 
-      <div className="p-5 sm:p-6">
+      <div className="relative h-40 overflow-hidden bg-slate-100">
 
-        <div className="flex items-start gap-4">
-
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-50 to-blue-50 text-cyan-700">
-            <BookOpen size={23} />
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            className="h-full w-full object-cover transition duration-500 hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-cyan-700">
+            <BookOpen size={36} />
           </div>
+        )}
 
-          <div className="min-w-0 flex-1">
+        <div className="absolute left-3 top-3 flex gap-2">
+          <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-black text-blue-700 shadow-sm">
+            {level}
+          </span>
 
-            <div className="flex flex-wrap items-start justify-between gap-2">
-
-              <h3 className="break-words text-base font-black leading-6 text-slate-900">
-                {item.course.title}
-              </h3>
-
-              <span
-                className={
-                  item.completed
-                    ? "shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-700"
-                    : "shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-wide text-blue-700"
-                }
-              >
-                {item.completed
-                  ? "Completed"
-                  : "In Progress"}
-              </span>
-
-            </div>
-
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              {item.course.instructor}
-              {" · "}
-              {item.course.language}
-              {" · "}
-              {item.course.level}
-            </p>
-
-          </div>
-
+          <span className="rounded-full bg-slate-950/85 px-2.5 py-1 text-[10px] font-black text-white">
+            {language}
+          </span>
         </div>
 
-        <p className="mt-5 line-clamp-2 text-sm leading-6 text-slate-600">
-          {item.course.description}
+      </div>
+
+      <div className="p-5">
+
+        <h3 className="line-clamp-2 text-lg font-black leading-6 text-slate-950">
+          {title}
+        </h3>
+
+        <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
+          {description}
         </p>
 
-        <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-bold text-slate-500">
-
-          <span className="rounded-lg bg-slate-50 px-2.5 py-1.5">
-            {item.totalLessons} lessons
-          </span>
-
-          <span className="rounded-lg bg-slate-50 px-2.5 py-1.5">
-            {item.course.duration} hours
-          </span>
-
-          <span className="rounded-lg bg-slate-50 px-2.5 py-1.5">
-            {item.course.level}
-          </span>
-
+        <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-slate-100">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600"
+            style={{
+              width: `${progress}%`,
+            }}
+          />
         </div>
 
-        <div className="mt-5">
+        <div className="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-500">
+          <span>
+            {completedLessons}/{totalLessons} lessons
+          </span>
 
-          <div className="mb-2 flex items-center justify-between gap-4 text-xs font-black">
-
-            <span className="text-slate-600">
-              {item.completedLessons} of{" "}
-              {item.totalLessons} lessons
-            </span>
-
-            <span className="text-cyan-700">
-              {item.progress}%
-            </span>
-
-          </div>
-
-          <div className="h-2.5 overflow-hidden rounded-full bg-slate-100">
-
-            <div
-              className={
-                item.completed
-                  ? "h-full rounded-full bg-emerald-500 transition-all"
-                  : "h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-700 transition-all"
-              }
-              style={{
-                width: `${item.progress}%`,
-              }}
-            />
-
-          </div>
-
+          <span>{progress}%</span>
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-
-          <div className="min-w-0">
-
-            {item.nextLesson ? (
-              <>
-                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  Next lesson
-                </p>
-
-                <p className="mt-1 truncate text-xs font-black text-slate-700">
-                  {item.nextLesson.title}
-                </p>
-
-                <p className="mt-1 text-[10px] text-slate-400">
-                  Lesson{" "}
-                  {item.nextLesson.lessonOrder}
-                  {" · "}
-                  {item.nextLesson.duration} min
-                </p>
-              </>
-            ) : (
-              <p className="text-xs font-black text-emerald-700">
-                All lessons completed
-              </p>
-            )}
-
-          </div>
-
-          <Link
-            href={
-              item.nextLesson
-                ? `/courses/${item.course.id}/lesson/${item.nextLesson.id}`
-                : `/courses/${item.course.id}`
-            }
-            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-black text-white transition group-hover:bg-blue-700"
-          >
-            {item.completed
-              ? "Review Course"
-              : "Continue"}
-
-            <ArrowRight size={15} />
-          </Link>
-
-        </div>
+        <Link
+          href={href}
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-xs font-black text-white transition hover:bg-blue-800"
+        >
+          {action}
+          <ArrowRight size={15} />
+        </Link>
 
       </div>
     </article>
   );
 }
 
-/*
- * ============================================================
- * QUICK ACTION
- * ============================================================
- */
+function EmptyState({
+  icon,
+  title,
+  description,
+  href,
+  action,
+  compact = false,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  href: string;
+  action: string;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={
+        compact
+          ? "rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center"
+          : "rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm sm:p-12"
+      }
+    >
+
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-50 text-cyan-700">
+        {icon}
+      </div>
+
+      <h3 className="mt-4 text-sm font-black text-slate-900">
+        {title}
+      </h3>
+
+      <p className="mx-auto mt-2 max-w-md text-xs leading-5 text-slate-500">
+        {description}
+      </p>
+
+      <Link
+        href={href}
+        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-xs font-black text-white transition hover:bg-blue-800"
+      >
+        {action}
+        <ArrowRight size={14} />
+      </Link>
+
+    </div>
+  );
+}
+
+function MilestoneCard({
+  icon,
+  title,
+  value,
+  description,
+  completed,
+}: {
+  icon: ReactNode;
+  title: string;
+  value: string;
+  description: string;
+  completed: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+
+      <div className="flex items-center justify-between gap-3">
+
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm">
+          {icon}
+        </div>
+
+        {completed && (
+          <CheckCircle2
+            size={17}
+            className="text-emerald-600"
+          />
+        )}
+
+      </div>
+
+      <p className="mt-4 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
+        {title}
+      </p>
+
+      <p className="mt-1 text-lg font-black text-slate-900">
+        {value}
+      </p>
+
+      <p className="mt-1 text-[11px] leading-5 text-slate-500">
+        {description}
+      </p>
+
+    </div>
+  );
+}
 
 function QuickAction({
   href,
@@ -2165,65 +1868,27 @@ function QuickAction({
       href={href}
       className="group flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 p-3.5 transition hover:border-cyan-200 hover:bg-cyan-50/60"
     >
-
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm transition group-hover:text-cyan-700">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm">
         {icon}
-      </div>
+      </span>
 
-      <div className="min-w-0 flex-1">
-
-        <p className="text-sm font-black text-slate-900">
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-black text-slate-900">
           {title}
-        </p>
+        </span>
 
-        <p className="mt-0.5 truncate text-xs text-slate-500">
+        <span className="mt-0.5 block truncate text-xs text-slate-500">
           {description}
-        </p>
+        </span>
+      </span>
 
-      </div>
-
-      <ChevronRight
-        size={17}
-        className="shrink-0 text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-cyan-700"
+      <ArrowRight
+        size={16}
+        className="shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-cyan-600"
       />
-
     </Link>
   );
 }
-
-/*
- * ============================================================
- * MINI STAT
- * ============================================================
- */
-
-function MiniStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
-
-      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
-        {label}
-      </p>
-
-      <p className="mt-2 truncate text-lg font-black text-slate-900">
-        {value}
-      </p>
-
-    </div>
-  );
-}
-
-/*
- * ============================================================
- * ANALYTICS ROW
- * ============================================================
- */
 
 function AnalyticsRow({
   label,
@@ -2234,16 +1899,10 @@ function AnalyticsRow({
   value: string;
   progress: number;
 }) {
-  const safeProgress = Math.min(
-    100,
-    Math.max(0, progress)
-  );
-
   return (
     <div>
 
-      <div className="mb-2 flex items-center justify-between gap-3 text-xs font-black">
-
+      <div className="flex items-center justify-between gap-4 text-xs font-bold">
         <span className="text-slate-600">
           {label}
         </span>
@@ -2251,29 +1910,23 @@ function AnalyticsRow({
         <span className="text-slate-900">
           {value}
         </span>
-
       </div>
 
-      <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-
+      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-700 transition-all"
+          className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all"
           style={{
-            width: `${safeProgress}%`,
+            width: `${Math.min(
+              100,
+              Math.max(0, progress)
+            )}%`,
           }}
         />
-
       </div>
 
     </div>
   );
 }
-
-/*
- * ============================================================
- * PERFORMANCE STAT
- * ============================================================
- */
 
 function PerformanceStat({
   value,
@@ -2283,90 +1936,19 @@ function PerformanceStat({
   label: string;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
+    <div className="rounded-2xl bg-slate-50 p-4 text-center">
 
       <p className="text-xl font-black text-slate-950">
         {value}
       </p>
 
-      <p className="mt-1 text-[10px] font-black uppercase tracking-wide text-slate-400">
+      <p className="mt-1 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">
         {label}
       </p>
 
     </div>
   );
 }
-
-/*
- * ============================================================
- * MILESTONE CARD
- * ============================================================
- */
-
-function MilestoneCard({
-  icon,
-  title,
-  value,
-  description,
-  completed,
-}: {
-  icon: ReactNode;
-  title: string;
-  value: string;
-  description: string;
-  completed: boolean;
-}) {
-  return (
-    <div
-      className={
-        completed
-          ? "rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5"
-          : "rounded-2xl border border-slate-100 bg-slate-50 p-5"
-      }
-    >
-
-      <div className="flex items-start justify-between gap-4">
-
-        <div
-          className={
-            completed
-              ? "flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-700 shadow-sm"
-              : "flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-500 shadow-sm"
-          }
-        >
-          {icon}
-        </div>
-
-        {completed && (
-          <CheckCircle2
-            size={17}
-            className="text-emerald-600"
-          />
-        )}
-
-      </div>
-
-      <p className="mt-5 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
-        {title}
-      </p>
-
-      <p className="mt-2 text-xl font-black text-slate-950">
-        {value}
-      </p>
-
-      <p className="mt-1 text-xs leading-5 text-slate-500">
-        {description}
-      </p>
-
-    </div>
-  );
-}
-
-/*
- * ============================================================
- * ACCOUNT STAT
- * ============================================================
- */
 
 function AccountStat({
   label,
@@ -2376,61 +1958,15 @@ function AccountStat({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/10 p-3">
+    <div className="rounded-2xl border border-white/10 bg-white/10 p-3">
 
-      <p className="text-base font-black">
-        {value}
-      </p>
-
-      <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-white/60">
+      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-white/60">
         {label}
       </p>
 
-    </div>
-  );
-}
-
-/*
- * ============================================================
- * EMPTY STATE
- * ============================================================
- */
-
-function EmptyState({
-  icon,
-  title,
-  description,
-  href,
-  action,
-}: {
-  icon: ReactNode;
-  title: string;
-  description: string;
-  href: string;
-  action: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-7 text-center">
-
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-cyan-700 shadow-sm">
-        {icon}
-      </div>
-
-      <h3 className="mt-4 text-lg font-black text-slate-950">
-        {title}
-      </h3>
-
-      <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">
-        {description}
+      <p className="mt-1 text-xl font-black text-white">
+        {value}
       </p>
-
-      <Link
-        href={href}
-        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-800"
-      >
-        {action}
-        <ArrowRight size={17} />
-      </Link>
 
     </div>
   );

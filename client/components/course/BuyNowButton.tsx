@@ -4,6 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+
 import {
   BadgeCheck,
   CheckCircle2,
@@ -44,18 +45,6 @@ type CreateOrderResponse = {
     id?: string;
     status?: string;
   };
-
-  course?: {
-    id?: string;
-    title?: string;
-    price?: number;
-  };
-
-  customer?: {
-    name?: string;
-    email?: string;
-    contact?: string;
-  };
 };
 
 type VerifyResponse = {
@@ -91,6 +80,7 @@ type RazorpayPaymentFailedResponse = {
     reason?: string;
     source?: string;
     step?: string;
+
     metadata?: {
       order_id?: string;
       payment_id?: string;
@@ -133,6 +123,7 @@ declare global {
       options: RazorpayOptions
     ) => {
       open: () => void;
+
       on: (
         eventName: "payment.failed",
         handler: (
@@ -143,7 +134,9 @@ declare global {
   }
 }
 
-async function readJson<T>(response: Response): Promise<T> {
+async function readJson<T>(
+  response: Response
+): Promise<T> {
   try {
     return (await response.json()) as T;
   } catch {
@@ -152,11 +145,16 @@ async function readJson<T>(response: Response): Promise<T> {
 }
 
 function formatPrice(price: number) {
-  if (!Number.isFinite(price) || price <= 0) {
+  if (
+    !Number.isFinite(price) ||
+    price <= 0
+  ) {
     return "₹0";
   }
 
-  return `₹${price.toLocaleString("en-IN")}`;
+  return `₹${price.toLocaleString(
+    "en-IN"
+  )}`;
 }
 
 export default function BuyNowButton({
@@ -169,38 +167,73 @@ export default function BuyNowButton({
 }: Props) {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
-  const [scriptReady, setScriptReady] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] =
+    useState(false);
 
-  const displayPrice = formatPrice(price);
+  const [scriptReady, setScriptReady] =
+    useState(false);
 
-  async function verifyPayment(response: RazorpayResponse) {
-    const verifyResponse = await fetch("/api/payments/verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-      body: JSON.stringify({
-        courseId,
-        razorpayOrderId: response.razorpay_order_id,
-        razorpayPaymentId: response.razorpay_payment_id,
-        razorpaySignature: response.razorpay_signature,
-      }),
-    });
+  const [error, setError] =
+    useState("");
+
+  const displayPrice =
+    formatPrice(price);
+
+  async function verifyPayment(
+    response: RazorpayResponse
+  ) {
+    const verifyResponse =
+      await fetch(
+        "/api/payments/verify",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          cache: "no-store",
+          body: JSON.stringify({
+            courseId,
+            razorpayOrderId:
+              response.razorpay_order_id,
+            razorpayPaymentId:
+              response.razorpay_payment_id,
+            razorpaySignature:
+              response.razorpay_signature,
+          }),
+        }
+      );
 
     const verifyData =
-      await readJson<VerifyResponse>(verifyResponse);
+      await readJson<VerifyResponse>(
+        verifyResponse
+      );
 
-    if (!verifyResponse.ok || !verifyData.success) {
+    if (
+      !verifyResponse.ok ||
+      !verifyData.success
+    ) {
       throw new Error(
         verifyData.message ||
           "Payment verification failed. If your payment was deducted, please contact support."
       );
     }
 
-    router.push(`/courses/${courseId}`);
+    /*
+     * =====================================================
+     * PAYMENT VERIFIED
+     *
+     * Enrollment has been created/confirmed
+     * by the server.
+     *
+     * Start the purchased course immediately.
+     * =====================================================
+     */
+
+    router.push(
+      `/learn/${courseId}`
+    );
+
     router.refresh();
   }
 
@@ -217,6 +250,7 @@ export default function BuyNowButton({
           `/courses/${courseId}`
         )}`
       );
+
       return;
     }
 
@@ -228,44 +262,62 @@ export default function BuyNowButton({
       setError(
         "Secure payment system is still loading. Please wait a moment and try again."
       );
+
       return;
     }
 
-    if (!Number.isFinite(price) || price <= 0) {
+    if (
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
       setError(
         "This course has an invalid price configuration."
       );
+
       return;
     }
 
     try {
       setLoading(true);
 
-      const orderResponse = await fetch(
-        "/api/payments/create-order",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          cache: "no-store",
-          body: JSON.stringify({
-            courseId,
-          }),
-        }
-      );
+      const orderResponse =
+        await fetch(
+          "/api/payments/create-order",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            cache: "no-store",
+            body: JSON.stringify({
+              courseId,
+            }),
+          }
+        );
 
       const orderData =
         await readJson<CreateOrderResponse>(
           orderResponse
         );
 
+      /*
+       * Existing purchase/enrollment:
+       *
+       * Do not create another payment.
+       * Start the course directly.
+       */
+
       if (
         orderData.alreadyPurchased ||
         orderData.alreadyEnrolled
       ) {
-        router.push(`/courses/${courseId}`);
+        router.push(
+          `/learn/${courseId}`
+        );
+
         router.refresh();
+
         return;
       }
 
@@ -276,15 +328,22 @@ export default function BuyNowButton({
         );
       }
 
-      const orderId = orderData.order?.id;
-      const orderAmount = orderData.order?.amount;
-      const orderCurrency = orderData.order?.currency;
+      const orderId =
+        orderData.order?.id;
+
+      const orderAmount =
+        orderData.order?.amount;
+
+      const orderCurrency =
+        orderData.order?.currency;
 
       if (
         !orderData.success ||
         !orderData.keyId ||
         !orderId ||
-        !Number.isSafeInteger(orderAmount) ||
+        !Number.isSafeInteger(
+          orderAmount
+        ) ||
         !orderAmount ||
         orderAmount <= 0 ||
         orderCurrency !== "INR"
@@ -295,7 +354,8 @@ export default function BuyNowButton({
         );
       }
 
-      const RazorpayCheckout = window.Razorpay;
+      const RazorpayCheckout =
+        window.Razorpay;
 
       if (!RazorpayCheckout) {
         throw new Error(
@@ -326,7 +386,8 @@ export default function BuyNowButton({
 
         notes: {
           courseId,
-          courseTitle: courseTitle.slice(0, 240),
+          courseTitle:
+            courseTitle.slice(0, 240),
         },
 
         theme: {
@@ -340,18 +401,23 @@ export default function BuyNowButton({
         },
 
         handler: async (
-          response: RazorpayResponse
+          razorpayResponse
         ) => {
           try {
-            await verifyPayment(response);
-          } catch (verificationError) {
+            await verifyPayment(
+              razorpayResponse
+            );
+          } catch (
+            verificationError
+          ) {
             console.error(
               "RAZORPAY PAYMENT VERIFICATION ERROR:",
               verificationError
             );
 
             setError(
-              verificationError instanceof Error
+              verificationError instanceof
+                Error
                 ? verificationError.message
                 : "Payment verification failed."
             );
@@ -362,12 +428,14 @@ export default function BuyNowButton({
       };
 
       const razorpay =
-        new RazorpayCheckout(options);
+        new RazorpayCheckout(
+          options
+        );
 
       razorpay.on(
         "payment.failed",
         (
-          response: RazorpayPaymentFailedResponse
+          response
         ) => {
           console.error(
             "RAZORPAY PAYMENT FAILED:",
@@ -375,7 +443,8 @@ export default function BuyNowButton({
           );
 
           const failureReason =
-            response.error?.description ||
+            response.error
+              ?.description ||
             response.error?.reason ||
             "The payment could not be completed.";
 
@@ -424,24 +493,32 @@ export default function BuyNowButton({
       />
 
       <div className="w-full max-w-md">
+
         <div className="mb-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
+
           <div className="flex items-start gap-3">
+
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
               <BadgeCheck size={20} />
             </div>
 
             <div>
+
               <p className="text-sm font-black text-emerald-900">
                 Premium Course Access
               </p>
 
               <p className="mt-1 text-xs leading-5 text-emerald-800">
-                Complete payment securely to unlock the
-                course, protected lessons, learning progress
-                and completion pathway.
+                Purchase securely to unlock
+                protected lessons, study resources,
+                progress tracking and the complete
+                learning pathway.
               </p>
+
             </div>
+
           </div>
+
         </div>
 
         <button
@@ -483,6 +560,7 @@ export default function BuyNowButton({
             disabled:hover:translate-y-0
           "
         >
+
           {loading ? (
             <>
               <Loader2
@@ -490,7 +568,7 @@ export default function BuyNowButton({
                 className="animate-spin"
               />
 
-              Securely Processing Payment...
+              Processing Secure Payment...
             </>
           ) : (
             <>
@@ -501,30 +579,39 @@ export default function BuyNowButton({
                 : "Login to Purchase"}
             </>
           )}
+
         </button>
 
         <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+
           <p className="text-center text-xs leading-5 text-slate-600">
-            By continuing to payment, you acknowledge that
-            you have reviewed the applicable{" "}
+
+            By continuing to payment, you acknowledge
+            that you have reviewed the applicable{" "}
+
             <Link
               href="/terms"
-              className="font-extrabold text-blue-700 underline underline-offset-2 transition hover:text-blue-900"
+              className="font-extrabold text-blue-700 underline underline-offset-2"
             >
               Terms & Conditions
             </Link>{" "}
+
             and{" "}
+
             <Link
               href="/refund"
-              className="font-extrabold text-blue-700 underline underline-offset-2 transition hover:text-blue-900"
+              className="font-extrabold text-blue-700 underline underline-offset-2"
             >
               Refund & Cancellation Policy
             </Link>
             .
+
           </p>
+
         </div>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-3">
+
           <div className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-[11px] font-bold text-slate-600">
             <ShieldCheck
               size={14}
@@ -548,6 +635,7 @@ export default function BuyNowButton({
             />
             Protected Content
           </div>
+
         </div>
 
         <div className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold text-slate-500">
@@ -561,6 +649,7 @@ export default function BuyNowButton({
 
         {error && (
           <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+
             <p className="text-sm font-bold text-red-800">
               Payment Error
             </p>
@@ -580,8 +669,10 @@ export default function BuyNowButton({
             >
               Contact Support on WhatsApp
             </a>
+
           </div>
         )}
+
       </div>
     </>
   );

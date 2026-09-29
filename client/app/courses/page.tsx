@@ -685,7 +685,7 @@ const previewLessons =
           IMAGE / COVER
       ========================================================== */}
 
-      <div className="relative h-60 overflow-hidden">
+      <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <Image
           src={image}
           alt={visual.alt}
@@ -694,7 +694,7 @@ const previewLessons =
           priority={index < 3}
           loading={index < 3 ? "eager" : "lazy"}
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-          className="object-cover transition duration-700 group-hover:scale-105"
+          className="object-contain transition duration-500 group-hover:scale-[1.02]"
         />
 
         {/* Gradient overlay */}

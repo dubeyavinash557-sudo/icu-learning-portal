@@ -3,13 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
+  AlertCircle,
+  ArrowRight,
   Award,
   CheckCircle2,
   Download,
-  Loader2,
-  ArrowRight,
   LayoutDashboard,
-  AlertCircle,
+  Loader2,
+  Sparkles,
   X,
 } from "lucide-react";
 
@@ -22,15 +23,16 @@ type Props = {
 type ProgressResponse = {
   success?: boolean;
   message?: string;
-  error?: string;
 
   data?: {
     lessonId?: string;
     lessonTitle?: string;
     courseId?: string;
     courseTitle?: string;
+
     isFreeDemo?: boolean;
     isPremium?: boolean;
+
     lessonCompleted?: boolean;
     completedLessons?: number;
     totalLessons?: number;
@@ -62,9 +64,13 @@ export default function CompleteLessonButton({
 }: Props) {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const [showCompletion, setShowCompletion] =
+    useState(false);
+
+  const [isDemoCompleted, setIsDemoCompleted] =
     useState(false);
 
   const [certificateId, setCertificateId] =
@@ -79,12 +85,11 @@ export default function CompleteLessonButton({
   const [error, setError] =
     useState<string | null>(null);
 
-  // ==========================================================
-  // COMPLETE LESSON
-  // ==========================================================
-
-  const completeLesson = async () => {
-    if (loading || isCompleted) {
+  async function completeLesson() {
+    if (
+      loading ||
+      isCompleted
+    ) {
       return;
     }
 
@@ -99,6 +104,7 @@ export default function CompleteLessonButton({
           headers: {
             "Content-Type": "application/json",
           },
+          cache: "no-store",
           body: JSON.stringify({
             lessonId,
           }),
@@ -108,14 +114,11 @@ export default function CompleteLessonButton({
       let data: ProgressResponse = {};
 
       try {
-        data = await response.json();
+        data =
+          (await response.json()) as ProgressResponse;
       } catch {
         data = {};
       }
-
-      // ======================================================
-      // API ERROR
-      // ======================================================
 
       if (!response.ok) {
         setError(
@@ -126,10 +129,6 @@ export default function CompleteLessonButton({
         return;
       }
 
-      // ======================================================
-      // VALIDATE SUCCESS RESPONSE
-      // ======================================================
-
       if (!data.success) {
         setError(
           data.message ||
@@ -139,42 +138,74 @@ export default function CompleteLessonButton({
         return;
       }
 
-      /*
-       * IMPORTANT
-       *
-       * lesson-progress API returns:
-       *
-       * {
-       *   success: true,
-       *   data: {
-       *     courseCompleted: true,
-       *     certificate: {...}
-       *   }
-       * }
-       *
-       * Therefore courseCompleted must be read from:
-       *
-       * data.data.courseCompleted
-       */
-
       const courseCompleted =
         data.data?.courseCompleted === true;
 
-      // ======================================================
-      // COURSE COMPLETED
-      // ======================================================
+      const isFreeDemo =
+        data.data?.isFreeDemo === true;
+
+      /*
+       * =====================================================
+       * FREE DEMO COMPLETED
+       *
+       * This is the new LMS conversion flow:
+       *
+       * Demo completed
+       *      ↓
+       * Demo achievement recorded
+       *      ↓
+       * Premium catalogue
+       *      ↓
+       * Student chooses paid program
+       * =====================================================
+       */
+
+      if (
+        courseCompleted &&
+        isFreeDemo
+      ) {
+        setIsDemoCompleted(true);
+        setShowCompletion(true);
+
+        /*
+         * The server may already have created
+         * the demo certificate.
+         *
+         * We do not block the student on certificate
+         * generation. The next learning step is
+         * the premium catalogue.
+         */
+
+        if (data.data?.certificate?.id) {
+          setCertificateId(
+            data.data.certificate.id
+          );
+        }
+
+        /*
+         * Give the learner a short completion moment,
+         * then automatically continue to premium programs.
+         */
+        window.setTimeout(() => {
+          router.push(
+            "/courses#course-list"
+          );
+        }, 1800);
+
+        return;
+      }
+
+      /*
+       * =====================================================
+       * PREMIUM COURSE COMPLETED
+       * =====================================================
+       */
 
       if (courseCompleted) {
         setShowCompletion(true);
         setCertificateLoading(true);
         setCertificateError(null);
 
-        /*
-         * The lesson-progress API may already return
-         * the certificate created by the server.
-         *
-         * Prefer that certificate first.
-         */
         const createdCertificateId =
           data.data?.certificate?.id;
 
@@ -190,13 +221,6 @@ export default function CompleteLessonButton({
           return;
         }
 
-        /*
-         * Fallback:
-         *
-         * If the progress API completed the course but
-         * did not return a certificate ID, use the protected
-         * latest-certificate endpoint.
-         */
         try {
           const certificateResponse =
             await fetch(
@@ -213,8 +237,10 @@ export default function CompleteLessonButton({
             );
           }
 
-          const certificateData: CertificateResponse | null =
-            await certificateResponse.json();
+          const certificateData =
+            (await certificateResponse.json()) as
+              | CertificateResponse
+              | null;
 
           if (certificateData?.id) {
             setCertificateId(
@@ -243,18 +269,16 @@ export default function CompleteLessonButton({
         return;
       }
 
-      // ======================================================
-      // MOVE TO NEXT LESSON
-      // ======================================================
+      /*
+       * =====================================================
+       * NORMAL LESSON
+       * =====================================================
+       */
 
       if (nextLessonUrl) {
         router.push(nextLessonUrl);
         return;
       }
-
-      // ======================================================
-      // FALLBACK
-      // ======================================================
 
       router.refresh();
     } catch (requestError) {
@@ -269,35 +293,135 @@ export default function CompleteLessonButton({
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  // ==========================================================
-  // CLOSE COMPLETION PANEL
-  // ==========================================================
-
-  const closeCompletionPanel = () => {
+  function closeCompletionPanel() {
     setShowCompletion(false);
 
     router.refresh();
-  };
+  }
 
-  // ==========================================================
-  // COURSE COMPLETION UI
-  // ==========================================================
+  /*
+   * ==========================================================
+   * FREE DEMO COMPLETION UI
+   * ==========================================================
+   */
+
+  if (
+    showCompletion &&
+    isDemoCompleted
+  ) {
+    return (
+      <div
+        className="
+          w-full
+          overflow-hidden
+          rounded-3xl
+          border
+          border-emerald-200
+          bg-gradient-to-br
+          from-emerald-50
+          via-white
+          to-cyan-50
+          p-6
+          shadow-lg
+          sm:p-7
+        "
+        role="status"
+        aria-live="polite"
+      >
+        <div className="flex items-start gap-4">
+
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+            <Sparkles size={27} />
+          </div>
+
+          <div className="min-w-0">
+
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">
+              Free Demo Completed
+            </p>
+
+            <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-950">
+              Great start!
+            </h3>
+
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              You have completed this demo pathway.
+              We are taking you to the professional
+              premium course library now.
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+
+          <div className="flex items-center gap-3">
+
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm">
+              <Award size={20} />
+            </div>
+
+            <div>
+              <p className="text-sm font-black text-blue-900">
+                Next: Choose Your Premium Program
+              </p>
+
+              <p className="mt-1 text-xs leading-5 text-blue-700">
+                Explore the full ICU curriculum,
+                purchase a program securely and
+                continue your professional learning.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div className="mt-5 flex items-center justify-center gap-2 text-xs font-bold text-slate-500">
+          <Loader2
+            size={14}
+            className="animate-spin"
+          />
+
+          Opening premium programs...
+        </div>
+
+      </div>
+    );
+  }
+
+  /*
+   * ==========================================================
+   * PREMIUM COURSE COMPLETION UI
+   * ==========================================================
+   */
 
   if (showCompletion) {
     return (
       <div
-        className="w-full rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 shadow-sm"
+        className="
+          w-full
+          rounded-2xl
+          border
+          border-emerald-200
+          bg-gradient-to-br
+          from-emerald-50
+          via-white
+          to-blue-50
+          p-6
+          shadow-sm
+        "
         role="status"
         aria-live="polite"
       >
-        {/* ==================================================
-            HEADER
-        ================================================== */}
 
         <div className="flex items-start justify-between gap-4">
+
           <div className="flex items-start gap-4">
+
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
               <Award size={26} />
             </div>
@@ -317,6 +441,7 @@ export default function CompleteLessonButton({
                 recorded in your learning profile.
               </p>
             </div>
+
           </div>
 
           <button
@@ -327,11 +452,8 @@ export default function CompleteLessonButton({
           >
             <X size={20} />
           </button>
-        </div>
 
-        {/* ==================================================
-            CERTIFICATE LOADING
-        ================================================== */}
+        </div>
 
         {certificateLoading && (
           <div className="mt-6 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
@@ -345,10 +467,6 @@ export default function CompleteLessonButton({
             </span>
           </div>
         )}
-
-        {/* ==================================================
-            CERTIFICATE ERROR
-        ================================================== */}
 
         {certificateError &&
           !certificateLoading && (
@@ -364,25 +482,17 @@ export default function CompleteLessonButton({
             </div>
           )}
 
-        {/* ==================================================
-            ACTIONS
-        ================================================== */}
-
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          {/* Download Certificate */}
 
           {certificateId && (
             <a
               href={`/api/certificates/latest/${certificateId}`}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
             >
               <Download size={18} />
-
               Download Certificate
             </a>
           )}
-
-          {/* My Certificates */}
 
           <button
             type="button"
@@ -391,50 +501,72 @@ export default function CompleteLessonButton({
                 "/dashboard/certificates"
               )
             }
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             <Award size={18} />
-
             My Certificates
           </button>
-
-          {/* Dashboard */}
 
           <button
             type="button"
             onClick={() =>
               router.push("/dashboard")
             }
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             <LayoutDashboard size={18} />
-
             Dashboard
           </button>
+
         </div>
+
       </div>
     );
   }
 
-  // ==========================================================
-  // NORMAL LESSON STATE
-  // ==========================================================
+  /*
+   * ==========================================================
+   * NORMAL LESSON STATE
+   * ==========================================================
+   */
 
   return (
     <div className="flex flex-col items-start gap-3">
+
       <button
         type="button"
         onClick={completeLesson}
         disabled={
-          loading || isCompleted
+          loading ||
+          isCompleted
         }
         aria-busy={loading}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white shadow-sm transition focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${
-          isCompleted
-            ? "bg-slate-500"
-            : "bg-green-600 hover:bg-green-700"
-        }`}
+        className={`
+          inline-flex
+          items-center
+          justify-center
+          gap-2
+          rounded-xl
+          px-6
+          py-3
+          font-semibold
+          text-white
+          shadow-sm
+          transition
+          focus:outline-none
+          focus:ring-2
+          focus:ring-green-500
+          focus:ring-offset-2
+          disabled:cursor-not-allowed
+          disabled:opacity-60
+          ${
+            isCompleted
+              ? "bg-slate-500"
+              : "bg-green-600 hover:bg-green-700"
+          }
+        `}
       >
+
         {loading ? (
           <Loader2
             size={18}
@@ -447,19 +579,16 @@ export default function CompleteLessonButton({
         {loading
           ? "Completing..."
           : isCompleted
-            ? "Completed"
-            : "Mark as Complete"}
+          ? "Completed"
+          : "Mark as Complete"}
 
         {!loading &&
           !isCompleted &&
           nextLessonUrl && (
             <ArrowRight size={17} />
           )}
-      </button>
 
-      {/* ====================================================
-          ERROR
-      ==================================================== */}
+      </button>
 
       {error && (
         <div
@@ -474,6 +603,7 @@ export default function CompleteLessonButton({
           <span>{error}</span>
         </div>
       )}
+
     </div>
   );
 }

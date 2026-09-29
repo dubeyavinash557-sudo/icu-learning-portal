@@ -6,8 +6,9 @@ import { useState } from "react";
 import {
   CheckCircle2,
   Loader2,
-  UserPlus,
   LogIn,
+  PlayCircle,
+  UserPlus,
 } from "lucide-react";
 
 type Props = {
@@ -31,10 +32,13 @@ export default function FreeEnrollButton({
   const [error, setError] = useState("");
 
   function redirectToLogin() {
-    const callbackUrl = pathname || `/courses/${courseId}`;
+    const callbackUrl =
+      pathname || `/courses/${courseId}`;
 
     router.push(
-      `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+      `/login?callbackUrl=${encodeURIComponent(
+        callbackUrl
+      )}`
     );
   }
 
@@ -45,18 +49,11 @@ export default function FreeEnrollButton({
 
     setError("");
 
-    /*
-     * Guest users must login before free enrollment.
-     * Do not call /api/enroll while unauthenticated.
-     */
     if (status === "unauthenticated") {
       redirectToLogin();
       return;
     }
 
-    /*
-     * Prevent enrollment request while session is loading.
-     */
     if (status === "loading") {
       return;
     }
@@ -64,23 +61,23 @@ export default function FreeEnrollButton({
     setLoading(true);
 
     try {
-      const response = await fetch("/api/enroll", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          courseId,
-        }),
-      });
+      const response = await fetch(
+        "/api/enroll",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+          body: JSON.stringify({
+            courseId,
+          }),
+        }
+      );
 
       const data =
         (await response.json()) as EnrollResponse;
 
-      /*
-       * Session may expire between the session check
-       * and the enrollment request.
-       */
       if (response.status === 401) {
         redirectToLogin();
         return;
@@ -97,7 +94,21 @@ export default function FreeEnrollButton({
         data.success ||
         data.alreadyEnrolled
       ) {
+        /*
+         * IMPORTANT:
+         *
+         * Free demo enrollment now starts
+         * the learning experience immediately.
+         *
+         * /learn/[courseId] automatically opens
+         * the first lesson.
+         */
+        router.push(
+          `/learn/${courseId}`
+        );
+
         router.refresh();
+
         return;
       }
 
@@ -116,21 +127,29 @@ export default function FreeEnrollButton({
           ? error.message
           : "Unable to enroll in this course."
       );
-    } finally {
+
       setLoading(false);
     }
   }
 
-  const isSessionLoading = status === "loading";
-  const isGuest = status === "unauthenticated";
+  const isSessionLoading =
+    status === "loading";
+
+  const isGuest =
+    status === "unauthenticated";
 
   return (
     <div className="w-full max-w-md">
+
       <button
         type="button"
         onClick={handleEnroll}
-        disabled={loading || isSessionLoading}
+        disabled={
+          loading ||
+          isSessionLoading
+        }
         className="
+          group
           inline-flex
           w-full
           items-center
@@ -139,19 +158,29 @@ export default function FreeEnrollButton({
           rounded-2xl
           bg-gradient-to-r
           from-emerald-600
-          to-teal-600
+          via-teal-600
+          to-cyan-600
           px-8
           py-4
-          text-lg
-          font-bold
+          text-base
+          font-black
           text-white
           shadow-xl
           shadow-emerald-600/20
           transition
+          duration-200
+          hover:-translate-y-0.5
           hover:from-emerald-700
-          hover:to-teal-700
+          hover:via-teal-700
+          hover:to-cyan-700
+          hover:shadow-2xl
+          focus:outline-none
+          focus:ring-2
+          focus:ring-emerald-500
+          focus:ring-offset-2
           disabled:cursor-not-allowed
           disabled:opacity-60
+          disabled:hover:translate-y-0
         "
       >
         {loading || isSessionLoading ? (
@@ -161,34 +190,45 @@ export default function FreeEnrollButton({
               className="animate-spin"
             />
 
-            Checking access...
+            Starting Demo...
           </>
         ) : isGuest ? (
           <>
             <LogIn size={21} />
 
-            Login to Enroll Free
+            Login to Start Free
           </>
         ) : (
           <>
-            <UserPlus size={21} />
+            <PlayCircle size={21} />
 
-            Enroll Free
+            Start Free Demo
           </>
         )}
       </button>
 
-      <div className="mt-3 flex items-center justify-center gap-2 text-sm text-emerald-700">
+      <div className="mt-3 flex items-center justify-center gap-2 text-sm font-bold text-emerald-700">
         <CheckCircle2 size={16} />
 
-        Free enrollment • Instant access
+        Free enrollment • Instant learning access
       </div>
 
-      {isGuest && !isSessionLoading && (
-        <p className="mt-2 text-center text-xs text-slate-500">
-          Login or create an account to start learning.
-        </p>
-      )}
+      {!isGuest &&
+        !isSessionLoading && (
+          <p className="mt-2 text-center text-xs leading-5 text-slate-500">
+            Start the demo now. Complete the
+            selected lessons and continue to the
+            premium learning programs.
+          </p>
+        )}
+
+      {isGuest &&
+        !isSessionLoading && (
+          <p className="mt-2 text-center text-xs leading-5 text-slate-500">
+            Login or create your account to start
+            the free demo.
+          </p>
+        )}
 
       {error && (
         <div
@@ -210,6 +250,7 @@ export default function FreeEnrollButton({
           {error}
         </div>
       )}
+
     </div>
   );
 }
