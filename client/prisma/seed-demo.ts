@@ -16,6 +16,7 @@ type DemoLesson = {
   duration: number;
   lessonOrder: number;
   videoUrl?: string;
+  notesUrl?: string | null;
 };
 
 type DemoQuestion = {
@@ -74,7 +75,7 @@ const demoCourses: DemoCourse[] = [
           "Learn the basic ICU environment, ICU team, patient safety and the role of an ICU nurse.\n\nइस lesson में ICU का परिचय, ICU nurse की responsibilities और basic patient safety समझाई जाएगी.",
         duration: 10,
         lessonOrder: 1,
-        videoUrl: "https://youtu.be/fIRn6-4fPXI",
+        videoUrl: "",
       },
       {
         title:
@@ -217,7 +218,8 @@ const demoCourses: DemoCourse[] = [
         videoUrl: "",
       },
       {
-        title: "Basic Ventilator Alarm Awareness",
+        title:
+          "Basic Ventilator Alarm Awareness",
         description:
           "Learn why ventilator alarms require immediate attention and patient assessment.\n\nइस lesson में ventilator alarms के basic concepts और patient-first assessment की importance समझाई जाएगी.",
         duration: 15,
@@ -485,10 +487,19 @@ async function upsertDemoCourse(
     const videoUrl =
       lessonData.videoUrl ?? "";
 
+    /*
+     * Lesson-level notes take priority.
+     *
+     * If a lesson does not define its own notesUrl,
+     * fall back to the existing demo-course PDF.
+     *
+     * This keeps the current demo behaviour while
+     * allowing future lessons to use individual PDFs.
+     */
     const notesUrl =
-      demoNotesBySlug[
-        courseData.slug
-      ] ?? null;
+      lessonData.notesUrl ??
+      demoNotesBySlug[courseData.slug] ??
+      null;
 
     if (existingLesson) {
       await prisma.lesson.update({
@@ -667,7 +678,6 @@ main()
     );
     process.exit(1);
   })
-  
   .finally(async () => {
     await prisma.$disconnect();
   });
