@@ -29,7 +29,7 @@ export default async function Home() {
   const dbCourses = await getCourses();
 
   const mapCourse = (
-    course: (typeof dbCourses)[number]
+    course: (typeof dbCourses)[number],
   ): CourseCardData => ({
     id: course.id,
     title: course.title,
@@ -53,22 +53,31 @@ export default async function Home() {
     .filter((course) => course.isPremium)
     .map(mapCourse);
 
+  /*
+   * Keep the homepage focused.
+   *
+   * We intentionally do not show illustrative/example testimonials.
+   * Genuine student feedback can be added later when verified reviews
+   * are available.
+   */
+
   return (
     <>
       <Navbar />
 
       <main className="min-h-screen bg-white text-slate-900">
-        {/* =====================================================
+
+        {/* =========================================================
             HERO
-        ====================================================== */}
+        ========================================================== */}
 
         <section className="relative overflow-hidden bg-slate-50">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0"
           >
-            <div className="absolute -left-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-blue-200/40 blur-3xl" />
-            <div className="absolute -right-40 top-10 h-[32rem] w-[32rem] rounded-full bg-cyan-200/40 blur-3xl" />
+            <div className="absolute -left-48 -top-48 h-[34rem] w-[34rem] rounded-full bg-blue-200/40 blur-3xl" />
+            <div className="absolute -right-48 top-0 h-[34rem] w-[34rem] rounded-full bg-cyan-200/40 blur-3xl" />
 
             <div
               className="absolute inset-0 opacity-[0.025]"
@@ -80,15 +89,17 @@ export default async function Home() {
             />
           </div>
 
-          <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
             <div className="grid items-center gap-14 lg:grid-cols-[1fr_0.95fr]">
+
               <div className="max-w-2xl">
+
                 <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-blue-700 shadow-sm">
                   <Stethoscope size={15} />
                   Professional ICU Learning Platform
                 </div>
 
-                <h1 className="mt-7 text-4xl font-black leading-[1.02] tracking-[-0.04em] text-slate-950 sm:text-6xl lg:text-[4.7rem]">
+                <h1 className="mt-7 text-4xl font-black leading-[1.04] tracking-[-0.04em] text-slate-950 sm:text-6xl lg:text-[4.6rem]">
                   Learn.
                   <br />
                   Practice.
@@ -99,8 +110,8 @@ export default async function Home() {
 
                 <p className="mt-7 max-w-xl text-base leading-8 text-slate-600 sm:text-lg">
                   Build practical ICU nursing and critical-care knowledge
-                  through structured courses, lessons, video learning,
-                  assessments and certificate pathways.
+                  through structured courses, focused lessons, assessments
+                  and certificate pathways.
                 </p>
 
                 <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -193,21 +204,16 @@ export default async function Home() {
                       </h2>
 
                       <div className="mt-5 flex flex-wrap gap-2">
-                        <span className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur">
-                          ICU Nursing
-                        </span>
-
-                        <span className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur">
-                          Ventilation
-                        </span>
-
-                        <span className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur">
-                          ECG
-                        </span>
-
-                        <span className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur">
-                          ABG
-                        </span>
+                        {["ICU Nursing", "Ventilation", "ECG", "ABG"].map(
+                          (item) => (
+                            <span
+                              key={item}
+                              className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-bold text-white backdrop-blur"
+                            >
+                              {item}
+                            </span>
+                          ),
+                        )}
                       </div>
                     </div>
                   </div>
@@ -253,9 +259,9 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* =====================================================
-            PLATFORM VALUE STRIP
-        ====================================================== */}
+        {/* =========================================================
+            PLATFORM VALUE
+        ========================================================== */}
 
         <section className="border-y border-slate-200 bg-white">
           <div className="mx-auto grid max-w-7xl divide-y divide-slate-200 px-5 sm:px-6 md:grid-cols-4 md:divide-x md:divide-y-0 lg:px-8">
@@ -285,9 +291,9 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* =====================================================
+        {/* =========================================================
             FREE DEMO
-        ====================================================== */}
+        ========================================================== */}
 
         {demoCourses.length > 0 && (
           <section
@@ -299,7 +305,7 @@ export default async function Home() {
                 eyebrow="START FREE"
                 title="Experience the Learning Platform"
                 highlight="Before You Go Premium"
-                description="Start with selected free courses, explore lessons and experience the ICU Learning Portal learning flow before choosing a premium program."
+                description="Start with selected free courses, explore lessons and experience the ICU Learning Portal before choosing a premium program."
               />
 
               <div className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -321,9 +327,9 @@ export default async function Home() {
           </section>
         )}
 
-        {/* =====================================================
-            PREMIUM CATALOGUE
-        ====================================================== */}
+        {/* =========================================================
+            PREMIUM PROGRAMS
+        ========================================================== */}
 
         <section
           id="premium-courses"
@@ -349,26 +355,27 @@ export default async function Home() {
                 align="left"
               />
 
-              <div className="shrink-0">
-                <Link
-                  href="/courses"
-                  className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700"
-                >
-                  Complete Catalogue
-                  <ArrowRight size={17} />
-                </Link>
-              </div>
+              <Link
+                href="/courses"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700"
+              >
+                Complete Catalogue
+                <ArrowRight size={17} />
+              </Link>
             </div>
 
             {premiumCourses.length > 0 ? (
               <div className="mt-12 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {premiumCourses.map((course) => (
+                {premiumCourses.slice(0, 6).map((course) => (
                   <CourseCard key={course.id} course={course} />
                 ))}
               </div>
             ) : (
               <div className="mt-10 rounded-3xl border border-dashed border-slate-300 bg-white p-12 text-center">
-                <BookOpen className="mx-auto text-blue-700" size={32} />
+                <BookOpen
+                  className="mx-auto text-blue-700"
+                  size={32}
+                />
 
                 <h3 className="mt-4 text-xl font-black">
                   Premium courses are being prepared.
@@ -383,9 +390,9 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* =====================================================
+        {/* =========================================================
             WHY THIS LMS
-        ====================================================== */}
+        ========================================================== */}
 
         <section className="bg-white py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -401,8 +408,9 @@ export default async function Home() {
                 </h2>
 
                 <p className="mt-5 max-w-xl text-base leading-8 text-slate-600">
-                  The portal is designed around a simple idea: learning
-                  should be organized, measurable and easy to continue.
+                  ICU Learning Portal is designed around a simple idea:
+                  learning should be organized, measurable and easy to
+                  continue.
                 </p>
 
                 <Link
@@ -434,18 +442,18 @@ export default async function Home() {
                 />
 
                 <BenefitCard
-                  icon={<TrendingIcon />}
+                  icon={<Trophy size={21} />}
                   title="Progress Tracking"
-                  text="Your dashboard helps you see enrolled courses and learning progress."
+                  text="Use your student dashboard to continue courses and track learning progress."
                 />
               </div>
             </div>
           </div>
         </section>
 
-        {/* =====================================================
+        {/* =========================================================
             LEARNING JOURNEY
-        ====================================================== */}
+        ========================================================== */}
 
         <section className="bg-slate-950 py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -455,15 +463,14 @@ export default async function Home() {
               </p>
 
               <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl lg:text-5xl">
-                From first lesson to
+                From first lesson to{" "}
                 <span className="text-cyan-300">
-                  {" "}
                   course completion.
                 </span>
               </h2>
 
               <p className="mt-5 text-base leading-8 text-slate-300">
-                A clear learning flow helps you know what to do next.
+                A simple learning flow helps you know what to do next.
               </p>
             </div>
 
@@ -493,15 +500,15 @@ export default async function Home() {
                 number="04"
                 icon={<Award size={24} />}
                 title="Complete"
-                text="Track your progress and follow eligible certificate requirements."
+                text="Track completion and follow applicable certificate requirements."
               />
             </div>
           </div>
         </section>
 
-        {/* =====================================================
-            CERTIFICATE SHOWCASE
-        ====================================================== */}
+        {/* =========================================================
+            CERTIFICATE
+        ========================================================== */}
 
         <section className="bg-slate-50 py-20 sm:py-24">
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -518,13 +525,13 @@ export default async function Home() {
 
                 <p className="mt-5 text-base leading-8 text-slate-600">
                   Eligible courses can provide a completion certificate
-                  after the learner satisfies the required course
-                  completion conditions.
+                  after the learner satisfies the applicable course
+                  completion requirements.
                 </p>
 
                 <div className="mt-7 space-y-4">
                   <Checklist text="Complete required course lessons" />
-                  <Checklist text="Meet the applicable assessment requirements" />
+                  <Checklist text="Meet applicable assessment requirements" />
                   <Checklist text="Track completion from your student account" />
                 </div>
 
@@ -538,7 +545,7 @@ export default async function Home() {
               </div>
 
               <div className="rounded-[2rem] border border-slate-200 bg-white p-3 shadow-2xl sm:p-6">
-                <div className="relative overflow-hidden rounded-2xl bg-slate-100">
+                <div className="overflow-hidden rounded-2xl bg-slate-100">
                   <Image
                     src="/images/certificate-preview.svg"
                     alt="ICU Learning Portal certificate design preview"
@@ -552,9 +559,9 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* =====================================================
-            INSTRUCTOR / PLATFORM FOUNDER
-        ====================================================== */}
+        {/* =========================================================
+            INSTRUCTOR
+        ========================================================== */}
 
         <section className="bg-white py-20 sm:py-24">
           <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
@@ -584,11 +591,11 @@ export default async function Home() {
                   </p>
 
                   <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600">
-                    ICU Learning Portal is built around structured ICU nursing
-                    and critical-care education, practical learning resources,
-                    revision and assessment. The curriculum is designed to
-                    organize complex ICU topics into a clear digital learning
-                    pathway for nursing learners.
+                    ICU Learning Portal is built around structured ICU
+                    nursing and critical-care education, practical learning
+                    resources, revision and assessment. The curriculum is
+                    designed to organize complex ICU topics into a clear
+                    digital learning pathway for nursing learners.
                   </p>
 
                   <div className="mt-5 flex flex-wrap gap-2">
@@ -603,54 +610,9 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* =====================================================
-            LEARNER FEEDBACK — CLEARLY MARKED EXAMPLES
-        ====================================================== */}
-
-        <section className="bg-slate-50 py-20 sm:py-24">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-            <SectionHeading
-              eyebrow="LEARNER FEEDBACK"
-              title="What learners can expect"
-              highlight="From the Learning Experience"
-              description="These are illustrative feedback examples used for the current website design. They are not presented as verified student testimonials."
-            />
-
-            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              <FeedbackExample
-                course="ICU Nursing"
-                feedback="Clear lesson structure can make it easier to revise important ICU concepts step by step."
-              />
-
-              <FeedbackExample
-                course="Mechanical Ventilation"
-                feedback="A focused course format helps learners move from basic concepts toward practical revision."
-              />
-
-              <FeedbackExample
-                course="ECG Interpretation"
-                feedback="Topic-specific lessons and quizzes provide a structured way to practise rhythm and ECG concepts."
-              />
-
-              <FeedbackExample
-                course="ABG Analysis"
-                feedback="Breaking ABG interpretation into focused learning steps can make revision more manageable."
-              />
-            </div>
-
-            <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-amber-200 bg-amber-50 p-5 text-center">
-              <p className="text-sm font-bold leading-7 text-amber-900">
-                <span className="font-black">Important:</span> Genuine student
-                reviews will replace these examples once verified learner
-                feedback is collected.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* =====================================================
+        {/* =========================================================
             FINAL CTA
-        ====================================================== */}
+        ========================================================== */}
 
         <section className="bg-slate-950 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-5 sm:px-6 lg:px-8">
@@ -666,7 +628,7 @@ export default async function Home() {
                   </h2>
 
                   <p className="mt-4 text-sm leading-7 text-slate-300">
-                    Explore the free demo courses or browse the complete
+                    Explore free demo courses or browse the complete
                     professional catalogue.
                   </p>
                 </div>
@@ -692,6 +654,7 @@ export default async function Home() {
             </div>
           </div>
         </section>
+
       </main>
 
       <Footer />
@@ -699,9 +662,9 @@ export default async function Home() {
   );
 }
 
-/* ============================================================
+/* ================================================================
    HERO FEATURE
-============================================================ */
+================================================================ */
 
 function HeroFeature({
   icon,
@@ -720,7 +683,9 @@ function HeroFeature({
         </div>
 
         <div className="min-w-0">
-          <p className="text-xs font-black text-slate-950">{title}</p>
+          <p className="text-xs font-black text-slate-950">
+            {title}
+          </p>
 
           <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
             {text}
@@ -731,9 +696,9 @@ function HeroFeature({
   );
 }
 
-/* ============================================================
+/* ================================================================
    VISUAL BADGE
-============================================================ */
+================================================================ */
 
 function VisualBadge({
   icon,
@@ -753,9 +718,9 @@ function VisualBadge({
   );
 }
 
-/* ============================================================
+/* ================================================================
    VALUE ITEM
-============================================================ */
+================================================================ */
 
 function ValueItem({
   icon,
@@ -773,17 +738,21 @@ function ValueItem({
       </div>
 
       <div>
-        <p className="text-sm font-black text-slate-950">{title}</p>
+        <p className="text-sm font-black text-slate-950">
+          {title}
+        </p>
 
-        <p className="mt-1 text-xs leading-5 text-slate-500">{text}</p>
+        <p className="mt-1 text-xs leading-5 text-slate-500">
+          {text}
+        </p>
       </div>
     </div>
   );
 }
 
-/* ============================================================
+/* ================================================================
    SECTION HEADING
-============================================================ */
+================================================================ */
 
 function SectionHeading({
   eyebrow,
@@ -803,7 +772,9 @@ function SectionHeading({
   return (
     <div
       className={
-        centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"
+        centered
+          ? "mx-auto max-w-3xl text-center"
+          : "max-w-3xl"
       }
     >
       <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-[11px] font-black uppercase tracking-[0.15em] text-blue-700">
@@ -828,9 +799,9 @@ function SectionHeading({
   );
 }
 
-/* ============================================================
+/* ================================================================
    BENEFIT CARD
-============================================================ */
+================================================================ */
 
 function BenefitCard({
   icon,
@@ -847,16 +818,20 @@ function BenefitCard({
         {icon}
       </div>
 
-      <h3 className="mt-5 text-lg font-black text-slate-950">{title}</h3>
+      <h3 className="mt-5 text-lg font-black text-slate-950">
+        {title}
+      </h3>
 
-      <p className="mt-2 text-sm leading-7 text-slate-600">{text}</p>
+      <p className="mt-2 text-sm leading-7 text-slate-600">
+        {text}
+      </p>
     </article>
   );
 }
 
-/* ============================================================
+/* ================================================================
    JOURNEY CARD
-============================================================ */
+================================================================ */
 
 function JourneyCard({
   number,
@@ -881,9 +856,13 @@ function JourneyCard({
         </span>
       </div>
 
-      <h3 className="mt-7 text-xl font-black text-white">{title}</h3>
+      <h3 className="mt-7 text-xl font-black text-white">
+        {title}
+      </h3>
 
-      <p className="mt-3 text-sm leading-7 text-slate-400">{text}</p>
+      <p className="mt-3 text-sm leading-7 text-slate-400">
+        {text}
+      </p>
 
       <div className="mt-6 h-px bg-white/10" />
 
@@ -895,9 +874,9 @@ function JourneyCard({
   );
 }
 
-/* ============================================================
+/* ================================================================
    CHECKLIST
-============================================================ */
+================================================================ */
 
 function Checklist({ text }: { text: string }) {
   return (
@@ -907,14 +886,16 @@ function Checklist({ text }: { text: string }) {
         className="mt-0.5 shrink-0 text-emerald-500"
       />
 
-      <span className="text-sm font-bold text-slate-700">{text}</span>
+      <span className="text-sm font-bold text-slate-700">
+        {text}
+      </span>
     </div>
   );
 }
 
-/* ============================================================
+/* ================================================================
    PROFILE BADGE
-============================================================ */
+================================================================ */
 
 function ProfileBadge({ text }: { text: string }) {
   return (
@@ -922,56 +903,4 @@ function ProfileBadge({ text }: { text: string }) {
       {text}
     </span>
   );
-}
-
-/* ============================================================
-   LEARNER FEEDBACK EXAMPLE
-============================================================ */
-
-function FeedbackExample({
-  course,
-  feedback,
-}: {
-  course: string;
-  feedback: string;
-}) {
-  return (
-    <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex gap-1 text-amber-500" aria-label="Example feedback">
-          <span>★</span>
-          <span>★</span>
-          <span>★</span>
-          <span>★</span>
-          <span>★</span>
-        </div>
-
-        <span className="rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-700">
-          Example
-        </span>
-      </div>
-
-      <p className="mt-5 text-sm leading-7 text-slate-600">
-        “{feedback}”
-      </p>
-
-      <div className="mt-6 border-t border-slate-100 pt-4">
-        <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
-          Learning topic
-        </p>
-
-        <p className="mt-1 text-sm font-black text-slate-900">
-          {course}
-        </p>
-      </div>
-    </article>
-  );
-}
-
-/* ============================================================
-   TRENDING / PROGRESS ICON
-============================================================ */
-
-function TrendingIcon() {
-  return <Trophy size={21} />;
 }
