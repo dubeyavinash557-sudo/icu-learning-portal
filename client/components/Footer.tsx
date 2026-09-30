@@ -462,32 +462,18 @@ export default function Footer() {
               <div className="space-y-4">
 
                 <a
-                  href="mailto:dubeyavinash557@gmail.com"
-                  className="flex items-start gap-3 text-sm text-slate-400 transition hover:text-white"
-                >
-                  <Mail
-                    size={16}
-                    className="mt-0.5 shrink-0 text-blue-400"
-                  />
+  href="mailto:support@iculearningportal.com"
+  className="flex items-start gap-3 text-sm text-slate-400 transition hover:text-white"
+>
+  <Mail
+    size={16}
+    className="mt-0.5 shrink-0 text-blue-400"
+  />
 
-                  <span className="break-all">
-                    dubeyavinash557@gmail.com
-                  </span>
-                </a>
-
-                <a
-                  href="tel:+918177084179"
-                  className="flex items-center gap-3 text-sm text-slate-400 transition hover:text-white"
-                >
-                  <Phone
-                    size={16}
-                    className="shrink-0 text-blue-400"
-                  />
-
-                  <span>
-                    +91 8177084179
-                  </span>
-                </a>
+  <span className="break-all">
+    support@iculearningportal.com
+  </span>
+</a>
 
                 <div className="flex items-center gap-3 text-sm text-slate-400">
                   <MapPin
