@@ -65,7 +65,7 @@ export default function PrivacyPage() {
           {
             title: "Contact",
             paragraphs: [
-              "For privacy questions, contact ICU Learning Portal through the Contact page. Before production launch, configure the official domain support mailbox, for example support@iculearningportal.com, and use that address consistently across the website.",
+              "For privacy questions, contact ICU Learning Portal through the Contact page or email support@iculearningportal.com. Please do not send passwords, OTPs, card details or other authentication credentials by email.",
             ],
           },
         ]}
