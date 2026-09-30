@@ -10,6 +10,7 @@ import {
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
+import ContactForm from "@/components/ContactForm";
 
 export const metadata = {
   title: "Contact Us | ICU Learning Portal",
@@ -46,9 +47,6 @@ export default function ContactPage() {
       <Navbar />
 
       <main className="min-h-screen bg-slate-50 text-slate-900">
-        {/* =====================================================
-            HERO
-        ====================================================== */}
         <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-cyan-950">
           <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl" />
           <div className="absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
@@ -65,16 +63,13 @@ export default function ContactPage() {
 
               <p className="mt-5 max-w-2xl text-base leading-8 text-blue-100 sm:text-lg">
                 Have a question about courses, account access, premium
-                learning or technical support? Contact our support team
-                directly and tell us what problem you are facing.
+                learning or technical support? Send us an enquiry and our
+                support team will review it.
               </p>
             </div>
           </div>
         </section>
 
-        {/* =====================================================
-            SUPPORT TOPICS
-        ====================================================== */}
         <section className="mx-auto max-w-7xl px-6 py-14 sm:px-8 lg:px-8 lg:py-20">
           <div className="grid gap-6 md:grid-cols-3">
             {supportTopics.map((topic) => {
@@ -101,9 +96,8 @@ export default function ContactPage() {
             })}
           </div>
 
-          {/* ===================================================
-              EMAIL SUPPORT
-          ==================================================== */}
+          <ContactForm />
+
           <div className="mt-10 rounded-3xl border border-blue-200 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white">
@@ -116,16 +110,15 @@ export default function ContactPage() {
                 </p>
 
                 <h2 className="mt-1 text-xl font-black text-slate-950">
-                  Contact ICU Learning Portal Support
+                  Prefer email?
                 </h2>
               </div>
             </div>
 
             <p className="mt-5 max-w-3xl text-sm leading-7 text-slate-600">
-              For course, account, payment or technical questions, contact
-              our official support email. Please include your registered email
-              address and a clear description of the issue so our support team
-              can assist you efficiently.
+              You can also contact our official support email directly.
+              Please include your registered email address and a clear
+              description of the issue.
             </p>
 
             <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-5">
@@ -141,20 +134,6 @@ export default function ContactPage() {
               </a>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm font-bold text-slate-900">
-                What should you include?
-              </p>
-
-              <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
-                <li>• Your registered email address</li>
-                <li>• Course or page where the issue appears</li>
-                <li>• Exact problem or error message</li>
-                <li>• Screenshot, if available</li>
-                <li>• Payment/order details only when required for support</li>
-              </ul>
-            </div>
-
             <a
               href={`mailto:${supportEmail}`}
               className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:bg-blue-800"
@@ -165,9 +144,6 @@ export default function ContactPage() {
             </a>
           </div>
 
-          {/* ===================================================
-              SUPPORT INSTRUCTIONS
-          ==================================================== */}
           <div className="mt-10 rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm sm:p-8">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-cyan-300">
               <Clock3 size={21} />
@@ -183,13 +159,13 @@ export default function ContactPage() {
               <li>• Never share your password, OTP or full card details.</li>
               <li>• Add a screenshot when reporting a technical issue.</li>
               <li>• Use your registered email when discussing account issues.</li>
-              <li>• Include relevant payment/order information only when necessary.</li>
+              <li>
+                • Include relevant payment/order information only when
+                necessary.
+              </li>
             </ul>
           </div>
 
-          {/* ===================================================
-              COURSE CTA
-          ==================================================== */}
           <div className="mt-10 rounded-3xl border border-blue-100 bg-blue-50 p-6 text-center sm:p-8">
             <h2 className="text-xl font-black text-slate-950">
               Ready to continue learning?
