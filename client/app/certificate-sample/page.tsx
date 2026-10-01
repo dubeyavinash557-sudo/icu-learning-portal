@@ -14,7 +14,7 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "Certificate Sample | ICU Learning Portal",
   description:
-    "Preview the ICU Learning Portal course completion certificate and learn how certificate eligibility works.",
+    "View a professional sample of the ICU Learning Portal course completion certificate and understand certificate eligibility.",
 };
 
 export default function CertificateSamplePage() {
@@ -28,7 +28,7 @@ export default function CertificateSamplePage() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-blue-700">
               <Award size={15} aria-hidden="true" />
-              Certificate Preview
+              Certificate Sample
             </div>
 
             <h1 className="mt-5 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
@@ -36,8 +36,8 @@ export default function CertificateSamplePage() {
             </h1>
 
             <p className="mt-5 text-base leading-8 text-slate-600 sm:text-lg">
-              Explore the certificate design and understand the completion
-              pathway for eligible ICU Learning Portal courses.
+              View an example of the professional course completion certificate
+              used by ICU Learning Portal for eligible learners.
             </p>
           </div>
 
@@ -58,7 +58,7 @@ export default function CertificateSamplePage() {
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
                   <Image
                     src="/images/certificate-preview.svg"
-                    alt="ICU Learning Portal certificate design preview"
+                    alt="Sample ICU Learning Portal course completion certificate"
                     width={1200}
                     height={800}
                     className="h-auto w-full"
@@ -74,8 +74,8 @@ export default function CertificateSamplePage() {
                   />
 
                   <p className="text-sm font-semibold text-slate-600">
-                    Design preview only — this image is not an issued
-                    certificate.
+                    This is a sample certificate for demonstration purposes.
+                    It is not an issued learner certificate.
                   </p>
                 </div>
               </div>
@@ -104,22 +104,22 @@ export default function CertificateSamplePage() {
           </div>
 
           {/* Important Notice */}
-          <div className="mt-8 rounded-3xl border border-amber-200 bg-amber-50 p-6">
+          <div className="mt-8 rounded-3xl border border-blue-200 bg-blue-50 p-6">
             <div className="flex gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-amber-700 shadow-sm">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-blue-700 shadow-sm">
                 <ShieldCheck size={21} aria-hidden="true" />
               </div>
 
               <div>
-                <h2 className="text-base font-black text-amber-950">
-                  Certificate preview notice
+                <h2 className="text-base font-black text-blue-950">
+                  About this sample
                 </h2>
 
-                <p className="mt-2 text-sm leading-7 text-amber-900/80">
-                  This page displays a sample certificate design for
-                  demonstration purposes. It does not represent a certificate
-                  issued to a specific learner and should not be used as proof
-                  of course completion.
+                <p className="mt-2 text-sm leading-7 text-blue-900/80">
+                  The certificate shown above uses sample learner information
+                  and a sample certificate number to demonstrate the design and
+                  presentation. It is not proof of course completion and cannot
+                  be used as an issued credential.
                 </p>
               </div>
             </div>

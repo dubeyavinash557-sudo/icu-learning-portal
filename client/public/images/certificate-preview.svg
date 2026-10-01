@@ -4,14 +4,16 @@
      aria-labelledby="certificateTitle certificateDesc">
 
   <title id="certificateTitle">
-    ICU Learning Portal Professional Certificate
+    ICU Learning Portal Sample Certificate
   </title>
 
   <desc id="certificateDesc">
-    Professional course completion certificate preview for ICU Learning Portal.
-    This is a design preview and not an issued certificate.
+    Sample course completion certificate for ICU Learning Portal using
+    fictional learner information. This certificate is for demonstration
+    purposes only and is not an issued learner credential.
   </desc>
 
+  <!-- Background -->
   <rect width="1200" height="800" fill="#eef4f8"/>
 
   <!-- Outer frame -->
@@ -75,6 +77,30 @@
     height="5"
     fill="#c59b3b"
   />
+
+  <!-- Sample badge -->
+  <rect
+    x="930"
+    y="98"
+    width="170"
+    height="34"
+    rx="17"
+    fill="#fff8e8"
+    stroke="#c59b3b"
+    stroke-width="1.5"
+  />
+
+  <text
+    x="1015"
+    y="120"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="10"
+    font-weight="700"
+    letter-spacing="2"
+    fill="#8a6a21">
+    SAMPLE
+  </text>
 
   <!-- Emblem -->
   <circle
@@ -180,7 +206,7 @@
     font-size="31"
     font-weight="700"
     fill="#0b7285">
-    STUDENT NAME
+    Rahul Kumar
   </text>
 
   <line
@@ -260,7 +286,7 @@
     Successfully completed the required course curriculum
   </text>
 
-  <!-- Verification badge -->
+  <!-- Verification-style information -->
   <rect
     x="100"
     y="635"
@@ -279,7 +305,7 @@
     font-size="9"
     font-weight="700"
     fill="#287343">
-    ✓ VERIFIED COURSE CERTIFICATE
+    SAMPLE DESIGN
   </text>
 
   <!-- Website -->
@@ -320,7 +346,7 @@
     font-size="10"
     font-weight="700"
     fill="#263943">
-    ILP-XXXXXXXX
+    SAMPLE-ILP-2026-0001
   </text>
 
   <text
@@ -331,7 +357,7 @@
     font-size="8"
     font-weight="700"
     fill="#8a9aa5">
-    ISSUE DATE
+    SAMPLE ISSUE DATE
   </text>
 
   <text
@@ -342,7 +368,7 @@
     font-size="10"
     font-weight="700"
     fill="#263943">
-    DD MONTH YYYY
+    15 SEPTEMBER 2026
   </text>
 
   <text
@@ -375,7 +401,7 @@
     font-family="Arial, Helvetica, sans-serif"
     font-size="7"
     fill="#8a9aa5">
-    Professional course completion credential • ICU Learning Portal
+    SAMPLE CERTIFICATE • FOR DEMONSTRATION PURPOSES ONLY • ICU LEARNING PORTAL
   </text>
 
 </svg>
