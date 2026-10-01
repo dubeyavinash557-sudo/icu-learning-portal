@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   ArrowLeft,
@@ -68,7 +68,7 @@ function formatPrice(price: number) {
     return "Free";
   }
 
-  return `₹${price.toLocaleString("en-IN")}`;
+  return `â‚¹${price.toLocaleString("en-IN")}`;
 }
 
 function getInitials(name: string) {

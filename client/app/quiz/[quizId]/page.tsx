@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
@@ -352,7 +352,7 @@ export default async function QuizPage({ params }: Props) {
             className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 transition hover:bg-slate-100 hover:text-blue-700"
           >
             <span aria-hidden="true">
-              ←
+              â†
             </span>
 
             <span className="hidden sm:inline">

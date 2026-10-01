@@ -1,18 +1,5 @@
 import prisma from "@/lib/prisma";
 
-/*
- * Lightweight course data for the public course catalogue.
- *
- * IMPORTANT:
- * Do not load all lessons or complete enrollment records here.
- * The public /courses page only needs:
- *
- * - course information
- * - lesson count
- * - enrollment count
- *
- * Full lessons are loaded only on the course detail page.
- */
 const courseCatalogueInclude = {
   _count: {
     select: {
@@ -22,9 +9,6 @@ const courseCatalogueInclude = {
   },
 };
 
-/*
- * Full course data for course detail and learning pages.
- */
 const courseDetailInclude = {
   lessons: {
     orderBy: {
@@ -42,31 +26,24 @@ const courseDetailInclude = {
   },
 };
 
-/**
- * Lightweight public course catalogue.
- *
- * This query intentionally does not load every lesson.
- * It only loads counts, which is much faster.
- */
 export async function getCourses() {
-  return prisma.course.findMany({
+  const courses = await prisma.course.findMany({
     include: courseCatalogueInclude,
     orderBy: [
-      {
-        isPremium: "desc",
-      },
-      {
-        createdAt: "asc",
-      },
+      { isPremium: "desc" },
+      { createdAt: "asc" },
     ],
   });
+
+  return courses.map(({ _count, ...course }) => ({
+    ...course,
+    students: _count.enrollments,
+    lessonCount: _count.lessons,
+  }));
 }
 
-/**
- * Lightweight premium course catalogue.
- */
 export async function getPremiumCourses() {
-  return prisma.course.findMany({
+  const courses = await prisma.course.findMany({
     where: {
       isPremium: true,
     },
@@ -75,38 +52,52 @@ export async function getPremiumCourses() {
       createdAt: "asc",
     },
   });
+
+  return courses.map(({ _count, ...course }) => ({
+    ...course,
+    students: _count.enrollments,
+    lessonCount: _count.lessons,
+  }));
 }
 
-/**
- * Full course data by database ID.
- *
- * Lessons are loaded here because the course detail page
- * needs the complete curriculum.
- */
 export async function getCourseById(id: string) {
-  return prisma.course.findUnique({
+  const course = await prisma.course.findUnique({
     where: {
       id,
     },
     include: courseDetailInclude,
   });
+
+  if (!course) {
+    return null;
+  }
+
+  return {
+    ...course,
+    students: course.enrollments.length,
+    lessonCount: course.lessons.length,
+  };
 }
 
-/**
- * Full course data by public slug.
- */
 export async function getCourseBySlug(slug: string) {
-  return prisma.course.findUnique({
+  const course = await prisma.course.findUnique({
     where: {
       slug,
     },
     include: courseDetailInclude,
   });
+
+  if (!course) {
+    return null;
+  }
+
+  return {
+    ...course,
+    students: course.enrollments.length,
+    lessonCount: course.lessons.length,
+  };
 }
 
-/**
- * Resolve course by ID or slug.
- */
 export async function getCourseByIdOrSlug(value: string) {
   const courseById = await getCourseById(value);
 

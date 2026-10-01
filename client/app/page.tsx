@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -231,7 +231,7 @@ export default async function Home() {
                       </p>
 
                       <p className="mt-0.5 text-[10px] text-slate-500">
-                        Course → Lesson → Quiz
+                        Course â†’ Lesson â†’ Quiz
                       </p>
                     </div>
                   </div>

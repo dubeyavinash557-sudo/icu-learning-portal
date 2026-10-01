@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+﻿import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 
 import Header from "@/components/dashboard/Header";
@@ -118,7 +118,7 @@ export default async function CourseLearningPage({
   const enrollment = course.enrollments[0] ?? null;
 
   if (!enrollment) {
-    redirect(`/courses/${course.id}`);
+    redirect(`/courses/${course.slug}`);
   }
 
   const isAdmin = user.role === "ADMIN";
@@ -165,7 +165,7 @@ export default async function CourseLearningPage({
               <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
                 <div className="bg-gradient-to-r from-slate-950 via-blue-950 to-cyan-950 px-6 py-12 text-center text-white sm:px-10">
                   <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-white/10 text-4xl ring-1 ring-white/10">
-                    📚
+                    ðŸ“š
                   </div>
 
                   <p className="mt-6 text-xs font-black uppercase tracking-[0.2em] text-cyan-300">
@@ -185,7 +185,7 @@ export default async function CourseLearningPage({
 
                 <div className="p-6 sm:p-8">
                   <a
-                    href={`/courses/${course.id}`}
+                    href={`/courses/${course.slug}`}
                     className="mx-auto flex w-fit items-center justify-center rounded-xl bg-blue-700 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-800"
                   >
                     Back to Course
@@ -385,7 +385,7 @@ export default async function CourseLearningPage({
 
               <div className="min-w-0 space-y-8 xl:col-span-2">
 
-                <VideoPlayer
+                                <VideoPlayer
                   courseTitle={course.title}
                   lessonTitle={lesson.title}
                   lessonDescription={
@@ -409,9 +409,6 @@ export default async function CourseLearningPage({
                   isCompleted={completedLessonIds.has(
                     lesson.id
                   )}
-                  studentCount={
-                    course.students
-                  }
                 />
 
                 <CourseProgress
@@ -566,3 +563,5 @@ function LearningSummaryItem({
     </div>
   );
 }
+
+

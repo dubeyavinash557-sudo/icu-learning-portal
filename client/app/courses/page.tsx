@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -62,7 +62,7 @@ export default async function CoursesPage() {
 
   const totalLessons = courses.reduce(
   (total, course) =>
-    total + course._count.lessons,
+    total + course.lessonCount,
   0
 );
 
@@ -229,7 +229,7 @@ export default async function CoursesPage() {
                     value={
                       averageRating > 0
                         ? averageRating.toFixed(1)
-                        : "—"
+                        : "â€”"
                     }
                     label="Average Rating"
                     icon={<Star size={18} />}
@@ -562,7 +562,7 @@ function ProfessionalCourseCard({
     course.rating || 0
   );
 
-  const lessons = course._count.lessons;
+  const lessons = course.lessonCount;
 
 const courseCurriculum: Record<string, string[]> = {
   // ============================================================
@@ -603,13 +603,13 @@ const courseCurriculum: Record<string, string[]> = {
   // ============================================================
   "mechanical-ventilation-respiratory-care-masterclass": [
     "Ventilator modes, settings and core respiratory mechanics",
-    "FiO₂, PEEP, alarms and patient-ventilator assessment",
+    "FiOâ‚‚, PEEP, alarms and patient-ventilator assessment",
     "ABG correlation, troubleshooting, weaning and ventilator safety",
   ],
 
   "mechanical-ventilation": [
     "Ventilator modes, settings and core respiratory mechanics",
-    "FiO₂, PEEP, alarms and patient-ventilator assessment",
+    "FiOâ‚‚, PEEP, alarms and patient-ventilator assessment",
     "ABG correlation, troubleshooting, weaning and ventilator safety",
   ],
 
@@ -683,7 +683,7 @@ const courseCurriculum: Record<string, string[]> = {
   // CRITICAL CARE MONITORING
   // ============================================================
   "critical-care-monitoring": [
-    "ECG, SpO₂, blood pressure and continuous vital-sign monitoring",
+    "ECG, SpOâ‚‚, blood pressure and continuous vital-sign monitoring",
     "CVP, hemodynamic trends and multi-parameter assessment",
     "Early recognition of deterioration and escalation of care",
   ],
@@ -829,7 +829,7 @@ const previewLessons =
 
   const formattedPrice =
     Number.isFinite(price) && price > 0
-      ? `₹${price.toLocaleString("en-IN")}`
+      ? `â‚¹${price.toLocaleString("en-IN")}`
       : "Premium Access";
 
   const courseNumber =
@@ -1076,7 +1076,7 @@ const previewLessons =
           </div>
 
           <Link
-            href={`/courses/${course.id}`}
+            href={`/courses/${course.slug}`}
             className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-700 to-cyan-600 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/20 transition hover:from-blue-800 hover:to-cyan-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             View Program
@@ -1459,3 +1459,4 @@ IMPORTANT IMPLEMENTATION NOTES
 
 ==================================================================
 */
+

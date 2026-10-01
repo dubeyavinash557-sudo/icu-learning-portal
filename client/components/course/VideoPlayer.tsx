@@ -31,7 +31,6 @@ type VideoPlayerProps = {
   videoUrl?: string | null;
   notesUrl?: string | null;
   isCompleted?: boolean;
-  studentCount?: number;
 };
 
 export default function VideoPlayer({
@@ -44,7 +43,6 @@ export default function VideoPlayer({
   videoUrl,
   notesUrl,
   isCompleted = false,
-  studentCount,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const playerRef = useRef<HTMLDivElement | null>(null);
@@ -734,38 +732,19 @@ export default function VideoPlayer({
             COURSE INFORMATION
         ===================================================== */}
 
-        {(studentCount !== undefined ||
-          totalLessons !== undefined) && (
+        {totalLessons !== undefined && (
           <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-slate-100 pt-6 text-sm text-slate-500">
-            {totalLessons !== undefined && (
-              <div className="flex items-center gap-2">
-                <CheckCircle2
-                  size={16}
-                  className="text-emerald-600"
-                />
+            <div className="flex items-center gap-2">
+              <CheckCircle2
+                size={16}
+                className="text-emerald-600"
+              />
 
-                <span>
-                  {totalLessons} lessons in
-                  this course
-                </span>
-              </div>
-            )}
-
-            {studentCount !== undefined && (
-              <div className="flex items-center gap-2">
-                <Eye
-                  size={16}
-                  className="text-blue-600"
-                />
-
-                <span>
-                  {studentCount.toLocaleString(
-                    "en-IN"
-                  )}{" "}
-                  learners
-                </span>
-              </div>
-            )}
+              <span>
+                {totalLessons} lessons in
+                this course
+              </span>
+            </div>
 
             <div className="flex items-center gap-2">
               <ShieldCheck

@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
 
 import {
@@ -36,33 +36,53 @@ type CourseCardProps = {
 export default function CourseCard({
   course,
 }: CourseCardProps) {
-  const courseHref = `/courses/${course.id}`;
+  /*
+   * IMPORTANT:
+   *
+   * Public course URLs must use the SEO-friendly slug.
+   *
+   * Correct:
+   *
+   * /courses/icu-nursing-master-course
+   *
+   * Not:
+   *
+   * /courses/cmm123abc
+   */
+  const courseHref = `/courses/${course.slug}`;
 
   const safeTitle =
-    course.title?.trim() || "ICU Learning Course";
+    course.title?.trim() ||
+    "ICU Learning Course";
 
   const safeInstructor =
     course.instructor?.trim() ||
     "ICU Learning Portal";
 
   const safeLanguage =
-    course.language?.trim() || "Hindi";
+    course.language?.trim() ||
+    "Hindi";
 
   const safeLevel =
-    course.level?.trim() || "Beginner";
+    course.level?.trim() ||
+    "Beginner";
 
   const safeRating =
     Number.isFinite(course.rating) &&
     course.rating > 0
-      ? Math.min(course.rating, 5).toFixed(1)
+      ? Math.min(
+          course.rating,
+          5
+        ).toFixed(1)
       : null;
 
   const safePrice =
     Number.isFinite(course.price) &&
     course.price > 0
-      ? Math.max(0, course.price).toLocaleString(
-          "en-IN"
-        )
+      ? Math.max(
+          0,
+          course.price
+        ).toLocaleString("en-IN")
       : "0";
 
   const imageSource =
@@ -92,7 +112,9 @@ export default function CourseCard({
         hover:shadow-2xl
       "
     >
-      {/* IMAGE */}
+      {/* =====================================================
+          IMAGE
+      ====================================================== */}
 
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
         <Image
@@ -163,9 +185,12 @@ export default function CourseCard({
         </div>
       </div>
 
-      {/* CONTENT */}
+      {/* =====================================================
+          CONTENT
+      ====================================================== */}
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
+
         {/* INSTRUCTOR */}
 
         <div className="flex min-w-0 items-center gap-2">
@@ -193,7 +218,9 @@ export default function CourseCard({
           <CourseMeta
             icon={<Clock3 size={15} />}
             label="Duration"
-            value={formatDuration(course.duration)}
+            value={formatDuration(
+              course.duration
+            )}
           />
 
           <CourseMeta
@@ -252,6 +279,7 @@ export default function CourseCard({
         {/* ACTIONS */}
 
         <div className="mt-5 space-y-2.5">
+
           <Link
             href={courseHref}
             aria-label={`View ${safeTitle} course`}
@@ -273,6 +301,7 @@ export default function CourseCard({
             <PlayCircle size={16} />
             Start Learning
           </Link>
+
         </div>
       </div>
     </article>
@@ -316,19 +345,30 @@ function CourseMeta({
    DURATION
 ============================================================ */
 
-function formatDuration(minutes: number) {
-  if (!Number.isFinite(minutes) || minutes <= 0) {
+function formatDuration(
+  minutes: number
+) {
+  if (
+    !Number.isFinite(minutes) ||
+    minutes <= 0
+  ) {
     return "—";
   }
 
-  const safeMinutes = Math.floor(minutes);
+  const safeMinutes =
+    Math.floor(minutes);
 
   if (safeMinutes < 60) {
     return `${safeMinutes} min`;
   }
 
-  const hours = Math.floor(safeMinutes / 60);
-  const remainingMinutes = safeMinutes % 60;
+  const hours =
+    Math.floor(
+      safeMinutes / 60
+    );
+
+  const remainingMinutes =
+    safeMinutes % 60;
 
   if (remainingMinutes === 0) {
     return `${hours} hr`;
