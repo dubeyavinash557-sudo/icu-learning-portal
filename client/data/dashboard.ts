@@ -6,12 +6,12 @@ import {
 } from "lucide-react";
 
 export const student = {
-  id: 1,
-  name: "Avinash Dubey",
-  email: "dubeyavinash557@gmail.com",
+  id: "demo-student",
+  name: "Demo Student",
+  email: "student@example.com",
   membership: "Premium",
-  experience: "4 Years ICU",
-  hospital: "Max Super Speciality Hospital",
+  experience: "ICU Nursing",
+  hospital: "Clinical Learning Demo",
   progress: 42,
   streak: 18,
   certificates: 1,
@@ -19,7 +19,7 @@ export const student = {
 
 export const courses = [
   {
-    id: 1,
+    id: "demo-course-1",
     title: "ICU Nursing Master Course",
     lessons: 120,
     completed: 52,
@@ -27,15 +27,15 @@ export const courses = [
     color: "blue",
   },
   {
-    id: 2,
-    title: "Mechanical Ventilator",
+    id: "demo-course-2",
+    title: "Mechanical Ventilation",
     lessons: 80,
     completed: 35,
     progress: 44,
     color: "emerald",
   },
   {
-    id: 3,
+    id: "demo-course-3",
     title: "ECG Interpretation",
     lessons: 60,
     completed: 15,
@@ -43,7 +43,7 @@ export const courses = [
     color: "purple",
   },
   {
-    id: 4,
+    id: "demo-course-4",
     title: "ABG Analysis",
     lessons: 45,
     completed: 20,
@@ -51,7 +51,7 @@ export const courses = [
     color: "orange",
   },
   {
-    id: 5,
+    id: "demo-course-5",
     title: "Medical Coding",
     lessons: 100,
     completed: 10,
