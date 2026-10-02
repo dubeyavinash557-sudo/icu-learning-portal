@@ -85,7 +85,7 @@ export default function RefundPage() {
           {
             title: "Support and grievance contact",
             paragraphs: [
-              "For refund, cancellation, payment or course-access questions, contact support@iculearningportal.com or call +91 8177084179. You can also use the Contact page. Please include enough transaction information for us to locate the payment, but never include passwords, OTPs or full card details.",
+              "For refund, cancellation, payment or course-access questions, contact support@iculearningportal.com or use the Contact page. Please include enough transaction information for us to locate the payment, but never include passwords, OTPs or full card details.",
               "Before production launch, the site owner should ensure that the legal business name, principal business address and any legally required grievance or designated contact details are published consistently across the website and checkout experience.",
             ],
           },

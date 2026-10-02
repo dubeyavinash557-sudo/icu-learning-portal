@@ -17,15 +17,6 @@ import {
 
 import { auth, signOut } from "@/auth";
 
-const whatsappNumber = "918177084179";
-
-const whatsappMessage = encodeURIComponent(
-  "Hello ICU Learning Portal Support,\n\nI need help with:\n\nIssue:\n\nCourse/Page:\n\nRegistered Email:\n\nThank you."
-);
-
-const whatsappUrl =
-  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-
 const publicNavigation = [
   {
     label: "Home",
@@ -163,16 +154,14 @@ export default async function Navbar() {
                 SUPPORT ACTIONS
             ================================================== */}
 
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs font-black text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100"
-              aria-label="Chat with ICU Learning Portal support on WhatsApp"
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-black text-blue-700 transition hover:border-blue-300 hover:bg-blue-100"
+              aria-label="Contact ICU Learning Portal support"
             >
               <MessageCircle size={15} />
-              WhatsApp
-            </a>
+              Support
+            </Link>
 
             <Link
               href="/contact"
@@ -467,23 +456,11 @@ export default async function Navbar() {
                   Support
                 </p>
 
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-50"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                    <MessageCircle size={16} />
-                  </span>
-
-                  WhatsApp Support
-
-                  <ArrowRight
-                    size={14}
-                    className="ml-auto text-emerald-300"
-                  />
-                </a>
+                <MobileAccountLink
+                  href="/contact"
+                  icon={<MessageCircle size={16} />}
+                  label="Contact Support"
+                />
 
                 <MobileAccountLink
                   href="/contact"

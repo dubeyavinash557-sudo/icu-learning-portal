@@ -658,17 +658,12 @@ export default function BuyNowButton({
               {error}
             </p>
 
-            <a
-              href={`https://wa.me/918177084179?text=${encodeURIComponent(
-                "Hello ICU Learning Portal Support, I had a payment issue. Please help me check my payment status. Course: " +
-                  courseTitle
-              )}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-xs font-black text-white transition hover:bg-emerald-700"
+            <Link
+              href="/contact"
+              className="mt-3 inline-flex items-center rounded-xl bg-blue-700 px-4 py-2 text-xs font-black text-white transition hover:bg-blue-800"
             >
-              Contact Support on WhatsApp
-            </a>
+              Contact Support
+            </Link>
 
           </div>
         )}

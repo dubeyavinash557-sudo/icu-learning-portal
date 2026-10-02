@@ -6,7 +6,6 @@ import {
   GraduationCap,
   Mail,
   MapPin,
-  Phone,
   ShieldCheck,
   Stethoscope,
 } from "lucide-react";
@@ -189,19 +188,6 @@ const legalLinks = [
 ];
 
 /* =========================================================
-   WHATSAPP SUPPORT
-========================================================= */
-
-const whatsappNumber = "918177084179";
-
-const whatsappMessage = encodeURIComponent(
-  "Hello ICU Learning Portal Support,\n\nI need help with:\n\nIssue:\n\nCourse/Page:\n\nRegistered Email:\n\nThank you."
-);
-
-const whatsappUrl =
-  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
-
-/* =========================================================
    FOOTER
 ========================================================= */
 
@@ -381,24 +367,19 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* =================================================
-                WHATSAPP
-            ================================================= */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/5 px-4 py-2.5 text-xs font-black text-emerald-300 transition hover:bg-emerald-400/10"
+            <Link
+              href="/contact"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-blue-400/20 bg-blue-400/5 px-4 py-2.5 text-xs font-black text-blue-200 transition hover:bg-blue-400/10"
             >
               <span
                 aria-hidden="true"
                 className="text-base"
               >
-                💬
+                ✉️
               </span>
 
-              WhatsApp Support
-            </a>
+              Contact Support
+            </Link>
 
           </div>
 

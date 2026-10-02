@@ -125,15 +125,9 @@ export async function POST(request: Request) {
      * 2. NORMALIZE IDENTIFIER
      * ==========================================================
      *
-     * Email:
-     *   DubeyAvinash557@Gmail.com
-     *       ↓
-     *   dubeyavinash557@gmail.com
+     * Email identifiers are normalized to lowercase.
      *
-     * Mobile:
-     *   +91 81770 84179
-     *       ↓
-     *   918177084179
+     * Mobile identifiers are normalized to digits for lookup.
      *
      * The database lookup must use the same normalization
      * convention used during registration.

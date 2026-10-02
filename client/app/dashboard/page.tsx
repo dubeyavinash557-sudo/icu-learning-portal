@@ -14,7 +14,6 @@ import {
   Crown,
   GraduationCap,
   LogOut,
-  MessageCircle,
   ShieldCheck,
   Sparkles,
   Target,
@@ -27,27 +26,6 @@ import { auth, signOut } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
-
-const whatsappNumber = "918177084179";
-
-const whatsappMessage = encodeURIComponent(
-  [
-    "Hello ICU Learning Portal Support,",
-    "",
-    "I need help with:",
-    "",
-    "Issue:",
-    "",
-    "Course/Page:",
-    "",
-    "Registered Email:",
-    "",
-    "Thank you.",
-  ].join("\n")
-);
-
-const whatsappUrl =
-  `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
 function calculatePercent(
   completed: number,
@@ -442,15 +420,13 @@ export default async function DashboardPage() {
                 My Profile
               </Link>
 
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700 transition hover:-translate-y-0.5 hover:bg-emerald-100"
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-black text-blue-700 transition hover:-translate-y-0.5 hover:bg-blue-100"
               >
-                <MessageCircle size={17} />
-                WhatsApp
-              </a>
+                <CircleHelp size={17} />
+                Contact Support
+              </Link>
 
               <Link
                 href="/contact"
@@ -1049,31 +1025,29 @@ export default async function DashboardPage() {
 
               <div className="space-y-3 p-6">
 
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3.5 transition hover:bg-emerald-50"
+                <Link
+                  href="/contact"
+                  className="group flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50/60 p-3.5 transition hover:bg-blue-50"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-emerald-600 shadow-sm">
-                    <MessageCircle size={19} />
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+                    <CircleHelp size={19} />
                   </span>
 
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-black text-slate-900">
-                      WhatsApp Support
+                      Contact Support
                     </span>
 
                     <span className="mt-0.5 block text-xs text-slate-500">
-                      Chat with student support
+                      Contact the ICU Learning Portal support team
                     </span>
                   </span>
 
                   <ArrowRight
                     size={16}
-                    className="text-emerald-300 group-hover:text-emerald-600"
+                    className="text-blue-300 group-hover:text-blue-600"
                   />
-                </a>
+                </Link>
 
                 <Link
                   href="/contact"
