@@ -19,6 +19,8 @@ import {
 
 import { getCourses } from "@/lib/course";
 
+import CourseCatalogJsonLd from "@/components/seo/CourseCatalogJsonLd";
+
 import {
   getCourseImageConfig,
   hasCourseImage,
@@ -76,7 +78,13 @@ export default async function CoursesPage() {
       : 0;
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+  <main className="min-h-screen bg-slate-50 text-slate-900">
+    <CourseCatalogJsonLd
+      courses={[
+        ...demoCourses,
+        ...courses,
+      ]}
+    />
       {/* =========================================================
           PREMIUM HERO
       ========================================================== */}
