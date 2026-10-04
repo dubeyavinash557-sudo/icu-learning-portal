@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { getCourseByIdOrSlug } from "@/lib/course";
+import { getCourseBySlug } from "@/lib/course";
 
 import JsonLd from "@/components/seo/JsonLd";
 
@@ -8,31 +8,44 @@ const SITE_URL = "https://iculearningportal.com";
 
 type Props = {
   children: React.ReactNode;
-
   params: Promise<{
     id: string;
   }>;
 };
 
+function getAbsoluteUrl(value: string | null | undefined): string | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  if (value.startsWith("http://") || value.startsWith("https://")) {
+    return value;
+  }
+
+  return `${SITE_URL}${value.startsWith("/") ? value : `/${value}`}`;
+}
+
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{
-    id: string;
-  }>;
-}): Promise<Metadata> {
+}: Props): Promise<Metadata> {
   const { id } = await params;
 
-  const course =
-    await getCourseByIdOrSlug(id);
+  /*
+   * Public course pages are identified by their slug.
+   *
+   * The page.tsx route is responsible for permanently redirecting
+   * valid legacy/database-ID URLs to the canonical slug URL.
+   *
+   * Metadata itself always points to the canonical slug URL.
+   */
+
+  const course = await getCourseBySlug(id);
 
   if (!course) {
     return {
-      title: "Course Not Found",
-
+      title: "Course Not Found | ICU Learning Portal",
       description:
-        "The requested ICU Learning Portal course could not be found.",
-
+        "The requested ICU nursing course could not be found on ICU Learning Portal.",
       robots: {
         index: false,
         follow: false,
@@ -40,63 +53,67 @@ export async function generateMetadata({
     };
   }
 
-  const courseTitle =
-    course.title.trim();
-
-  const courseType =
-    course.isPremium
-      ? "Premium ICU Course"
-      : "Free ICU Course";
+  const title = `${course.title} | ICU Learning Portal`;
 
   const description =
     course.description?.trim() ||
-    `Study ${courseTitle} through structured ICU and critical-care lessons at ICU Learning Portal.`;
+    `Learn ${course.title} with structured ICU nursing and critical care education from ICU Learning Portal.`;
 
-  const canonicalUrl =
-    `${SITE_URL}/courses/${course.slug}`;
+  const canonicalUrl = `${SITE_URL}/courses/${course.slug}`;
 
-  const image =
-    typeof course.image === "string" &&
-    course.image.trim().length > 0
-      ? course.image
-      : undefined;
+  const imageUrl = getAbsoluteUrl(course.image);
 
   return {
-    title:
-      `${courseTitle} | ${courseType}`,
-
+    title,
     description,
 
     keywords: [
-      courseTitle,
-      "ICU nursing course",
-      "critical care course",
-      "ICU learning",
-      "nursing education",
+      course.title,
+      "ICU nursing",
       "critical care nursing",
-      course.language,
-      course.level,
+      "ICU course",
+      "nursing course",
+      "critical care education",
+      "ICU Learning Portal",
     ],
+
+    authors: [
+      {
+        name: "ICU Learning Portal",
+        url: SITE_URL,
+      },
+    ],
+
+    creator: "ICU Learning Portal",
+    publisher: "ICU Learning Portal",
 
     alternates: {
       canonical: canonicalUrl,
     },
 
+    robots: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+
     openGraph: {
-      type: "article",
+      type: "website",
+      locale: "en_IN",
       url: canonicalUrl,
       siteName: "ICU Learning Portal",
-
-      title: courseTitle,
-
+      title,
       description,
-
-      ...(image
+      ...(imageUrl
         ? {
             images: [
               {
-                url: image,
-                alt: courseTitle,
+                url: imageUrl,
+                width: 1200,
+                height: 630,
+                alt: course.title,
               },
             ],
           }
@@ -104,32 +121,14 @@ export async function generateMetadata({
     },
 
     twitter: {
-      card: image
-        ? "summary_large_image"
-        : "summary",
-
-      title: courseTitle,
-
+      card: "summary_large_image",
+      title,
       description,
-
-      ...(image
+      ...(imageUrl
         ? {
-            images: [image],
+            images: [imageUrl],
           }
         : {}),
-    },
-
-    robots: {
-      index: true,
-      follow: true,
-
-      googleBot: {
-        index: true,
-        follow: true,
-        "max-image-preview": "large",
-        "max-snippet": -1,
-        "max-video-preview": -1,
-      },
     },
   };
 }
@@ -140,49 +139,50 @@ export default async function CourseIdLayout({
 }: Props) {
   const { id } = await params;
 
-  const course =
-    await getCourseByIdOrSlug(id);
+  /*
+   * IMPORTANT:
+   *
+   * The public canonical course URL is:
+   *
+   * /courses/<course-slug>
+   *
+   * Course page.tsx handles legacy/database-ID requests and
+   * permanently redirects them to the canonical slug URL.
+   *
+   * The layout itself therefore resolves the course strictly
+   * by slug so that canonical metadata and structured data
+   * always represent the public URL.
+   */
+
+  const course = await getCourseBySlug(id);
+
+  /*
+   * If the course does not exist, the page itself handles
+   * notFound(). We simply render the children here so the
+   * route-level 404 behaviour remains unchanged.
+   */
 
   if (!course) {
     return children;
   }
 
-  const courseTitle =
-    course.title.trim();
+  const canonicalUrl = `${SITE_URL}/courses/${course.slug}`;
 
-  const description =
+  const courseImage = getAbsoluteUrl(course.image);
+
+  const courseDescription =
     course.description?.trim() ||
-    `Study ${courseTitle} through structured ICU and critical-care lessons at ICU Learning Portal.`;
-
-  const canonicalUrl =
-    `${SITE_URL}/courses/${course.slug}`;
-
-  const courseImage =
-    typeof course.image === "string" &&
-    course.image.trim().length > 0
-      ? course.image
-      : undefined;
+    `Learn ${course.title} with structured ICU nursing and critical care education from ICU Learning Portal.`;
 
   const courseSchema = {
     "@context": "https://schema.org",
-
     "@type": "Course",
 
-    name: courseTitle,
+    name: course.title,
 
-    description,
+    description: courseDescription,
 
     url: canonicalUrl,
-
-    ...(courseImage
-      ? {
-          image: [
-            courseImage.startsWith("http")
-              ? courseImage
-              : `${SITE_URL}${courseImage.startsWith("/") ? "" : "/"}${courseImage}`,
-          ],
-        }
-      : {}),
 
     provider: {
       "@type": "Organization",
@@ -190,18 +190,51 @@ export default async function CourseIdLayout({
       url: SITE_URL,
     },
 
-    instructor: {
-      "@type": "Person",
-      name: course.instructor,
-    },
+    ...(course.instructor
+      ? {
+          instructor: {
+            "@type": "Person",
+            name: course.instructor,
+          },
+        }
+      : {}),
 
-    inLanguage:
-      course.language || "en-IN",
+    ...(course.language
+      ? {
+          inLanguage: course.language,
+        }
+      : {}),
+
+    ...(course.level
+      ? {
+          educationalLevel: course.level,
+        }
+      : {}),
+
+    ...(courseImage
+      ? {
+          image: courseImage,
+        }
+      : {}),
+
+    ...(course.duration
+      ? {
+          timeRequired: `PT${course.duration}H`,
+        }
+      : {}),
+
+    offers: {
+      "@type": "Offer",
+      url: canonicalUrl,
+      priceCurrency: "INR",
+      price: Number(course.price ?? 0).toFixed(2),
+      availability: "https://schema.org/InStock",
+      category: course.isPremium ? "Premium Course" : "Free Course",
+    },
   };
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
-
     "@type": "BreadcrumbList",
 
     itemListElement: [
@@ -211,18 +244,16 @@ export default async function CourseIdLayout({
         name: "Home",
         item: SITE_URL,
       },
-
       {
         "@type": "ListItem",
         position: 2,
         name: "Courses",
         item: `${SITE_URL}/courses`,
       },
-
       {
         "@type": "ListItem",
         position: 3,
-        name: courseTitle,
+        name: course.title,
         item: canonicalUrl,
       },
     ],

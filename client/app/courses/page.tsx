@@ -1,10 +1,13 @@
 ﻿import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
+
 import {
   ArrowRight,
   Award,
   BookOpen,
   CheckCircle2,
+  ChevronRight,
   Clock3,
   Crown,
   FileText,
@@ -14,7 +17,10 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
+  Stethoscope,
+  Target,
   Video,
+  Zap,
 } from "lucide-react";
 
 import { getCourses } from "@/lib/course";
@@ -28,554 +34,9 @@ import {
 
 export const revalidate = 60;
 
-/* ================================================================
-   ICU LEARNING PORTAL
-   PROFESSIONAL PREMIUM COURSE CATALOG
-
-   File:
-   app/courses/page.tsx
-
-   Design goals:
-   - Professional LMS presentation
-   - 12 premium programs
-   - Course-specific professional imagery
-   - Curriculum preview
-   - Pricing
-   - Ratings
-   - Trust-safe course statistics
-   - Premium access messaging
-   - Responsive desktop/tablet/mobile layout
-================================================================ */
-
-export default async function CoursesPage() {
-  const allCourses = await getCourses();
-
-  /*
-   * IMPORTANT:
-   * Public /courses is the PREMIUM PROGRAM catalog.
-   *
-   * Demo/free learning will be presented separately later.
-   */
-  const demoCourses = allCourses.filter((course) => !course.isPremium);
-
-  const courses = allCourses.filter((course) => course.isPremium);
-
-  const totalCourses = courses.length;
-
-  const totalLessons = courses.reduce(
-  (total, course) =>
-    total + course.lessonCount,
-  0
-);
-
-  const averageRating =
-    courses.length > 0
-      ? courses.reduce(
-          (total, course) =>
-            total + Number(course.rating || 0),
-          0
-        ) / courses.length
-      : 0;
-
-  return (
-  <main className="min-h-screen bg-slate-50 text-slate-900">
-    <CourseCatalogJsonLd
-      courses={[
-        ...demoCourses,
-        ...courses,
-      ]}
-    />
-      {/* =========================================================
-          PREMIUM HERO
-      ========================================================== */}
-
-      <section className="relative overflow-hidden bg-slate-950">
-        {/* Decorative background */}
-
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-cyan-500/10 blur-3xl" />
-
-          <div className="absolute -right-40 top-0 h-[34rem] w-[34rem] rounded-full bg-blue-600/10 blur-3xl" />
-
-          <div className="absolute bottom-[-18rem] left-1/2 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-3xl" />
-        </div>
-
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
-            backgroundSize: "42px 42px",
-          }}
-        />
-
-        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
-            {/* =====================================================
-                HERO LEFT
-            ====================================================== */}
-
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-cyan-300">
-                <GraduationCap size={16} />
-
-                Professional ICU Education
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                <HeroBadge
-                  icon={<Crown size={13} />}
-                  text="Premium Programs"
-                />
-
-                <HeroBadge
-                  icon={<Award size={13} />}
-                  text="Certificate Pathway"
-                />
-
-                <HeroBadge
-                  icon={<Sparkles size={13} />}
-                  text="Expert Designed"
-                />
-              </div>
-
-              <h1 className="mt-7 max-w-4xl text-4xl font-black leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Premium ICU & Critical Care
-                <span className="block bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
-                  Learning Programs
-                </span>
-              </h1>
-
-              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                Build professional critical-care knowledge
-                through structured programs, clinical lessons,
-                assessments, learning resources, progress
-                tracking and certificate pathways.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a
-                  href="#course-list"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-7 py-4 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/20 transition hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-slate-950"
-                >
-                  Explore All Programs
-
-                  <ArrowRight size={18} />
-                </a>
-
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-7 py-4 text-sm font-black text-white transition hover:bg-white/10"
-                >
-                  <PlayCircle size={18} />
-
-                  My Learning
-                </Link>
-              </div>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <TrustItem
-                  icon={<Clock3 size={16} />}
-                  label="Self Paced"
-                />
-
-                <TrustItem
-                  icon={<Video size={16} />}
-                  label="Video Lessons"
-                />
-
-                <TrustItem
-                  icon={<FileText size={16} />}
-                  label="Study Resources"
-                />
-
-                <TrustItem
-                  icon={<ShieldCheck size={16} />}
-                  label="Secure Access"
-                />
-              </div>
-            </div>
-
-            {/* =====================================================
-                HERO RIGHT
-            ====================================================== */}
-
-            <div className="lg:justify-self-end lg:w-full lg:max-w-md">
-              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur-xl sm:p-6">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300">
-                      <Crown size={27} />
-                    </div>
-
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">
-                        Premium Learning Library
-                      </p>
-
-                      <h2 className="mt-1 text-xl font-black text-white">
-                        Professional Course Collection
-                      </h2>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <HeroStat
-                    value={String(totalCourses)}
-                    label="Programs"
-                    icon={<BookOpen size={18} />}
-                  />
-
-                  <HeroStat
-                    value={String(totalLessons)}
-                    label="Lessons"
-                    icon={<Video size={18} />}
-                  />
-
-                  <HeroStat
-                    value={
-                      averageRating > 0
-                        ? averageRating.toFixed(1)
-                        : "â€”"
-                    }
-                    label="Average Rating"
-                    icon={<Star size={18} />}
-                  />
-
-                  <HeroStat
-                    value="Ready"
-                    label="Certificate Path"
-                    icon={<Award size={18} />}
-                  />
-                </div>
-
-                <div className="mt-4 rounded-2xl border border-emerald-400/10 bg-emerald-400/5 p-5">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-400">
-                      <ShieldCheck size={19} />
-                    </div>
-
-                    <div>
-                      <p className="font-bold text-white">
-                        Structured LMS Learning
-                      </p>
-
-                      <p className="mt-1 text-sm leading-6 text-slate-400">
-                        Study through organized courses,
-                        lessons, assessments, progress tracking
-                        and certificate pathways.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-            {/* =========================================================
-          FREE DEMO COURSES
-      ========================================================== */}
-
-      {demoCourses.length > 0 && (
-        <section className="border-b border-emerald-100 bg-emerald-50/50">
-          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16">
-            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
-                  Start Learning Free
-                </p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                  Free ICU Demo Courses
-                </h2>
-                <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-                  Explore selected lessons and understand the ICU Learning Portal experience before joining a premium program.
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-200 bg-white px-4 py-2 text-xs font-black text-emerald-700 sm:self-auto">
-                <CheckCircle2 size={14} />
-                Free Access
-              </span>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {demoCourses.map((course, index) => (
-                <ProfessionalCourseCard key={course.id} course={course} index={index} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* =========================================================
-          COURSE CATALOG HEADER
-      ========================================================== */}
-
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-blue-700">
-                <Sparkles size={14} />
-
-                Our Programs
-              </div>
-
-              <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-                Choose Your Critical Care Program
-              </h2>
-
-              <p className="mt-3 text-base leading-7 text-slate-600">
-                Each program is designed to build your
-                knowledge step by step with structured
-                learning, practical understanding and
-                professional assessments.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <CatalogStat
-                value={totalCourses}
-                label="Programs"
-              />
-
-              <CatalogStat
-                value={totalLessons}
-                label="Lessons"
-              />
-
-              <CatalogStat
-                value={2}
-                label="Languages"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          COURSE LIST
-      ========================================================== */}
-
-      <section
-        id="course-list"
-        className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16"
-      >
-        {/* Section intro */}
-
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-600">
-              Premium Course Library
-            </p>
-
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
-              Professional Learning Programs
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Explore the complete premium ICU learning
-              collection.
-            </p>
-          </div>
-
-          <div className="inline-flex items-center gap-2 self-start rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-black text-amber-800 sm:self-auto">
-            <Crown size={14} />
-
-            Premium LMS Library
-          </div>
-        </div>
-
-        {courses.length === 0 ? (
-          <EmptyCourses />
-        ) : (
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {courses.map((course, index) => (
-              <ProfessionalCourseCard
-                key={course.id}
-                course={course}
-                index={index}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* =========================================================
-          LMS EXPERIENCE
-      ========================================================== */}
-
-      <section className="border-y border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
-          <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-600">
-              Premium Learning Experience
-            </p>
-
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
-              Built Around Serious Learning
-            </h2>
-
-            <p className="mt-4 text-base leading-7 text-slate-600">
-              The ICU Learning Portal is structured as an
-              LMS learning environment rather than a simple
-              course listing.
-            </p>
-          </div>
-
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            <FeatureCard
-              icon={<Video size={23} />}
-              title="Video Lessons"
-              description="Structured lessons for focused study, revision and clinical understanding."
-            />
-
-            <FeatureCard
-              icon={<FileText size={23} />}
-              title="Premium Resources"
-              description="Protected study resources organized around the enrolled learning program."
-            />
-
-            <FeatureCard
-              icon={<CheckCircle2 size={23} />}
-              title="Assessments"
-              description="Course assessments and quizzes help learners check their understanding."
-            />
-
-            <FeatureCard
-              icon={<Award size={23} />}
-              title="Certificates"
-              description="Eligible learners can progress toward completion and certificate issuance."
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================
-          VALUE STRIP
-      ========================================================== */}
-
-      <section className="bg-slate-50">
-        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16">
-          <div className="grid gap-5 lg:grid-cols-3">
-            <ValueCard
-              icon={<GraduationCap size={22} />}
-              title="Professional Curriculum"
-              description="Learn through organized course structures and progressive lessons."
-            />
-
-            <ValueCard
-              icon={<ShieldCheck size={22} />}
-              title="Protected Learning"
-              description="Premium lessons and learning resources are designed for authorized learners."
-            />
-
-            <ValueCard
-              icon={<Award size={22} />}
-              title="Completion Pathway"
-              description="Course progress, assessments and completion connect with the portal's learning workflow."
-            />
-          </div>
-        </div>
-      </section>
-
-            {/* =========================================================
-          FINAL PREMIUM CTA
-      ========================================================== */}
-
-      <section className="bg-slate-950">
-        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
-          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-r from-blue-950 via-slate-900 to-cyan-950 p-7 shadow-2xl sm:p-10 lg:p-12">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-3xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-sm font-bold text-amber-300">
-                  <Crown size={16} />
-
-                  Premium ICU Education
-                </div>
-
-                <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">
-                  Build Your ICU Knowledge Step by Step
-                </h2>
-
-                <p className="mt-4 text-base leading-7 text-slate-300">
-                  Choose the program that matches your
-                  professional learning goal and continue
-                  your journey through the ICU Learning Portal.
-                </p>
-
-                <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-slate-300">
-                  <CTAFeature text="Premium Programs" />
-
-                  <CTAFeature text="Structured Lessons" />
-
-                  <CTAFeature text="Assessments" />
-
-                  <CTAFeature text="Certificate Pathway" />
-                </div>
-              </div>
-
-              <Link
-                href="#course-list"
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-xl transition hover:bg-cyan-50"
-              >
-                Explore Programs
-
-                <ArrowRight size={18} />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  );
-}
-
-/* ================================================================
-   PROFESSIONAL COURSE CARD
-================================================================ */
-
-function ProfessionalCourseCard({
-  course,
-  index,
-}: {
-  course: Awaited<
-    ReturnType<typeof getCourses>
-  >[number];
-  index: number;
-}) {
-  const visual = getCourseImageConfig(
-    course.slug
-  );
-
-  /*
-   * If the centralized mapping contains a custom visual,
-   * use it.
-   *
-   * Otherwise preserve the database image as fallback.
-   */
-  const image =
-    hasCourseImage(course.slug)
-      ? visual.image
-      : course.image || "/images/icu-lms-hero.png";
-
-  const price =
-    typeof course.price === "number"
-      ? course.price
-      : Number(course.price);
-
-  const rating = Number(
-    course.rating || 0
-  );
-
-  const lessons = course.lessonCount;
+type Course = Awaited<ReturnType<typeof getCourses>>[number];
 
 const courseCurriculum: Record<string, string[]> = {
-  // ============================================================
-  // ICU NURSING
-  // ============================================================
   "icu-nursing-mastery-program": [
     "ICU patient assessment, priorities and comprehensive nursing care",
     "Ventilator, hemodynamic and multi-parameter patient monitoring",
@@ -606,18 +67,15 @@ const courseCurriculum: Record<string, string[]> = {
     "Emergency procedures, communication and professional readiness",
   ],
 
-  // ============================================================
-  // MECHANICAL VENTILATION
-  // ============================================================
   "mechanical-ventilation-respiratory-care-masterclass": [
     "Ventilator modes, settings and core respiratory mechanics",
-    "FiOâ‚‚, PEEP, alarms and patient-ventilator assessment",
+    "FiO₂, PEEP, alarms and patient-ventilator assessment",
     "ABG correlation, troubleshooting, weaning and ventilator safety",
   ],
 
   "mechanical-ventilation": [
     "Ventilator modes, settings and core respiratory mechanics",
-    "FiOâ‚‚, PEEP, alarms and patient-ventilator assessment",
+    "FiO₂, PEEP, alarms and patient-ventilator assessment",
     "ABG correlation, troubleshooting, weaning and ventilator safety",
   ],
 
@@ -627,9 +85,6 @@ const courseCurriculum: Record<string, string[]> = {
     "Ventilator alarms, patient assessment and safety basics",
   ],
 
-  // ============================================================
-  // ECG
-  // ============================================================
   "ecg-cardiac-rhythm-interpretation-masterclass": [
     "ECG waves, intervals, rate calculation and systematic interpretation",
     "Normal rhythms, atrial and ventricular arrhythmias",
@@ -648,9 +103,6 @@ const courseCurriculum: Record<string, string[]> = {
     "Common rhythm patterns and basic clinical interpretation",
   ],
 
-  // ============================================================
-  // ABG
-  // ============================================================
   "abg-analysis-acid-base-disorders-masterclass": [
     "ABG sampling, normal values and stepwise interpretation",
     "Respiratory and metabolic acidosis and alkalosis",
@@ -663,18 +115,12 @@ const courseCurriculum: Record<string, string[]> = {
     "Compensation, mixed disorders and ICU case interpretation",
   ],
 
-  // ============================================================
-  // AIRWAY MANAGEMENT
-  // ============================================================
   "airway-management": [
     "Airway assessment and recognition of airway compromise",
     "Intubation assistance, suctioning and airway devices",
     "Endotracheal tube care, cuff monitoring and airway safety",
   ],
 
-  // ============================================================
-  // CARDIAC ICU
-  // ============================================================
   "cardiac-icu-hemodynamic-monitoring-masterclass": [
     "Cardiac ICU assessment and continuous cardiac monitoring",
     "Hemodynamic parameters, perfusion assessment and clinical trends",
@@ -687,18 +133,12 @@ const courseCurriculum: Record<string, string[]> = {
     "Acute cardiac emergencies and critical-care nursing priorities",
   ],
 
-  // ============================================================
-  // CRITICAL CARE MONITORING
-  // ============================================================
   "critical-care-monitoring": [
-    "ECG, SpOâ‚‚, blood pressure and continuous vital-sign monitoring",
+    "ECG, SpO₂, blood pressure and continuous vital-sign monitoring",
     "CVP, hemodynamic trends and multi-parameter assessment",
     "Early recognition of deterioration and escalation of care",
   ],
 
-  // ============================================================
-  // CRITICAL CARE PROCEDURES
-  // ============================================================
   "critical-care-procedures-bedside-skills": [
     "Essential ICU procedures and patient preparation",
     "Aseptic technique, infection prevention and patient safety",
@@ -711,9 +151,6 @@ const courseCurriculum: Record<string, string[]> = {
     "Procedure monitoring, documentation and complication awareness",
   ],
 
-  // ============================================================
-  // EMERGENCY MANAGEMENT
-  // ============================================================
   "icu-emergency-critical-care-management": [
     "Recognition and first response to acute ICU emergencies",
     "Cardiac arrest, shock and rapidly deteriorating patients",
@@ -726,9 +163,6 @@ const courseCurriculum: Record<string, string[]> = {
     "Emergency team response, monitoring and clinical documentation",
   ],
 
-  // ============================================================
-  // ICU EMERGENCY DRUGS
-  // ============================================================
   "icu-emergency-drugs-critical-care-pharmacology": [
     "Emergency medication principles and ICU medication safety",
     "Vasoactive drugs, sedatives, analgesics and common critical-care medicines",
@@ -741,9 +175,6 @@ const courseCurriculum: Record<string, string[]> = {
     "Preparation, administration, monitoring and adverse-reaction awareness",
   ],
 
-  // ============================================================
-  // NEURO ICU
-  // ============================================================
   "neuro-icu-neurocritical-care-program": [
     "Neurological assessment, GCS and pupil examination",
     "Stroke, seizures, traumatic brain injury and neuro emergencies",
@@ -756,27 +187,18 @@ const courseCurriculum: Record<string, string[]> = {
     "ICP concepts, neurological monitoring and critical-care nursing",
   ],
 
-  // ============================================================
-  // RENAL CRITICAL CARE
-  // ============================================================
   "renal-critical-care": [
     "Critical renal assessment, urine output and fluid balance",
     "Electrolyte abnormalities, acid-base changes and renal complications",
     "Renal replacement therapy concepts and nursing care",
   ],
 
-  // ============================================================
-  // RESPIRATORY FAILURE
-  // ============================================================
   "respiratory-failure": [
     "Recognition and classification of acute respiratory failure",
     "Oxygen therapy, ABG interpretation and respiratory monitoring",
     "Ventilatory support, escalation and patient reassessment",
   ],
 
-  // ============================================================
-  // SEPSIS & SHOCK
-  // ============================================================
   "sepsis-shock-multiorgan-failure-masterclass": [
     "Early recognition of sepsis and clinical deterioration",
     "Septic, hypovolemic and other shock states with perfusion assessment",
@@ -789,36 +211,24 @@ const courseCurriculum: Record<string, string[]> = {
     "Hemodynamic monitoring, resuscitation principles and organ dysfunction",
   ],
 
-  // ============================================================
-  // INFECTION CONTROL
-  // ============================================================
   "infection-control": [
     "Standard precautions, hand hygiene and transmission-based precautions",
     "Central-line, catheter and ventilator-associated infection prevention",
     "Aseptic practice, isolation principles and ICU infection surveillance",
   ],
 
-  // ============================================================
-  // ICU TECHNICIAN
-  // ============================================================
   "icu-technician-master": [
     "ICU equipment, monitors and essential bedside setup",
     "Patient monitoring, emergency equipment and safety checks",
     "Basic procedures, infection control and technician responsibilities",
   ],
 
-  // ============================================================
-  // EMERGENCY CARE
-  // ============================================================
   "emergency-care": [
     "Initial emergency assessment and prioritization",
     "Basic emergency response, monitoring and stabilization",
     "Common acute conditions, escalation and team communication",
   ],
 
-  // ============================================================
-  // MEDICAL CODING
-  // ============================================================
   "medical-coding": [
     "Medical terminology, anatomy and clinical documentation basics",
     "Diagnosis and procedure coding concepts",
@@ -832,24 +242,580 @@ const defaultCurriculum = [
   "Practical application, assessment and professional documentation",
 ];
 
-const previewLessons =
-  courseCurriculum[course.slug] ?? defaultCurriculum;
+export default async function CoursesPage() {
+  const allCourses = await getCourses();
+
+  const demoCourses = allCourses.filter((course) => !course.isPremium);
+  const courses = allCourses.filter((course) => course.isPremium);
+
+  const totalCourses = courses.length;
+
+  const totalLessons = courses.reduce(
+    (total, course) => total + course.lessonCount,
+    0
+  );
+
+  const averageRating =
+    courses.length > 0
+      ? courses.reduce(
+          (total, course) => total + Number(course.rating || 0),
+          0
+        ) / courses.length
+      : 0;
+
+  return (
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      <CourseCatalogJsonLd
+        courses={[
+          ...demoCourses,
+          ...courses,
+        ]}
+      />
+
+      {/* ============================================================
+          PREMIUM HERO
+      ============================================================ */}
+
+      <section className="relative overflow-hidden bg-[#06101f]">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-40 -top-40 h-[32rem] w-[32rem] rounded-full bg-cyan-500/10 blur-3xl" />
+          <div className="absolute -right-40 top-0 h-[34rem] w-[34rem] rounded-full bg-blue-600/10 blur-3xl" />
+          <div className="absolute bottom-[-20rem] left-1/2 h-[38rem] w-[38rem] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-3xl" />
+        </div>
+
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+            backgroundSize: "42px 42px",
+          }}
+        />
+
+        <div className="relative mx-auto max-w-7xl px-5 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr]">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <HeroBadge
+                  icon={<GraduationCap size={14} />}
+                  text="Professional ICU Education"
+                />
+
+                <HeroBadge
+                  icon={<ShieldCheck size={14} />}
+                  text="Secure LMS"
+                />
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                <HeroBadge
+                  icon={<Crown size={13} />}
+                  text="Premium Programs"
+                />
+
+                <HeroBadge
+                  icon={<Award size={13} />}
+                  text="Certificate Pathway"
+                />
+
+                <HeroBadge
+                  icon={<Sparkles size={13} />}
+                  text="Expert Designed"
+                />
+              </div>
+
+              <h1 className="mt-7 max-w-4xl text-4xl font-black leading-[1.04] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Premium ICU & Critical Care
+                <span className="block bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                  Learning Programs
+                </span>
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+                Build professional critical-care knowledge through
+                structured programs, clinical lessons, assessments,
+                learning resources, progress tracking and certificate
+                pathways.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="#course-list"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-7 py-4 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/20 transition hover:bg-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:ring-offset-2 focus:ring-offset-[#06101f]"
+                >
+                  Explore All Programs
+                  <ArrowRight size={18} />
+                </a>
+
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-7 py-4 text-sm font-black text-white transition hover:bg-white/10"
+                >
+                  <PlayCircle size={18} />
+                  My Learning
+                </Link>
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <TrustItem
+                  icon={<Clock3 size={16} />}
+                  label="Self Paced"
+                />
+
+                <TrustItem
+                  icon={<Video size={16} />}
+                  label="Video Lessons"
+                />
+
+                <TrustItem
+                  icon={<FileText size={16} />}
+                  label="Study Resources"
+                />
+
+                <TrustItem
+                  icon={<ShieldCheck size={16} />}
+                  label="Secure Access"
+                />
+              </div>
+            </div>
+
+            <div className="lg:justify-self-end lg:w-full lg:max-w-md">
+              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur-xl sm:p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300">
+                      <Stethoscope size={27} />
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300">
+                        ICU Learning Portal
+                      </p>
+
+                      <h2 className="mt-1 text-xl font-black text-white">
+                        Professional Course Collection
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <HeroStat
+                    value={String(totalCourses)}
+                    label="Programs"
+                    icon={<BookOpen size={18} />}
+                  />
+
+                  <HeroStat
+                    value={String(totalLessons)}
+                    label="Lessons"
+                    icon={<Video size={18} />}
+                  />
+
+                  <HeroStat
+                    value={
+                      averageRating > 0
+                        ? averageRating.toFixed(1)
+                        : "—"
+                    }
+                    label="Average Rating"
+                    icon={<Star size={18} />}
+                  />
+
+                  <HeroStat
+                    value="Ready"
+                    label="Certificate Path"
+                    icon={<Award size={18} />}
+                  />
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-emerald-400/10 bg-emerald-400/5 p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-400">
+                      <ShieldCheck size={19} />
+                    </div>
+
+                    <div>
+                      <p className="font-bold text-white">
+                        Structured LMS Learning
+                      </p>
+
+                      <p className="mt-1 text-sm leading-6 text-slate-400">
+                        Study through organized courses, lessons,
+                        assessments, progress tracking and certificate
+                        pathways.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  <MiniTrust label="Clinical" />
+                  <MiniTrust label="Structured" />
+                  <MiniTrust label="Professional" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          FREE DEMO COURSES
+      ============================================================ */}
+
+      {demoCourses.length > 0 && (
+        <section className="border-b border-emerald-100 bg-emerald-50/60">
+          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
+                  Start Learning Free
+                </p>
+
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                  Free ICU Demo Courses
+                </h2>
+
+                <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+                  Explore selected lessons and experience the ICU
+                  Learning Portal before joining a premium program.
+                </p>
+              </div>
+
+              <span className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-200 bg-white px-4 py-2 text-xs font-black text-emerald-700 sm:self-auto">
+                <CheckCircle2 size={14} />
+                Free Access
+              </span>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {demoCourses.map((course, index) => (
+                <ProfessionalCourseCard
+                  key={course.id}
+                  course={course}
+                  index={index}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============================================================
+          CATALOG HEADER
+      ============================================================ */}
+
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-blue-700">
+                <Sparkles size={14} />
+                Our Programs
+              </div>
+
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                Choose Your Critical Care Program
+              </h2>
+
+              <p className="mt-3 text-base leading-7 text-slate-600">
+                Each program is designed to build your knowledge step
+                by step with structured learning, practical
+                understanding and professional assessments.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              <CatalogStat
+                value={totalCourses}
+                label="Programs"
+              />
+
+              <CatalogStat
+                value={totalLessons}
+                label="Lessons"
+              />
+
+              <CatalogStat
+                value={2}
+                label="Languages"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+            {/* ============================================================
+          COURSE LIST
+      ============================================================ */}
+
+      <section
+        id="course-list"
+        className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16"
+      >
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-600">
+              Premium Course Library
+            </p>
+
+            <h2 className="mt-2 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+              Professional Learning Programs
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Explore the complete premium ICU learning collection.
+            </p>
+          </div>
+
+          <div className="inline-flex items-center gap-2 self-start rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-black text-amber-800 sm:self-auto">
+            <Crown size={14} />
+            Premium LMS Library
+          </div>
+        </div>
+
+        {courses.length === 0 ? (
+          <EmptyCourses />
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {courses.map((course, index) => (
+              <ProfessionalCourseCard
+                key={course.id}
+                course={course}
+                index={index}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* ============================================================
+          LMS EXPERIENCE
+      ============================================================ */}
+
+      <section className="border-y border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-600">
+              Premium Learning Experience
+            </p>
+
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+              Built Around Serious Learning
+            </h2>
+
+            <p className="mt-4 text-base leading-7 text-slate-600">
+              The ICU Learning Portal is structured as an LMS
+              learning environment rather than a simple course
+              listing.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <FeatureCard
+              icon={<Video size={23} />}
+              title="Video Lessons"
+              description="Structured lessons for focused study, revision and clinical understanding."
+            />
+
+            <FeatureCard
+              icon={<FileText size={23} />}
+              title="Premium Resources"
+              description="Protected study resources organized around the enrolled learning program."
+            />
+
+            <FeatureCard
+              icon={<Target size={23} />}
+              title="Assessments"
+              description="Course assessments and quizzes help learners check their understanding."
+            />
+
+            <FeatureCard
+              icon={<Award size={23} />}
+              title="Certificates"
+              description="Eligible learners can progress toward completion and certificate issuance."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          VALUE STRIP
+      ============================================================ */}
+
+      <section className="bg-slate-50">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-16">
+          <div className="grid gap-5 lg:grid-cols-3">
+            <ValueCard
+              icon={<GraduationCap size={22} />}
+              title="Professional Curriculum"
+              description="Learn through organized course structures and progressive lessons."
+            />
+
+            <ValueCard
+              icon={<ShieldCheck size={22} />}
+              title="Protected Learning"
+              description="Premium lessons and learning resources are designed for authorized learners."
+            />
+
+            <ValueCard
+              icon={<Award size={22} />}
+              title="Completion Pathway"
+              description="Course progress, assessments and completion connect with the portal's learning workflow."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          LEARNING JOURNEY
+      ============================================================ */}
+
+      <section className="border-t border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-100 bg-cyan-50 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-cyan-700">
+                <Zap size={14} />
+                Learning Journey
+              </div>
+
+              <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                A Clear Path From Learning to Completion
+              </h2>
+
+              <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">
+                Choose a program, study the structured curriculum,
+                complete assessments and continue progressing through
+                your learning journey.
+              </p>
+
+              <Link
+                href="#course-list"
+                className="mt-7 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-900"
+              >
+                Browse Programs
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <JourneyStep
+                number="01"
+                title="Choose a Program"
+                description="Select the ICU or critical-care program that matches your learning goal."
+              />
+
+              <JourneyStep
+                number="02"
+                title="Study the Curriculum"
+                description="Move through organized lessons and topic-specific learning resources."
+              />
+
+              <JourneyStep
+                number="03"
+                title="Check Understanding"
+                description="Use assessments and quizzes to reinforce your knowledge."
+              />
+
+              <JourneyStep
+                number="04"
+                title="Track Completion"
+                description="Continue your learning journey through progress and completion workflows."
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          FINAL PREMIUM CTA
+      ============================================================ */}
+
+      <section className="bg-slate-950">
+        <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8 lg:py-16">
+          <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-r from-blue-950 via-slate-900 to-cyan-950 p-7 shadow-2xl sm:p-10 lg:p-12">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-sm font-bold text-amber-300">
+                  <Crown size={16} />
+                  Premium ICU Education
+                </div>
+
+                <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Build Your ICU Knowledge Step by Step
+                </h2>
+
+                <p className="mt-4 text-base leading-7 text-slate-300">
+                  Choose the program that matches your professional
+                  learning goal and continue your journey through the
+                  ICU Learning Portal.
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-slate-300">
+                  <CTAFeature text="Premium Programs" />
+                  <CTAFeature text="Structured Lessons" />
+                  <CTAFeature text="Assessments" />
+                  <CTAFeature text="Certificate Pathway" />
+                </div>
+              </div>
+
+              <Link
+                href="#course-list"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-4 text-sm font-black text-slate-950 shadow-xl transition hover:bg-cyan-50"
+              >
+                Explore Programs
+                <ArrowRight size={18} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+/* ================================================================
+   PROFESSIONAL COURSE CARD
+================================================================ */
+
+function ProfessionalCourseCard({
+  course,
+  index,
+}: {
+  course: Course;
+  index: number;
+}) {
+  const visual = getCourseImageConfig(course.slug);
+
+  const image = hasCourseImage(course.slug)
+    ? visual.image
+    : course.image || "/images/icu-lms-hero.png";
+
+  const price =
+    typeof course.price === "number"
+      ? course.price
+      : Number(course.price);
+
+  const rating = Number(course.rating || 0);
+  const lessons = course.lessonCount;
+
+  const previewLessons =
+    courseCurriculum[course.slug] ?? defaultCurriculum;
 
   const formattedPrice =
     Number.isFinite(price) && price > 0
-      ? `â‚¹${price.toLocaleString("en-IN")}`
+      ? `₹${price.toLocaleString("en-IN")}`
       : "Premium Access";
 
-  const courseNumber =
-    String(index + 1).padStart(2, "0");
+  const courseNumber = String(index + 1).padStart(2, "0");
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:border-cyan-200 hover:shadow-2xl">
-      {/* =========================================================
-          IMAGE / COVER
-      ========================================================== */}
+      {/* COVER IMAGE */}
 
-      <div className="relative h-60 overflow-hidden">
+      <div className="relative h-60 overflow-hidden bg-slate-900">
         <Image
           src={image}
           alt={visual.alt}
@@ -861,11 +827,7 @@ const previewLessons =
           className="object-cover transition duration-700 group-hover:scale-105"
         />
 
-        {/* Gradient overlay */}
-
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-
-        {/* Course number */}
 
         <div className="absolute right-4 top-4">
           <span className="rounded-full border border-white/20 bg-slate-950/70 px-3 py-1.5 text-[10px] font-black tracking-[0.14em] text-white backdrop-blur">
@@ -873,20 +835,23 @@ const previewLessons =
           </span>
         </div>
 
-        {/* Premium badge */}
-
         <div className="absolute left-4 top-4">
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wide shadow-lg ${
-            course.isPremium
-              ? "bg-amber-400 text-amber-950"
-              : "bg-emerald-400 text-emerald-950"
-          }`}>
-            {course.isPremium ? <Crown size={13} /> : <CheckCircle2 size={13} />}
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[10px] font-black uppercase tracking-wide shadow-lg ${
+              course.isPremium
+                ? "bg-amber-400 text-amber-950"
+                : "bg-emerald-400 text-emerald-950"
+            }`}
+          >
+            {course.isPremium ? (
+              <Crown size={13} />
+            ) : (
+              <CheckCircle2 size={13} />
+            )}
+
             {course.isPremium ? "Premium" : "Free Demo"}
           </span>
         </div>
-
-        {/* Course visual label */}
 
         <div className="absolute bottom-4 left-4 right-4">
           <div className="flex items-end justify-between gap-3">
@@ -912,13 +877,9 @@ const previewLessons =
         </div>
       </div>
 
-      {/* =========================================================
-          CARD BODY
-      ========================================================== */}
+      {/* CARD BODY */}
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
-        {/* Instructor / language */}
-
         <div className="flex items-center justify-between gap-3">
           <span className="truncate text-[10px] font-black uppercase tracking-[0.13em] text-blue-700">
             {course.instructor}
@@ -929,21 +890,15 @@ const previewLessons =
           </span>
         </div>
 
-        {/* Title */}
-
         <h3 className="mt-3 line-clamp-2 min-h-[3.5rem] text-xl font-black leading-7 text-slate-950 transition group-hover:text-blue-700">
           {course.title}
         </h3>
-
-        {/* Description */}
 
         <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">
           {course.description}
         </p>
 
-        {/* =======================================================
-            COURSE META
-        ======================================================== */}
+        {/* COURSE META */}
 
         <div className="mt-5 grid grid-cols-2 gap-2">
           <CourseMeta
@@ -953,9 +908,7 @@ const previewLessons =
 
           <CourseMeta
             icon={<Clock3 size={15} />}
-            value={formatDuration(
-              course.duration
-            )}
+            value={formatDuration(course.duration)}
           />
 
           <CourseMeta
@@ -969,9 +922,7 @@ const previewLessons =
           />
         </div>
 
-        {/* =======================================================
-            CURRICULUM PREVIEW
-        ======================================================== */}
+        {/* CURRICULUM PREVIEW */}
 
         <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div className="flex items-center justify-between gap-3">
@@ -990,22 +941,21 @@ const previewLessons =
             </span>
           </div>
 
-          <div className="mt-3 space-y-2">
+          <div className="mt-3 space-y-2.5">
             {previewLessons.map((lesson, lessonIndex) => (
-  <div
-    key={`${course.id}-preview-${lessonIndex}`}
-    className="flex items-center gap-2"
-  >
-    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9px] font-black text-blue-700">
-      {lessonIndex + 1}
-    </span>
+              <div
+                key={`${course.id}-preview-${lessonIndex}`}
+                className="flex items-start gap-2"
+              >
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[9px] font-black text-blue-700">
+                  {lessonIndex + 1}
+                </span>
 
-    <span className="line-clamp-1 text-xs font-semibold text-slate-600">
-      {lesson}
-    </span>
-  </div>
-))}
-            
+                <span className="line-clamp-2 text-xs font-semibold leading-5 text-slate-600">
+                  {lesson}
+                </span>
+              </div>
+            ))}
           </div>
 
           {lessons > 3 && (
@@ -1015,41 +965,46 @@ const previewLessons =
           )}
         </div>
 
-                {/* =======================================================
-            PREMIUM VALUE
-        ======================================================== */}
+        {/* PREMIUM VALUE */}
 
-        <div className={`mt-4 rounded-2xl border p-4 ${
-          course.isPremium
-            ? "border-amber-100 bg-amber-50/80"
-            : "border-emerald-100 bg-emerald-50/80"
-        }`}>
+        <div
+          className={`mt-4 rounded-2xl border p-4 ${
+            course.isPremium
+              ? "border-amber-100 bg-amber-50/80"
+              : "border-emerald-100 bg-emerald-50/80"
+          }`}
+        >
           <div className="flex items-start gap-3">
-            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
                 course.isPremium
                   ? "bg-amber-100 text-amber-700"
                   : "bg-emerald-100 text-emerald-700"
-              }`}>
-              {course.isPremium ? <Crown size={17} /> : <CheckCircle2 size={17} />}
+              }`}
+            >
+              {course.isPremium ? (
+                <Crown size={17} />
+              ) : (
+                <CheckCircle2 size={17} />
+              )}
             </div>
 
             <div>
               <p className="text-sm font-black text-slate-800">
-                {course.isPremium ? "Premium Learning Program" : "Free Demo Course"}
+                {course.isPremium
+                  ? "Premium Learning Program"
+                  : "Free Demo Course"}
               </p>
 
               <p className="mt-1 text-xs leading-5 text-slate-600">
-                Structured lessons, assessments,
-                learning resources and progress tracking
-                are part of the premium LMS experience.
+                Structured lessons, assessments, learning resources
+                and progress tracking are part of the LMS experience.
               </p>
             </div>
           </div>
         </div>
 
-        {/* =======================================================
-            PRICE + CTA
-        ======================================================== */}
+        {/* PRICE + CTA */}
 
         <div className="mt-auto">
           <div className="my-5 border-t border-slate-100" />
@@ -1108,13 +1063,12 @@ function HeroBadge({
   icon,
   text,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   text: string;
 }) {
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-300">
       {icon}
-
       {text}
     </span>
   );
@@ -1128,7 +1082,7 @@ function TrustItem({
   icon,
   label,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
 }) {
   return (
@@ -1137,6 +1091,22 @@ function TrustItem({
         {icon}
       </span>
 
+      {label}
+    </div>
+  );
+}
+
+/* ================================================================
+   MINI TRUST
+================================================================ */
+
+function MiniTrust({
+  label,
+}: {
+  label: string;
+}) {
+  return (
+    <div className="rounded-xl border border-white/5 bg-white/[0.035] px-2 py-2 text-center text-[9px] font-black uppercase tracking-wide text-slate-400">
       {label}
     </div>
   );
@@ -1153,7 +1123,7 @@ function HeroStat({
 }: {
   value: string;
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
@@ -1206,7 +1176,7 @@ function CourseMeta({
   icon,
   value,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   value: string;
 }) {
   return (
@@ -1231,7 +1201,7 @@ function FeatureCard({
   title,
   description,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   description: string;
 }) {
@@ -1261,7 +1231,7 @@ function ValueCard({
   title,
   description,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   title: string;
   description: string;
 }) {
@@ -1278,6 +1248,40 @@ function ValueCard({
       <p className="mt-2 text-sm leading-6 text-slate-600">
         {description}
       </p>
+    </div>
+  );
+}
+
+/* ================================================================
+   JOURNEY STEP
+================================================================ */
+
+function JourneyStep({
+  number,
+  title,
+  description,
+}: {
+  number: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="group rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition duration-300 hover:border-cyan-200 hover:bg-white hover:shadow-lg">
+      <div className="flex items-start gap-4">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-xs font-black text-cyan-300 transition group-hover:bg-blue-700">
+          {number}
+        </div>
+
+        <div>
+          <h3 className="text-base font-black text-slate-900">
+            {title}
+          </h3>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {description}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1320,8 +1324,7 @@ function EmptyCourses() {
         </h2>
 
         <p className="mt-3 text-base leading-7 text-slate-600">
-          No premium program is currently published
-          in the catalog.
+          No premium program is currently published in the catalog.
         </p>
 
         <Link
@@ -1329,7 +1332,6 @@ function EmptyCourses() {
           className="mt-7 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-800"
         >
           Back to Portal
-
           <ArrowRight size={16} />
         </Link>
       </div>
@@ -1341,9 +1343,7 @@ function EmptyCourses() {
    DURATION FORMATTER
 ================================================================ */
 
-function formatDuration(
-  minutes: number
-) {
+function formatDuration(minutes: number) {
   if (
     !Number.isFinite(minutes) ||
     minutes <= 0
@@ -1351,12 +1351,9 @@ function formatDuration(
     return "Self-paced";
   }
 
-  const hours = Math.floor(
-    minutes / 60
-  );
+  const hours = Math.floor(minutes / 60);
 
-  const remainingMinutes =
-    minutes % 60;
+  const remainingMinutes = minutes % 60;
 
   if (hours === 0) {
     return `${minutes} min`;
@@ -1368,103 +1365,3 @@ function formatDuration(
 
   return `${hours}h ${remainingMinutes}m`;
 }
-
-/*
-==================================================================
-END OF FILE
-
-app/courses/page.tsx
-
-IMPORTANT IMPLEMENTATION NOTES
-==================================================================
-
-1. PREMIUM CATALOG
-   ---------------------------------------------------------------
-   Only courses with:
-
-       course.isPremium === true
-
-   are displayed here.
-
-   Demo/free content is intentionally kept outside this catalog.
-
-2. COURSE IMAGES
-   ---------------------------------------------------------------
-   Images are resolved through:
-
-       ./_components/course-images
-
-   The centralized mapping provides professional course-specific
-   visuals.
-
-3. DATABASE FALLBACK
-   ---------------------------------------------------------------
-   If a course slug is not yet present in the centralized image
-   mapping, the existing database image is used.
-
-   This prevents an existing course image from disappearing while
-   the visual library is being expanded.
-
-4. COURSE ROUTING
-   ---------------------------------------------------------------
-   Every CTA continues to use:
-
-       /courses/${course.id}
-
-   Therefore the existing course detail route remains unchanged.
-
-5. CURRICULUM PREVIEW
-   ---------------------------------------------------------------
-   The first three existing lessons are shown inside each card.
-
-   If the course contains more than three lessons, the card shows
-   the remaining lesson count.
-
-6. PRICE
-   ---------------------------------------------------------------
-   The actual database course price is displayed.
-
-   No fake discount or fake original price is introduced.
-
-7. PREMIUM ACCESS
-   ---------------------------------------------------------------
-   This page presents the programs as premium LMS programs.
-
-   Actual lesson/payment authorization continues to be handled by
-   the existing server-side course access logic.
-
-8. RESPONSIVE DESIGN
-   ---------------------------------------------------------------
-   Mobile:
-       1 column
-
-   Tablet:
-       2 columns
-
-   Desktop:
-       3 columns
-
-9. NO CLIENT COMPONENT REQUIRED
-   ---------------------------------------------------------------
-   The catalog itself remains a server component.
-
-   This keeps course data and premium presentation server-rendered.
-
-10. NEXT DEVELOPMENT STAGE
-    --------------------------------------------------------------
-    After this page is verified, the next important LMS work should
-    be the actual course learning experience:
-
-        /courses/[id]
-
-    and then:
-
-        /courses/[id]/lesson/[lessonId]
-
-    because the current database seed still creates lesson
-    videoUrl and notesUrl as empty strings. The seed explicitly
-    indicates that videos and notes are to be added later.
-
-==================================================================
-*/
-
