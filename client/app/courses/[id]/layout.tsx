@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 
-import { getCourseBySlug } from "@/lib/course";
+import {
+  getCourseBySlug,
+  getCourseSlugById,
+} from "@/lib/course";
 
 import JsonLd from "@/components/seo/JsonLd";
 
-const SITE_URL = "https://iculearningportal.com";
+const SITE_URL = "https://www.iculearningportal.com";
 
 type Props = {
   children: React.ReactNode;
@@ -13,16 +17,63 @@ type Props = {
   }>;
 };
 
-function getAbsoluteUrl(value: string | null | undefined): string | undefined {
+function getAbsoluteUrl(
+  value: string | null | undefined,
+): string | undefined {
   if (!value) {
     return undefined;
   }
 
-  if (value.startsWith("http://") || value.startsWith("https://")) {
+  if (
+    value.startsWith("http://") ||
+    value.startsWith("https://")
+  ) {
     return value;
   }
 
-  return `${SITE_URL}${value.startsWith("/") ? value : `/${value}`}`;
+  return `${SITE_URL}${
+    value.startsWith("/") ? value : `/${value}`
+  }`;
+}
+
+/**
+ * Resolve a public course route.
+ *
+ * Canonical public URL:
+ *
+ *   /courses/<slug>
+ *
+ * Legacy/database-ID URL:
+ *
+ *   /courses/<id>
+ *
+ * Legacy IDs are permanently redirected to the slug URL
+ * in the route layout so Google does not treat both URLs
+ * as separate public course pages.
+ */
+async function resolveCourseRoute(id: string) {
+  const courseBySlug = await getCourseBySlug(id);
+
+  if (courseBySlug) {
+    return {
+      course: courseBySlug,
+      isCanonical: true,
+    };
+  }
+
+  const courseById = await getCourseSlugById(id);
+
+  if (!courseById) {
+    return {
+      course: null,
+      isCanonical: false,
+    };
+  }
+
+  return {
+    course: await getCourseBySlug(courseById.slug),
+    isCanonical: false,
+  };
 }
 
 export async function generateMetadata({
@@ -30,20 +81,11 @@ export async function generateMetadata({
 }: Props): Promise<Metadata> {
   const { id } = await params;
 
-  /*
-   * Public course pages are identified by their slug.
-   *
-   * The page.tsx route is responsible for permanently redirecting
-   * valid legacy/database-ID URLs to the canonical slug URL.
-   *
-   * Metadata itself always points to the canonical slug URL.
-   */
+  const resolved = await resolveCourseRoute(id);
 
-  const course = await getCourseBySlug(id);
-
-  if (!course) {
+  if (!resolved.course) {
     return {
-      title: "Course Not Found | ICU Learning Portal",
+      title: "Course Not Found",
       description:
         "The requested ICU nursing course could not be found on ICU Learning Portal.",
       robots: {
@@ -53,18 +95,45 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${course.title} | ICU Learning Portal`;
+  const course = resolved.course;
+
+  /*
+   * IMPORTANT:
+   *
+   * Do not append "| ICU Learning Portal" here.
+   *
+   * The root layout already has:
+   *
+   * title.template = "%s | ICU Learning Portal"
+   *
+   * Therefore:
+   *
+   * title: course.title
+   *
+   * produces:
+   *
+   * Course Name | ICU Learning Portal
+   *
+   * instead of:
+   *
+   * Course Name | ICU Learning Portal | ICU Learning Portal
+   */
+
+  const title = course.title;
 
   const description =
     course.description?.trim() ||
     `Learn ${course.title} with structured ICU nursing and critical care education from ICU Learning Portal.`;
 
-  const canonicalUrl = `${SITE_URL}/courses/${course.slug}`;
+  const canonicalUrl =
+    `${SITE_URL}/courses/${course.slug}`;
 
-  const imageUrl = getAbsoluteUrl(course.image);
+  const imageUrl =
+    getAbsoluteUrl(course.image);
 
   return {
     title,
+
     description,
 
     keywords: [
@@ -94,18 +163,33 @@ export async function generateMetadata({
     robots: {
       index: true,
       follow: true,
+
       "max-image-preview": "large",
       "max-snippet": -1,
       "max-video-preview": -1,
+
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
 
     openGraph: {
       type: "website",
+
       locale: "en_IN",
+
       url: canonicalUrl,
+
       siteName: "ICU Learning Portal",
+
       title,
+
       description,
+
       ...(imageUrl
         ? {
             images: [
@@ -122,8 +206,11 @@ export async function generateMetadata({
 
     twitter: {
       card: "summary_large_image",
+
       title,
+
       description,
+
       ...(imageUrl
         ? {
             images: [imageUrl],
@@ -139,43 +226,82 @@ export default async function CourseIdLayout({
 }: Props) {
   const { id } = await params;
 
-  /*
-   * IMPORTANT:
-   *
-   * The public canonical course URL is:
-   *
-   * /courses/<course-slug>
-   *
-   * Course page.tsx handles legacy/database-ID requests and
-   * permanently redirects them to the canonical slug URL.
-   *
-   * The layout itself therefore resolves the course strictly
-   * by slug so that canonical metadata and structured data
-   * always represent the public URL.
-   */
-
-  const course = await getCourseBySlug(id);
+  const resolved = await resolveCourseRoute(id);
 
   /*
-   * If the course does not exist, the page itself handles
-   * notFound(). We simply render the children here so the
-   * route-level 404 behaviour remains unchanged.
+   * Course does not exist.
+   *
+   * Leave the final 404 handling to page.tsx.
    */
-
-  if (!course) {
+  if (!resolved.course) {
     return children;
   }
 
-  const canonicalUrl = `${SITE_URL}/courses/${course.slug}`;
+  const course = resolved.course;
 
-  const courseImage = getAbsoluteUrl(course.image);
+  /*
+   * ==========================================================
+   * CANONICAL REDIRECT
+   * ==========================================================
+   *
+   * If the URL was opened using the database ID:
+   *
+   * /courses/cmxxxxxxxxxxxx
+   *
+   * permanently redirect it to:
+   *
+   * /courses/icu-nursing-mastery
+   *
+   * Next.js permanentRedirect() sends a permanent redirect
+   * response, preventing the ID URL from becoming a second
+   * public canonical course URL.
+   */
+  if (!resolved.isCanonical) {
+    permanentRedirect(
+      `/courses/${course.slug}`,
+    );
+  }
+
+  const canonicalUrl =
+    `${SITE_URL}/courses/${course.slug}`;
+
+  const courseImage =
+    getAbsoluteUrl(course.image);
 
   const courseDescription =
     course.description?.trim() ||
     `Learn ${course.title} with structured ICU nursing and critical care education from ICU Learning Portal.`;
 
-  const courseSchema = {
+  /*
+   * ==========================================================
+   * COURSE JSON-LD
+   * ==========================================================
+   *
+   * course.duration is stored by the application in MINUTES.
+   *
+   * Therefore ISO 8601 must use:
+   *
+   * PT90M
+   *
+   * and NOT:
+   *
+   * PT90H
+   */
+  const duration =
+    Number(course.duration);
+
+  const validDuration =
+    Number.isFinite(duration) &&
+    duration > 0
+      ? Math.round(duration)
+      : null;
+
+  const courseSchema: Record<
+    string,
+    unknown
+  > = {
     "@context": "https://schema.org",
+
     "@type": "Course",
 
     name: course.title,
@@ -186,74 +312,97 @@ export default async function CourseIdLayout({
 
     provider: {
       "@type": "Organization",
+
       name: "ICU Learning Portal",
+
       url: SITE_URL,
-    },
-
-    ...(course.instructor
-      ? {
-          instructor: {
-            "@type": "Person",
-            name: course.instructor,
-          },
-        }
-      : {}),
-
-    ...(course.language
-      ? {
-          inLanguage: course.language,
-        }
-      : {}),
-
-    ...(course.level
-      ? {
-          educationalLevel: course.level,
-        }
-      : {}),
-
-    ...(courseImage
-      ? {
-          image: courseImage,
-        }
-      : {}),
-
-    ...(course.duration
-      ? {
-          timeRequired: `PT${course.duration}H`,
-        }
-      : {}),
-
-    offers: {
-      "@type": "Offer",
-      url: canonicalUrl,
-      priceCurrency: "INR",
-      price: Number(course.price ?? 0).toFixed(2),
-      availability: "https://schema.org/InStock",
-      category: course.isPremium ? "Premium Course" : "Free Course",
     },
   };
 
+  if (course.instructor) {
+    courseSchema.instructor = {
+      "@type": "Person",
+      name: course.instructor,
+    };
+  }
+
+  if (course.language) {
+    courseSchema.inLanguage =
+      course.language;
+  }
+
+  if (course.level) {
+    courseSchema.educationalLevel =
+      course.level;
+  }
+
+  if (courseImage) {
+    courseSchema.image =
+      courseImage;
+  }
+
+  if (validDuration !== null) {
+    courseSchema.timeRequired =
+      `PT${validDuration}M`;
+  }
+
+  courseSchema.offers = {
+    "@type": "Offer",
+
+    url: canonicalUrl,
+
+    priceCurrency: "INR",
+
+    price: Number(
+      course.price ?? 0,
+    ).toFixed(2),
+
+    availability:
+      "https://schema.org/InStock",
+
+    category: course.isPremium
+      ? "Premium Course"
+      : "Free Course",
+  };
+
+  /*
+   * ==========================================================
+   * BREADCRUMB JSON-LD
+   * ==========================================================
+   */
   const breadcrumbSchema = {
     "@context": "https://schema.org",
+
     "@type": "BreadcrumbList",
 
     itemListElement: [
       {
         "@type": "ListItem",
+
         position: 1,
+
         name: "Home",
+
         item: SITE_URL,
       },
+
       {
         "@type": "ListItem",
+
         position: 2,
+
         name: "Courses",
+
         item: `${SITE_URL}/courses`,
       },
+
       {
         "@type": "ListItem",
+
         position: 3,
+
         name: course.title,
+
         item: canonicalUrl,
       },
     ],
@@ -261,9 +410,13 @@ export default async function CourseIdLayout({
 
   return (
     <>
-      <JsonLd data={courseSchema} />
+      <JsonLd
+        data={courseSchema}
+      />
 
-      <JsonLd data={breadcrumbSchema} />
+      <JsonLd
+        data={breadcrumbSchema}
+      />
 
       {children}
     </>

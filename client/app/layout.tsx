@@ -5,59 +5,103 @@ import Providers from "./providers";
 
 const SITE_URL = "https://iculearningportal.com";
 
+const SITE_NAME = "ICU Learning Portal";
+
+const DEFAULT_TITLE =
+  "ICU Learning Portal | ICU Nursing & Critical Care Courses";
+
+const DEFAULT_DESCRIPTION =
+  "ICU Learning Portal provides structured ICU nursing and critical-care courses, practical lessons, quizzes, study resources, progress tracking and eligible completion certificates.";
+
+const DEFAULT_OG_IMAGE = "/images/icu-lms-hero.png";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default:
-      "ICU Learning Portal | ICU Nursing & Critical Care Education",
+    default: DEFAULT_TITLE,
     template: "%s | ICU Learning Portal",
   },
 
-  description:
-    "ICU Learning Portal provides structured ICU nursing and critical-care courses, practical lessons, quizzes, study resources, progress tracking and eligible completion certificates.",
+  description: DEFAULT_DESCRIPTION,
 
-  applicationName: "ICU Learning Portal",
+  applicationName: SITE_NAME,
+
+  generator: "Next.js",
+
+  keywords: [
+    "ICU nursing",
+    "ICU nursing course",
+    "critical care nursing",
+    "critical care course",
+    "ICU course",
+    "nursing course",
+    "ICU education",
+    "critical care education",
+    "mechanical ventilation",
+    "ECG interpretation",
+    "ABG analysis",
+    "ICU emergency care",
+    "ICU Learning Portal",
+  ],
 
   authors: [
     {
-      name: "ICU Learning Portal",
+      name: SITE_NAME,
       url: SITE_URL,
     },
   ],
 
-  creator: "ICU Learning Portal",
-  publisher: "ICU Learning Portal",
+  creator: SITE_NAME,
+
+  publisher: SITE_NAME,
 
   category: "Education",
+
+  classification:
+    "ICU Nursing and Critical Care Online Education",
+
+  referrer: "strict-origin-when-cross-origin",
+
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
 
   alternates: {
     canonical: SITE_URL,
   },
 
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      {
+        url: "/favicon.ico",
+        type: "image/x-icon",
+      },
+    ],
   },
 
   openGraph: {
     type: "website",
-    url: SITE_URL,
-    siteName: "ICU Learning Portal",
+
     locale: "en_IN",
 
-    title:
-      "ICU Learning Portal | ICU Nursing & Critical Care Education",
+    url: SITE_URL,
 
-    description:
-      "Structured ICU nursing and critical-care education with courses, lessons, assessments, study resources and eligible completion certificates.",
+    siteName: SITE_NAME,
+
+    title: DEFAULT_TITLE,
+
+    description: DEFAULT_DESCRIPTION,
 
     images: [
       {
-        url: "/images/icu-lms-hero.png",
+        url: DEFAULT_OG_IMAGE,
         width: 1024,
         height: 1536,
         alt:
-          "ICU Learning Portal - ICU nursing and critical care education",
+          "ICU Learning Portal - ICU Nursing and Critical Care Education",
       },
     ],
   },
@@ -65,51 +109,88 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
 
-    title:
-      "ICU Learning Portal | ICU Nursing & Critical Care Education",
+    title: DEFAULT_TITLE,
 
-    description:
-      "Structured ICU nursing and critical-care learning programs with lessons, assessments and certificate pathways.",
+    description: DEFAULT_DESCRIPTION,
 
-    images: ["/images/icu-lms-hero.png"],
+    images: [DEFAULT_OG_IMAGE],
   },
 
   robots: {
     index: true,
+
     follow: true,
 
     googleBot: {
       index: true,
+
       follow: true,
+
       noimageindex: false,
+
       "max-video-preview": -1,
+
       "max-image-preview": "large",
+
       "max-snippet": -1,
     },
   },
 };
 
+/*
+ * ============================================================
+ * ORGANIZATION STRUCTURED DATA
+ * ============================================================
+ *
+ * This identifies ICU Learning Portal as the organization
+ * responsible for the website.
+ *
+ * We deliberately do not add unverified social profiles,
+ * ratings, reviews, addresses or claims that are not present
+ * on the website.
+ */
+
 const organizationSchema = {
-  "@type": "Organization",
+  "@type": "EducationalOrganization",
+
   "@id": `${SITE_URL}/#organization`,
-  name: "ICU Learning Portal",
+
+  name: SITE_NAME,
+
   url: SITE_URL,
+
+  description:
+    "Online ICU nursing and critical-care education platform providing structured courses, lessons, assessments and learning resources.",
 
   logo: {
     "@type": "ImageObject",
+
     url: `${SITE_URL}/favicon.ico`,
+
     width: 256,
+
     height: 256,
   },
 
   email: "support@iculearningportal.com",
 };
 
+/*
+ * ============================================================
+ * WEBSITE STRUCTURED DATA
+ * ============================================================
+ */
+
 const websiteSchema = {
   "@type": "WebSite",
+
   "@id": `${SITE_URL}/#website`,
+
   url: SITE_URL,
-  name: "ICU Learning Portal",
+
+  name: SITE_NAME,
+
+  description: DEFAULT_DESCRIPTION,
 
   publisher: {
     "@id": `${SITE_URL}/#organization`,
@@ -118,6 +199,12 @@ const websiteSchema = {
   inLanguage: "en-IN",
 };
 
+/*
+ * ============================================================
+ * ROOT LAYOUT
+ * ============================================================
+ */
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -125,6 +212,7 @@ export default function RootLayout({
 }>) {
   const structuredData = {
     "@context": "https://schema.org",
+
     "@graph": [
       organizationSchema,
       websiteSchema,
@@ -141,10 +229,9 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(structuredData).replace(
-              /</g,
-              "\\u003c",
-            ),
+            __html: JSON.stringify(
+              structuredData,
+            ).replace(/</g, "\\u003c"),
           }}
         />
       </head>
