@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
 
-const SITE_URL = "https://iculearningportal.com";
+const SITE_URL = "https://www.iculearningportal.com";
 
 const SITE_NAME = "ICU Learning Portal";
 

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const SITE_URL = "https://iculearningportal.com";
+const SITE_URL = "https://www.iculearningportal.com";
 
 export const metadata: Metadata = {
   title: "ICU Nursing & Critical Care Courses",

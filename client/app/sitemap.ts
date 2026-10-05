@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { getCourses } from "@/lib/course";
 
-const SITE_URL = "https://iculearningportal.com";
+const SITE_URL = "https://www.iculearningportal.com";
 
 export const runtime = "nodejs";
 
