@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 
 type CourseForSchema = {
   id: string;
@@ -18,23 +17,18 @@ type CourseCatalogJsonLdProps = {
   courses: CourseForSchema[];
 };
 
-const SITE_URL = "https://iculearningportal.com";
+const SITE_URL = "https://www.iculearningportal.com";
 
 function absoluteUrl(value: string) {
   if (!value) {
     return undefined;
   }
 
-  if (
-    value.startsWith("http://") ||
-    value.startsWith("https://")
-  ) {
+  if (value.startsWith("http://") || value.startsWith("https://")) {
     return value;
   }
 
-  return `${SITE_URL}${
-    value.startsWith("/") ? "" : "/"
-  }${value}`;
+  return `${SITE_URL}${value.startsWith("/") ? "" : "/"}${value}`;
 }
 
 function cleanText(
@@ -43,9 +37,7 @@ function cleanText(
 ) {
   const cleaned = value?.trim();
 
-  return cleaned && cleaned.length > 0
-    ? cleaned
-    : fallback;
+  return cleaned && cleaned.length > 0 ? cleaned : fallback;
 }
 
 export default function CourseCatalogJsonLd({
@@ -67,12 +59,8 @@ export default function CourseCatalogJsonLd({
         `Study ${title} through structured ICU and critical-care learning at ICU Learning Portal.`,
       );
 
-      const courseUrl =
-        `${SITE_URL}/courses/${course.slug.trim()}`;
-
-      const imageUrl = absoluteUrl(
-        course.image,
-      );
+      const courseUrl = `${SITE_URL}/courses/${course.slug.trim()}`;
+      const imageUrl = absoluteUrl(course.image);
 
       const provider = {
         "@type": "Organization",
@@ -80,18 +68,11 @@ export default function CourseCatalogJsonLd({
         url: SITE_URL,
       };
 
-      const courseData: Record<
-        string,
-        unknown
-      > = {
+      const courseData: Record<string, unknown> = {
         "@type": "Course",
-
         name: title,
-
         description,
-
         url: courseUrl,
-
         provider,
 
         ...(course.instructor?.trim()
@@ -105,15 +86,13 @@ export default function CourseCatalogJsonLd({
 
         ...(course.language?.trim()
           ? {
-              inLanguage:
-                course.language.trim(),
+              inLanguage: course.language.trim(),
             }
           : {}),
 
         ...(course.level?.trim()
           ? {
-              educationalLevel:
-                course.level.trim(),
+              educationalLevel: course.level.trim(),
             }
           : {}),
 
@@ -123,33 +102,14 @@ export default function CourseCatalogJsonLd({
             }
           : {}),
 
-        ...(Number.isFinite(
-          Number(course.rating),
-        ) && Number(course.rating) > 0
-          ? {
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue:
-                  Number(course.rating).toFixed(1),
-                bestRating: "5",
-                worstRating: "1",
-              },
-            }
-          : {}),
-
         offers: {
           "@type": "Offer",
           url: courseUrl,
           priceCurrency: "INR",
-          price: Number.isFinite(
-            Number(course.price),
-          )
+          price: Number.isFinite(Number(course.price))
             ? Number(course.price).toFixed(2)
             : "0.00",
-
-          availability:
-            "https://schema.org/InStock",
-
+          availability: "https://schema.org/InStock",
           category: course.isPremium
             ? "Premium Course"
             : "Free Demo Course",
@@ -165,39 +125,24 @@ export default function CourseCatalogJsonLd({
 
   const itemList = {
     "@context": "https://schema.org",
-
     "@type": "ItemList",
-
-    name:
-      "ICU Learning Portal Courses",
-
+    name: "ICU Learning Portal Courses",
     description:
       "Public ICU nursing and critical-care courses available through ICU Learning Portal.",
-
     url: `${SITE_URL}/courses`,
-
-    numberOfItems:
-      publicCourses.length,
-
-    itemListElement:
-      publicCourses.map(
-        (course, index) => ({
-          "@type": "ListItem",
-
-          position: index + 1,
-
-          item: course,
-        }),
-      ),
+    numberOfItems: publicCourses.length,
+    itemListElement: publicCourses.map((course, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: course,
+    })),
   };
 
   return (
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(
-          itemList,
-        ).replace(/</g, "\\u003c"),
+        __html: JSON.stringify(itemList).replace(/</g, "\\u003c"),
       }}
     />
   );

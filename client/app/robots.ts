@@ -7,28 +7,18 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-
         allow: "/",
-
         disallow: [
-          "/admin/",
-          "/api/",
-          "/dashboard/",
-          "/payments/",
-          "/profile/",
-          "/settings/",
-
-          "/login",
-          "/register",
-          "/forgot-password",
-          "/reset-password",
-          "/verify",
-
-          "/courses/*/lesson/",
+          "/admin",
+          "/api",
+          "/dashboard",
+          "/payments",
+          "/profile",
+          "/settings",
+          "/courses/*/lesson",
         ],
       },
     ],
-
     sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }
