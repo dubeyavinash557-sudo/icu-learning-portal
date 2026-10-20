@@ -72,15 +72,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         const slug = course.slug.trim();
 
         return {
-          url: `${SITE_URL}/courses/${slug}`,
+          url: `${SITE_URL}/courses/${encodeURIComponent(slug)}`,
           changeFrequency: "weekly" as const,
           priority: course.isPremium ? 0.9 : 0.8,
         };
       });
   } catch (error) {
     console.error("SITEMAP COURSE LOAD FAILED:", error);
-    coursePages = [];
   }
 
-  return [...staticPages, ...coursePages];
+  const allPages = [...staticPages, ...coursePages];
+
+  const uniquePages = new Map<
+    string,
+    MetadataRoute.Sitemap[number]
+  >();
+
+  for (const page of allPages) {
+    const normalizedUrl =
+      page.url === SITE_URL
+        ? SITE_URL
+        : page.url.replace(/\/+$/, "");
+
+    if (!uniquePages.has(normalizedUrl)) {
+      uniquePages.set(normalizedUrl, {
+        ...page,
+        url: normalizedUrl,
+      });
+    }
+  }
+
+  return Array.from(uniquePages.values());
 }

@@ -32,7 +32,40 @@ import {
   hasCourseImage,
 } from "./_components/course-images";
 
+import type { Metadata } from "next";
+
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "ICU Nursing & Critical Care Courses",
+  description:
+    "Explore ICU nursing and critical-care courses covering mechanical ventilation, ECG interpretation, ABG analysis, emergency care and structured professional learning.",
+  alternates: {
+    canonical: "https://www.iculearningportal.com/courses",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/courses",
+    siteName: "ICU Learning Portal",
+    title: "ICU Nursing & Critical Care Courses",
+    description:
+      "Explore free demo courses and premium ICU nursing and critical-care learning programs at ICU Learning Portal.",
+    locale: "en_IN",
+    images: [
+      {
+        url: "/images/icu-lms-hero.png",
+        alt: "ICU Learning Portal course catalogue",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ICU Nursing & Critical Care Courses",
+    description:
+      "Explore ICU nursing, mechanical ventilation, ECG, ABG analysis and critical-care courses.",
+    images: ["/images/icu-lms-hero.png"],
+  },
+};
 
 type Course = Awaited<ReturnType<typeof getCourses>>[number];
 

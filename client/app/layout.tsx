@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 
 import "./globals.css";
@@ -69,9 +70,10 @@ export const metadata: Metadata = {
     telephone: false,
   },
 
-  alternates: {
-    canonical: SITE_URL,
-  },
+  /*
+   * Canonical URLs must be configured per public page.
+   * Do not assign the homepage canonical globally.
+   */
 
   icons: {
     icon: [
@@ -86,8 +88,6 @@ export const metadata: Metadata = {
     type: "website",
 
     locale: "en_IN",
-
-    url: SITE_URL,
 
     siteName: SITE_NAME,
 
@@ -141,13 +141,6 @@ export const metadata: Metadata = {
  * ============================================================
  * ORGANIZATION STRUCTURED DATA
  * ============================================================
- *
- * This identifies ICU Learning Portal as the organization
- * responsible for the website.
- *
- * We deliberately do not add unverified social profiles,
- * ratings, reviews, addresses or claims that are not present
- * on the website.
  */
 
 const organizationSchema = {
@@ -166,10 +159,6 @@ const organizationSchema = {
     "@type": "ImageObject",
 
     url: `${SITE_URL}/favicon.ico`,
-
-    width: 256,
-
-    height: 256,
   },
 
   email: "support@iculearningportal.com",
@@ -219,6 +208,10 @@ export default function RootLayout({
     ],
   };
 
+  const structuredDataJson = JSON.stringify(
+    structuredData,
+  ).replace(/</g, "\\u003c");
+
   return (
     <html
       lang="en"
@@ -229,17 +222,13 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(
-              structuredData,
-            ).replace(/</g, "\\u003c"),
+            __html: structuredDataJson,
           }}
         />
       </head>
 
       <body className="min-h-full bg-slate-50">
-        <Providers>
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
