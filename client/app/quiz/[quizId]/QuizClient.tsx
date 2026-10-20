@@ -55,6 +55,10 @@ export default function QuizClient({
     Record<string, string>
   >({});
 
+  // Do not save the initial empty state before stored answers load.
+  const [answersRestored, setAnswersRestored] =
+    useState(false);
+
   const [submitting, setSubmitting] =
     useState(false);
 
@@ -73,76 +77,98 @@ export default function QuizClient({
 
   useEffect(() => {
     if (questions.length === 0) {
+      setAnswersRestored(true);
       return;
     }
 
     try {
       const storageKey = `icu-quiz-${quiz.id}-answers`;
-
-      const savedAnswers =
-        window.sessionStorage.getItem(
-          storageKey
-        );
+      const savedAnswers = window.sessionStorage.getItem(storageKey);
 
       if (!savedAnswers) {
+        setAnswers({});
         return;
       }
 
-      const parsed =
-        JSON.parse(savedAnswers);
+      const parsed: unknown = JSON.parse(savedAnswers);
 
       if (
-        parsed &&
-        typeof parsed === "object" &&
-        !Array.isArray(parsed)
+        !parsed ||
+        typeof parsed !== "object" ||
+        Array.isArray(parsed)
       ) {
-        const validAnswers: Record<string, string> = {};
-        const validQuestionIds = new Set(questions.map((item) => item.id));
-        const validOptions = new Set(["A", "B", "C", "D"]);
+        setAnswers({});
+        return;
+      }
 
-        for (const [questionId, answer] of Object.entries(parsed)) {
-          if (
-            validQuestionIds.has(questionId) &&
-            typeof answer === "string" &&
-            validOptions.has(answer)
-          ) {
-            validAnswers[questionId] = answer;
-          }
+      const validAnswers: Record<string, string> = {};
+      const questionById = new Map(
+        questions.map((item) => [item.id, item])
+      );
+
+      for (const [questionId, rawAnswer] of Object.entries(parsed)) {
+        const matchingQuestion = questionById.get(questionId);
+
+        if (!matchingQuestion || typeof rawAnswer !== "string") {
+          continue;
         }
 
-        setAnswers(validAnswers);
+        const answer = rawAnswer.trim();
+        const optionByLetter: Record<string, string> = {
+          A: matchingQuestion.optionA,
+          B: matchingQuestion.optionB,
+          C: matchingQuestion.optionC,
+          D: matchingQuestion.optionD,
+        };
+
+        // Support older storage values (A/B/C/D) and current values
+        // (the selected option text, which is what submitQuiz sends).
+        const normalizedLetter = answer.toUpperCase();
+        if (Object.prototype.hasOwnProperty.call(optionByLetter, normalizedLetter)) {
+          validAnswers[questionId] = optionByLetter[normalizedLetter];
+          continue;
+        }
+
+        const matchingOption = [
+          matchingQuestion.optionA,
+          matchingQuestion.optionB,
+          matchingQuestion.optionC,
+          matchingQuestion.optionD,
+        ].find((option) => option.trim() === answer);
+
+        if (matchingOption !== undefined) {
+          validAnswers[questionId] = matchingOption;
+        }
       }
+
+      setAnswers(validAnswers);
     } catch (error) {
-      console.error(
-        "QUIZ ANSWER RESTORE ERROR:",
-        error
-      );
+      console.error("QUIZ ANSWER RESTORE ERROR:", error);
+      setAnswers({});
+    } finally {
+      setAnswersRestored(true);
     }
-  }, [quiz.id, questions.length]);
+  }, [quiz.id, questions]);
 
   // ==========================================================
   // 2. SAVE ANSWERS TO SESSION STORAGE
   // ==========================================================
 
   useEffect(() => {
-    if (questions.length === 0) {
+    if (!answersRestored || questions.length === 0) {
       return;
     }
 
     try {
       const storageKey = `icu-quiz-${quiz.id}-answers`;
-
       window.sessionStorage.setItem(
         storageKey,
         JSON.stringify(answers)
       );
     } catch (error) {
-      console.error(
-        "QUIZ ANSWER SAVE ERROR:",
-        error
-      );
+      console.error("QUIZ ANSWER SAVE ERROR:", error);
     }
-  }, [answers, quiz.id, questions.length]);
+  }, [answers, answersRestored, quiz.id, questions.length]);
 
   // ==========================================================
   // 3. EMPTY QUIZ PROTECTION
@@ -192,7 +218,8 @@ export default function QuizClient({
               </button>
             </div>
           </div>
-        </div>
+
+                  </div>
       </main>
     );
   }
@@ -412,7 +439,8 @@ export default function QuizClient({
 
       alert(
         "Please answer all questions before submitting the quiz."
-      );
+
+              );
 
       return;
     }
@@ -633,7 +661,7 @@ export default function QuizClient({
               Quiz Dashboard
             </span>
 
-            <span className="sm:hidden">
+                        <span className="sm:hidden">
               Back
             </span>
           </button>
@@ -852,7 +880,9 @@ export default function QuizClient({
             ================================================= */}
 
             <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl">
-              {/* Question Header */}
+
+
+                            {/* Question Header */}
               <div className="border-b border-slate-200 bg-slate-50/80 px-5 py-5 sm:px-8">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="inline-flex items-center rounded-full bg-blue-100 px-3 py-1.5 text-xs font-black text-blue-700">
@@ -1072,7 +1102,7 @@ export default function QuizClient({
                 </span>
               </div>
 
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+                            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
                 <div
                   className="h-full rounded-full bg-emerald-500 transition-all duration-300"
                   style={{

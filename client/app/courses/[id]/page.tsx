@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { getCourseByIdOrSlug } from "@/lib/course";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getCourseImageConfig } from "@/app/courses/_components/course-images";
@@ -52,6 +52,10 @@ export default async function CourseDetailsPage({
 
   if (!course) {
     notFound();
+  }
+
+  if (course.slug !== id) {
+    permanentRedirect(`/courses/${course.slug}`);
   }
 
   const visual = getCourseImageConfig(course.slug);
@@ -1830,3 +1834,4 @@ function formatDuration(minutes: number) {
 
   return `${hours}h ${remainingMinutes}m`;
 }
+

@@ -1,9 +1,15 @@
+
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
 import prisma from "@/lib/prisma";
 import { authConfig } from "./auth.config";
+import type { Role } from "@prisma/client";
+
+const isValidRole = (value: unknown): value is Role =>
+  typeof value === "string" &&
+  (value === "STUDENT" || value === "ADMIN");
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -24,16 +30,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
 
       async authorize(credentials) {
-        /*
-         * ------------------------------------------------------
-         * 1. VALIDATE CREDENTIALS
-         * ------------------------------------------------------
-         *
-         * IMPORTANT:
-         * Never log credentials, passwords, password hashes,
-         * or complete user records in production logs.
-         */
-
         const email =
           typeof credentials?.email === "string"
             ? credentials.email.trim().toLowerCase()
@@ -48,20 +44,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        /*
-         * ------------------------------------------------------
-         * 2. FIND USER
-         * ------------------------------------------------------
-         *
-         * Only fetch the fields required by authentication.
-         * Do not load the complete Prisma user record.
-         */
-
         const user = await prisma.user.findUnique({
-          where: {
-            email,
-          },
-
+          where: { email },
           select: {
             id: true,
             fullName: true,
@@ -76,12 +60,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        /*
-         * ------------------------------------------------------
-         * 3. VERIFY PASSWORD
-         * ------------------------------------------------------
-         */
-
         const passwordMatch = await bcrypt.compare(
           password,
           user.password
@@ -90,14 +68,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!passwordMatch) {
           return null;
         }
-
-        /*
-         * ------------------------------------------------------
-         * 4. RETURN SAFE SESSION USER
-         * ------------------------------------------------------
-         *
-         * Never return the password or password hash.
-         */
 
         return {
           id: user.id,
@@ -113,32 +83,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
 
-    /*
-     * --------------------------------------------------------
-     * JWT
-     * --------------------------------------------------------
-     */
-
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
-        token.isPremium = (user as any).isPremium;
+        const role = (user as { role?: unknown }).role;
+        const isPremium = (user as { isPremium?: unknown })
+          .isPremium;
+
+        if (isValidRole(role)) {
+          token.role = role;
+        }
+
+        if (typeof isPremium === "boolean") {
+          token.isPremium = isPremium;
+        }
       }
 
       return token;
     },
 
-    /*
-     * --------------------------------------------------------
-     * SESSION
-     * --------------------------------------------------------
-     */
-
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role;
-        (session.user as any).isPremium =
-          token.isPremium;
+        const role: unknown = token.role;
+        const isPremium: unknown = token.isPremium;
+
+        if (isValidRole(role)) {
+          session.user.role = role;
+        }
+
+        if (typeof isPremium === "boolean") {
+          session.user.isPremium = isPremium;
+        }
       }
 
       return session;
