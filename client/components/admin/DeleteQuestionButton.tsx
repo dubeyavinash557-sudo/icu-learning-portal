@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -15,49 +16,66 @@ export default function DeleteQuestionButton({
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this question?"
-  );
+    if (deleting) return;
 
-  if (!confirmed) {
-    return;
-  }
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this question? This action cannot be undone."
+    );
 
-  try {
+    if (!confirmed) return;
+
     setDeleting(true);
 
-    const response = await fetch(
-      `/admin/quizzes/${quizId}/questions/${questionId}`,
-      {
-        method: "DELETE",
+    try {
+      const response = await fetch(
+        `/api/admin/quizzes/${encodeURIComponent(quizId)}/questions/${encodeURIComponent(questionId)}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        let message = "Failed to delete question. Please try again.";
+
+        try {
+          const result: { error?: string } = await response.json();
+
+          if (result.error) {
+            message = result.error;
+          }
+        } catch {
+          // Keep the default error message if the response is not JSON.
+        }
+
+        throw new Error(message);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error("Failed to delete question.");
+      window.location.reload();
+    } catch (error) {
+      console.error("Delete question failed:", error);
+
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete question. Please try again."
+      );
+
+      setDeleting(false);
     }
-
-    window.location.reload();
-  } catch (error) {
-    console.error(error);
-
-    alert(
-      "Failed to delete question. Please try again."
-    );
-
-    setDeleting(false);
   }
-}
 
   return (
     <button
       type="button"
       onClick={handleDelete}
       disabled={deleting}
-      className="inline-flex items-center gap-2 text-red-600 hover:underline disabled:opacity-50"
+      aria-label={deleting ? "Deleting question" : "Delete question"}
+      className="inline-flex items-center gap-2 text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
     >
-      <Trash2 size={16} />
-
+      <Trash2 size={16} aria-hidden="true" />
       {deleting ? "Deleting..." : "Delete"}
     </button>
   );
