@@ -1,7 +1,10 @@
+
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
+
+const OWNER_EMAIL = "dubeyavinash557@gmail.com";
 
 type AdminLayoutProps = {
   children: React.ReactNode;
@@ -10,71 +13,40 @@ type AdminLayoutProps = {
 export default async function AdminLayout({
   children,
 }: AdminLayoutProps) {
-  /*
-   * ------------------------------------------------------
-   * 1. AUTHENTICATION
-   * ------------------------------------------------------
-   */
-
+  // Step 1: Check authenticated session.
   const session = await auth();
 
   if (!session?.user?.email) {
-    redirect(
-      "/login?callbackUrl=/admin"
-    );
+    redirect("/login?callbackUrl=/admin");
   }
 
-  /*
-   * ------------------------------------------------------
-   * 2. FIND CURRENT USER
-   * ------------------------------------------------------
-   */
+  // Step 2: Normalize the signed-in email.
+  const sessionEmail = session.user.email
+    .trim()
+    .toLowerCase();
 
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session.user.email,
-    },
-
-    select: {
-      id: true,
-      role: true,
-      isPremium: true,
-    },
-  });
-
-  /*
-   * ------------------------------------------------------
-   * 3. USER MUST EXIST
-   * ------------------------------------------------------
-   */
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  /*
-   * ------------------------------------------------------
-   * 4. ADMIN AUTHORIZATION
-   * ------------------------------------------------------
-   *
-   * Authentication:
-   *   "Is the user logged in?"
-   *
-   * Authorization:
-   *   "Is the logged-in user an administrator?"
-   *
-   * Every /admin/* page is protected by this layout.
-   */
-
-  if (user.role !== "ADMIN") {
+  // Step 3: Only the designated owner can
+  // access the Admin section.
+  if (sessionEmail !== OWNER_EMAIL) {
     redirect("/dashboard");
   }
 
-  /*
-   * ------------------------------------------------------
-   * 5. ADMIN CONTENT
-   * ------------------------------------------------------
-   */
+  // Step 4: Verify the owner account
+  // exists and has ADMIN role.
+  const admin = await prisma.user.findUnique({
+    where: {
+      email: OWNER_EMAIL,
+    },
+    select: {
+      id: true,
+      role: true,
+    },
+  });
 
-  return children;
+  if (!admin || admin.role !== "ADMIN") {
+    redirect("/dashboard");
+  }
+
+  // Step 5: Render protected Admin pages.
+  return <>{children}</>;
 }

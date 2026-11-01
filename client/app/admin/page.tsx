@@ -1,963 +1,919 @@
+
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
-  LayoutDashboard,
-  Users,
-  BookOpen,
-  GraduationCap,
-  CreditCard,
-  Award,
-  FileText,
-  Settings,
-  Bell,
-  Search,
-  LogOut,
-  ShieldCheck,
-  ChevronRight,
   Activity,
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  Award,
+  BookOpen,
+  CheckCircle2,
+  ClipboardList,
+  Clock3,
+  CreditCard,
+  GraduationCap,
+  LayoutDashboard,
+  LogOut,
+  Plus,
+  ShieldCheck,
+  Users,
+  Video,
   Wallet,
 } from "lucide-react";
 
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
+
+const OWNER_EMAIL = "dubeyavinash557@gmail.com";
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat("en-IN").format(value);
+}
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+const navigation = [
+  {
+    label: "Dashboard",
+    href: "/admin",
+    icon: LayoutDashboard,
+    description: "Overview",
+  },
+  {
+    label: "Students",
+    href: "/admin/students",
+    icon: Users,
+    description: "Student management",
+  },
+  {
+    label: "Courses",
+    href: "/admin/courses",
+    icon: BookOpen,
+    description: "Course management",
+  },
+  {
+    label: "Quizzes",
+    href: "/admin/quizzes",
+    icon: ClipboardList,
+    description: "Assessments",
+  },
+];
 
 export default async function AdminPage() {
   const session = await auth();
 
   if (!session?.user?.email) {
-    redirect("/login");
+    redirect("/login?callbackUrl=/admin");
+  }
+
+  const email = session.user.email.trim().toLowerCase();
+
+  // Only the designated owner account can use this dashboard.
+  if (email !== OWNER_EMAIL) {
+    redirect("/dashboard");
   }
 
   const admin = await prisma.user.findUnique({
-    where: {
-      email: session.user.email,
+    where: { email: OWNER_EMAIL },
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      role: true,
     },
   });
 
-  if (!admin) {
-    redirect("/login");
+  // The owner account must also have ADMIN role in the database.
+  if (!admin || admin.role !== "ADMIN") {
+    redirect("/dashboard");
   }
-
-  // ==========================
-  // Dashboard Statistics
-  // ==========================
 
   const [
     totalStudents,
     premiumStudents,
+    verifiedStudents,
     totalCourses,
+    totalLessons,
+    totalQuizzes,
     totalCertificates,
+    totalEnrollments,
+    successfulPayments,
+    recentStudents,
+    recentPayments,
+    recentCourses,
+    recentCertificates,
   ] = await Promise.all([
-    prisma.user.count(),
+    prisma.user.count({
+      where: { role: "STUDENT" },
+    }),
+
     prisma.user.count({
       where: {
+        role: "STUDENT",
         isPremium: true,
       },
     }),
+
+    prisma.user.count({
+      where: {
+        role: "STUDENT",
+        isVerified: true,
+      },
+    }),
+
     prisma.course.count(),
+
+    prisma.lesson.count(),
+
+    prisma.quiz.count(),
+
     prisma.certificate.count(),
+
+    prisma.enrollment.count(),
+
+    prisma.payment.findMany({
+      where: { status: "SUCCESS" },
+      select: {
+        id: true,
+        amount: true,
+      },
+    }),
+
+    prisma.user.findMany({
+      where: { role: "STUDENT" },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        isPremium: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+
+    prisma.payment.findMany({
+      where: { status: "SUCCESS" },
+      select: {
+        id: true,
+        amount: true,
+        createdAt: true,
+        user: {
+          select: { fullName: true },
+        },
+        course: {
+          select: { title: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+
+    prisma.course.findMany({
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        isPremium: true,
+        _count: {
+          select: {
+            lessons: true,
+            enrollments: true,
+            quizzes: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+
+    prisma.certificate.findMany({
+      select: {
+        id: true,
+        certificateNo: true,
+        issuedAt: true,
+        user: {
+          select: { fullName: true },
+        },
+        course: {
+          select: { title: true },
+        },
+      },
+      orderBy: { issuedAt: "desc" },
+      take: 5,
+    }),
   ]);
+
+  const successfulPaymentCount = successfulPayments.length;
+  const totalRevenue = successfulPayments.reduce(
+    (total, payment) => total + payment.amount,
+    0,
+  );
+
+  async function handleLogout() {
+    "use server";
+    await signOut({ redirectTo: "/login" });
+  }
 
   const stats = [
     {
-      title: "Total Students",
-      value: totalStudents.toLocaleString(),
-      color: "bg-blue-500",
+      label: "Total Students",
+      value: formatNumber(totalStudents),
+      helper: `${formatNumber(verifiedStudents)} verified`,
       icon: Users,
+      color: "blue",
     },
     {
-      title: "Premium Students",
-      value: premiumStudents.toLocaleString(),
-      color: "bg-emerald-500",
+      label: "Premium Students",
+      value: formatNumber(premiumStudents),
+      helper: "Current database count",
       icon: GraduationCap,
+      color: "emerald",
     },
     {
-      title: "Courses",
-      value: totalCourses.toLocaleString(),
-      color: "bg-violet-500",
+      label: "Courses",
+      value: formatNumber(totalCourses),
+      helper: `${formatNumber(totalLessons)} lessons`,
       icon: BookOpen,
+      color: "violet",
     },
     {
-      title: "Certificates",
-      value: totalCertificates.toLocaleString(),
-      color: "bg-orange-500",
+      label: "Certificates",
+      value: formatNumber(totalCertificates),
+      helper: "Issued certificates",
       icon: Award,
+      color: "orange",
     },
-  ];
+  ] as const;
 
-  const menu = [
-    {
-      title: "Dashboard",
-      icon: LayoutDashboard,
-      active: true,
-    },
-    {
-      title: "Students",
-      icon: Users,
-    },
-    {
-      title: "Courses",
-      icon: BookOpen,
-    },
-    {
-      title: "Certificates",
-      icon: Award,
-    },
-    {
-      title: "Payments",
-      icon: Wallet,
-    },
-    {
-      title: "Reports",
-      icon: FileText,
-    },
-    {
-      title: "Activity",
-      icon: Activity,
-    },
-    {
-      title: "Settings",
-      icon: Settings,
-    },
-  ];
-
-// ==========================
-// Recent Data
-// ==========================
-
-const recentStudents = await prisma.user.findMany({
-  orderBy: {
-    createdAt: "desc",
-  },
-  take: 4,
-});
-
-const recentCertificates = await prisma.certificate.findMany({
-  include: {
-    user: true,
-    course: true,
-  },
-  orderBy: {
-    issuedAt: "desc",
-  },
-  take: 4,
-});
-
-const recentPayments = await prisma.payment.findMany({
-  include: {
-    user: true,
-  },
-  orderBy: {
-    createdAt: "desc",
-  },
-  take: 4,
-});
+  const colorStyles = {
+    blue: "bg-blue-50 text-blue-700 ring-blue-100",
+    emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100",
+    violet: "bg-violet-50 text-violet-700 ring-violet-100",
+    orange: "bg-orange-50 text-orange-700 ring-orange-100",
+  };
 
   return (
-
-    <main className="min-h-screen bg-slate-100 flex">
-
-      {/* Sidebar */}
-
-      <aside className="flex w-72 flex-col bg-slate-900 text-white shadow-2xl">
-
-        {/* Logo */}
-
-        <div className="border-b border-slate-800 p-8">
-
-          <div className="flex items-center gap-4">
-
-            <div className="rounded-2xl bg-blue-600 p-4">
-
-              <ShieldCheck size={30} />
-
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <div className="flex min-h-screen">
+        {/* Sidebar */}
+        <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
+          <Link
+            href="/admin"
+            className="flex items-center gap-3 border-b border-slate-100 px-6 py-6"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+              <ShieldCheck size={25} />
             </div>
 
             <div>
-
-              <h2 className="text-2xl font-bold">
-                ICU Admin
-              </h2>
-
-              <p className="text-sm text-slate-400">
-                Learning Portal
-              </p>
-
+              <p className="font-extrabold tracking-tight">ICU Admin</p>
+              <p className="text-xs text-slate-500">Learning Portal</p>
             </div>
+          </Link>
 
+          <div className="px-4 py-6">
+            <p className="mb-3 px-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+              Main Menu
+            </p>
+
+            <nav className="space-y-1.5">
+              {navigation.map((item) => {
+                const Icon = item.icon;
+                const active = item.href === "/admin";
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition ${
+                      active
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                    }`}
+                  >
+                    <Icon size={19} />
+                    <span>{item.label}</span>
+                    {active && (
+                      <span className="ml-auto h-2 w-2 rounded-full bg-white" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <p className="mb-3 mt-9 px-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+              Learning Platform
+            </p>
+
+            <div className="space-y-1.5">
+              <Link
+                href="/courses"
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+              >
+                <Video size={19} />
+                Public Course Catalog
+                <ArrowUpRight className="ml-auto" size={15} />
+              </Link>
+
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
+              >
+                <Activity size={19} />
+                Student Dashboard
+                <ArrowUpRight className="ml-auto" size={15} />
+              </Link>
+            </div>
           </div>
 
-        </div>
+          <div className="mt-auto p-4">
+            <div className="rounded-2xl bg-slate-900 p-4 text-white">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="text-emerald-400" size={18} />
+                <span className="text-sm font-bold">Owner Account</span>
+              </div>
+              <p className="mt-2 break-all text-xs leading-5 text-slate-300">
+                {admin.email}
+              </p>
+            </div>
 
-        {/* Admin Profile */}
+            <form action={handleLogout} className="mt-3">
+              <button
+                type="submit"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700"
+              >
+                <LogOut size={17} />
+                Sign out
+              </button>
+            </form>
+          </div>
+        </aside>
 
-<div className="mx-5 mt-6 rounded-2xl bg-slate-800 p-5">
-  <div className="flex items-center gap-4">
+        {/* Main Dashboard */}
+        <section className="min-w-0 flex-1">
+          <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
+            <div className="flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-7 lg:px-10">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-blue-600">
+                  ICU Learning Portal
+                </p>
+                <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">
+                  Admin Dashboard
+                </h1>
+                <p className="mt-1 text-sm text-slate-500">
+                  Welcome back, {admin.fullName}.
+                </p>
+              </div>
 
-    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-xl font-bold">
-      {admin.fullName?.charAt(0).toUpperCase()}
-    </div>
+              <div className="flex items-center gap-3">
+                <span className="hidden rounded-full bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 sm:inline-flex sm:items-center sm:gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  Owner access
+                </span>
 
-    <div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 font-bold text-white">
+                  {admin.fullName.charAt(0).toUpperCase()}
+                </div>
+              </div>
+            </div>
 
-      <h3 className="font-bold">
-        {admin.fullName}
-      </h3>
+            {/* Mobile navigation */}
+            <nav className="flex gap-2 overflow-x-auto border-t border-slate-100 px-4 py-3 lg:hidden">
+              {navigation.map((item) => {
+                const Icon = item.icon;
 
-      <p className="text-sm text-slate-400">
-        {admin.role}
-      </p>
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold ${
+                      item.href === "/admin"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-700"
+                    }`}
+                  >
+                    <Icon size={16} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </header>
 
-      <p className="mt-1 text-xs text-slate-500">
-        {admin.email}
-      </p>
+          <div className="mx-auto max-w-[1600px] space-y-8 p-4 sm:p-7 lg:p-10">
+            {/* Welcome banner */}
+            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-700 via-indigo-700 to-violet-700 p-6 text-white shadow-xl shadow-indigo-900/10 sm:p-9">
+              <div className="pointer-events-none absolute -right-12 -top-20 h-64 w-64 rounded-full border-[35px] border-white/10" />
+              <div className="pointer-events-none absolute -bottom-28 right-36 h-64 w-64 rounded-full bg-white/5" />
 
-    </div>
+              <div className="relative max-w-3xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold">
+                  <ShieldCheck size={15} />
+                  LMS ADMINISTRATION
+                </span>
 
-  </div>
-</div>
+                <h2 className="mt-5 text-2xl font-extrabold leading-tight sm:text-4xl">
+                  Manage your learning platform.
+                </h2>
 
-        {/* Menu */}
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-blue-100 sm:text-base">
+                  Manage courses, lessons, student accounts and quizzes from
+                  one central dashboard. The figures below come from your
+                  database.
+                </p>
 
-        <nav className="mt-8 flex-1 px-5">
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    href="/admin/courses/create"
+                    className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-50"
+                  >
+                    <Plus size={18} />
+                    Create Course
+                  </Link>
 
-          <p className="mb-4 text-xs uppercase tracking-widest text-slate-500">
+                  <Link
+                    href="/admin/quizzes/create"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/20"
+                  >
+                    <ClipboardList size={18} />
+                    Create Quiz
+                  </Link>
 
-            MAIN MENU
+                  <Link
+                    href="/admin/students"
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10"
+                  >
+                    Manage Students
+                    <ArrowRight size={17} />
+                  </Link>
+                </div>
+              </div>
+            </section>
 
-          </p>
+            {/* Main statistics */}
+            <section>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-extrabold">Platform Overview</h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Current totals from the database
+                  </p>
+                </div>
+                <span className="text-xs font-medium text-slate-400">
+                  Live query
+                </span>
+              </div>
 
-          <div className="space-y-2">
+              <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+                {stats.map((stat) => {
+                  const Icon = stat.icon;
 
-            {menu.map((item) => {
+                  return (
+                    <article
+                      key={stat.label}
+                      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-6"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-500">
+                            {stat.label}
+                          </p>
+                          <p className="mt-3 text-3xl font-extrabold tracking-tight">
+                            {stat.value}
+                          </p>
+                          <p className="mt-2 text-xs text-slate-500">
+                            {stat.helper}
+                          </p>
+                        </div>
 
-              const Icon = item.icon;
+                        <div
+                          className={`rounded-2xl p-3 ring-1 ${colorStyles[stat.color]}`}
+                        >
+                          <Icon size={23} />
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
 
-              return (
+            {/* Financial and learning metrics */}
+            <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+              <article className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-emerald-50 p-3 text-emerald-700">
+                    <Wallet size={21} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Successful Payments</p>
+                    <p className="text-2xl font-extrabold">
+                      {formatNumber(successfulPaymentCount)}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs leading-5 text-slate-500">
+                  Transactions marked SUCCESS in the payment table.
+                </p>
+              </article>
 
-                <button
-                  key={item.title}
-                  className={`flex w-full items-center justify-between rounded-xl px-4 py-4 transition ${
-                    item.active
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "hover:bg-slate-800"
-                  }`}
-                >
+              <article className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-blue-50 p-3 text-blue-700">
+                    <CreditCard size={21} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Successful Payment Total</p>
+                    <p className="text-xl font-extrabold sm:text-2xl">
+                      {formatCurrency(totalRevenue)}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs leading-5 text-slate-500">
+                  Sum of successful payment records, not a bank settlement
+                  report.
+                </p>
+              </article>
 
-                  <div className="flex items-center gap-3">
+              <article className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-violet-50 p-3 text-violet-700">
+                    <Activity size={21} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Enrollments</p>
+                    <p className="text-2xl font-extrabold">
+                      {formatNumber(totalEnrollments)}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs leading-5 text-slate-500">
+                  Course enrollment records currently stored.
+                </p>
+              </article>
 
-                    <Icon size={20} />
+              <article className="rounded-2xl border border-slate-200 bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <div className="rounded-xl bg-orange-50 p-3 text-orange-700">
+                    <ClipboardList size={21} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Quizzes</p>
+                    <p className="text-2xl font-extrabold">
+                      {formatNumber(totalQuizzes)}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs leading-5 text-slate-500">
+                  Quizzes available in the administration database.
+                </p>
+              </article>
+            </section>
 
-                    <span>{item.title}</span>
-
+            {/* Recent students and courses */}
+            <section className="grid gap-6 2xl:grid-cols-2">
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="flex items-center justify-between gap-3 border-b border-slate-100 p-5 sm:p-6">
+                  <div>
+                    <h2 className="font-extrabold">Recently Registered Students</h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Latest student accounts
+                    </p>
                   </div>
 
-                  <ChevronRight size={18} />
+                  <Link
+                    href="/admin/students"
+                    className="inline-flex shrink-0 items-center gap-1 text-sm font-bold text-blue-700 hover:text-blue-900"
+                  >
+                    View all <ArrowRight size={16} />
+                  </Link>
+                </div>
 
-                </button>
+                <div className="divide-y divide-slate-100">
+                  {recentStudents.length === 0 ? (
+                    <p className="p-8 text-center text-sm text-slate-500">
+                      No student accounts found.
+                    </p>
+                  ) : (
+                    recentStudents.map((student) => (
+                      <div
+                        key={student.id}
+                        className="flex items-center justify-between gap-3 p-4 transition hover:bg-slate-50 sm:px-6"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 font-extrabold text-blue-700">
+                            {student.fullName.charAt(0).toUpperCase()}
+                          </div>
 
-              );
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold">
+                              {student.fullName}
+                            </p>
+                            <p className="truncate text-xs text-slate-500">
+                              {student.email}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-400">
+                              Registered {formatDate(student.createdAt)}
+                            </p>
+                          </div>
+                        </div>
 
-            })}
+                        <div className="shrink-0 text-right">
+                          <span
+                            className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${
+                              student.isPremium
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-slate-100 text-slate-600"
+                            }`}
+                          >
+                            {student.isPremium ? "Premium" : "Free"}
+                          </span>
+                          <p className="mt-1 text-xs text-slate-400">
+                            Student
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </article>
 
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="flex items-center justify-between gap-3 border-b border-slate-100 p-5 sm:p-6">
+                  <div>
+                    <h2 className="font-extrabold">Recently Added Courses</h2>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Courses stored in your LMS
+                    </p>
+                  </div>
+
+                  <Link
+                    href="/admin/courses"
+                    className="inline-flex shrink-0 items-center gap-1 text-sm font-bold text-blue-700 hover:text-blue-900"
+                  >
+                    View all <ArrowRight size={16} />
+                  </Link>
+                </div>
+
+                <div className="divide-y divide-slate-100">
+                  {recentCourses.length === 0 ? (
+                    <p className="p-8 text-center text-sm text-slate-500">
+                      No courses found.
+                    </p>
+                  ) : (
+                    recentCourses.map((course) => (
+                      <div
+                        key={course.id}
+                        className="flex items-center justify-between gap-4 p-4 transition hover:bg-slate-50 sm:px-6"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="rounded-xl bg-violet-50 p-3 text-violet-700">
+                            <BookOpen size={21} />
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold">
+                              {course.title}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {formatNumber(course._count.lessons)} lessons
+                              {" · "}
+                              {formatNumber(course._count.quizzes)} quizzes
+                            </p>
+                            <p className="mt-1 text-xs text-slate-400">
+                              {formatNumber(course._count.enrollments)} enrollments
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0 text-right">
+                          <p className="font-bold">
+                            {formatCurrency(course.price)}
+                          </p>
+                          <span
+                            className={`mt-1 inline-block rounded-full px-2 py-1 text-xs font-bold ${
+                              course.isPremium
+                                ? "bg-violet-50 text-violet-700"
+                                : "bg-emerald-50 text-emerald-700"
+                            }`}
+                          >
+                            {course.isPremium ? "Premium" : "Standard"}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </article>
+            </section>
+
+            {/* Recent transactions and certificates */}
+            <section className="grid gap-6 2xl:grid-cols-2">
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-100 p-5 sm:p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-emerald-50 p-3 text-emerald-700">
+                      <CreditCard size={21} />
+                    </div>
+                    <div>
+                      <h2 className="font-extrabold">Recent Successful Payments</h2>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Latest successful transactions
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-slate-100">
+                  {recentPayments.length === 0 ? (
+                    <p className="p-8 text-center text-sm text-slate-500">
+                      No successful payments found.
+                    </p>
+                  ) : (
+                    recentPayments.map((payment) => (
+                      <div
+                        key={payment.id}
+                        className="flex items-center justify-between gap-3 p-4 sm:px-6"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold">
+                            {payment.user.fullName}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-slate-500">
+                            {payment.course?.title ?? "Course not specified"}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-400">
+                            {formatDate(payment.createdAt)}
+                          </p>
+                        </div>
+
+                        <div className="shrink-0 text-right">
+                          <p className="font-extrabold text-emerald-700">
+                            {formatCurrency(payment.amount)}
+                          </p>
+                          <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700">
+                            <CheckCircle2 size={13} />
+                            Success
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </article>
+
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-100 p-5 sm:p-6">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-xl bg-orange-50 p-3 text-orange-700">
+                      <Award size={21} />
+                    </div>
+                    <div>
+                      <h2 className="font-extrabold">Recently Issued Certificates</h2>
+                      <p className="mt-1 text-sm text-slate-500">
+                        Latest certificate records
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-slate-100">
+                  {recentCertificates.length === 0 ? (
+                    <p className="p-8 text-center text-sm text-slate-500">
+                      No certificates have been issued yet.
+                    </p>
+                  ) : (
+                    recentCertificates.map((certificate) => (
+                      <div
+                        key={certificate.id}
+                        className="flex items-center justify-between gap-3 p-4 sm:px-6"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="rounded-xl bg-orange-50 p-3 text-orange-700">
+                            <Award size={20} />
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-bold">
+                              {certificate.course.title}
+                            </p>
+                            <p className="mt-1 truncate text-xs text-slate-500">
+                              {certificate.user.fullName}
+                            </p>
+                            <p className="mt-1 break-all text-xs text-slate-400">
+                              {certificate.certificateNo}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0 text-right">
+                          <span className="inline-block rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                            Issued
+                          </span>
+                          <p className="mt-1 text-xs text-slate-400">
+                            {formatDate(certificate.issuedAt)}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </article>
+            </section>
+
+            {/* Quick access */}
+            <section>
+              <div className="mb-4">
+                <h2 className="text-lg font-extrabold">Quick Access</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Open the management pages available in your project.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <Link
+                  href="/admin/courses"
+                  className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between">
+                    <BookOpen className="text-blue-600" size={25} />
+                    <ArrowRight
+                      className="text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-600"
+                      size={19}
+                    />
+                  </div>
+                  <h3 className="mt-4 font-extrabold">Course Management</h3>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Create courses and manage lessons.
+                  </p>
+                </Link>
+
+                <Link
+                  href="/admin/students"
+                  className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between">
+                    <Users className="text-emerald-600" size={25} />
+                    <ArrowRight
+                      className="text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-600"
+                      size={19}
+                    />
+                  </div>
+                  <h3 className="mt-4 font-extrabold">Student Management</h3>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Review student accounts and membership.
+                  </p>
+                </Link>
+
+                <Link
+                  href="/admin/quizzes"
+                  className="group rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-md"
+                >
+                  <div className="flex items-center justify-between">
+                    <ClipboardList className="text-violet-600" size={25} />
+                    <ArrowRight
+                      className="text-slate-400 transition group-hover:translate-x-1 group-hover:text-blue-600"
+                      size={19}
+                    />
+                  </div>
+                  <h3 className="mt-4 font-extrabold">Quiz Management</h3>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Manage assessments for your courses.
+                  </p>
+                </Link>
+              </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="flex flex-col justify-between gap-3 border-t border-slate-200 py-6 text-xs text-slate-500 sm:flex-row sm:items-center">
+              <p>
+                © {new Date().getFullYear()} ICU Learning Portal. Admin workspace.
+              </p>
+              <p className="flex items-center gap-2">
+                <ShieldCheck size={15} className="text-emerald-600" />
+                Restricted owner dashboard
+              </p>
+            </footer>
           </div>
-
-        </nav>
-
-        {/* Logout */}
-
-        <div className="border-t border-slate-800 p-5">
-
-          <button className="flex w-full items-center justify-center gap-3 rounded-xl bg-red-600 px-4 py-4 font-semibold transition hover:bg-red-700">
-
-            <LogOut size={20} />
-
-            Logout
-
-          </button>
-
-        </div>
-
-      </aside>
-
-      {/* Main Content */}
-
-      <section className="flex-1 p-8">
-
-              {/* Header */}
-
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-
-        <div>
-
-          <h1 className="text-4xl font-bold text-slate-900">
-            Dashboard
-          </h1>
-
-          <p className="mt-2 text-slate-500">
-  Welcome back, {admin.fullName} 👋
-</p>
-
-        </div>
-
-        <div className="flex items-center gap-4">
-
-          {/* Search */}
-
-          <div className="flex items-center gap-3 rounded-xl bg-white px-4 py-3 shadow">
-
-            <Search size={20} className="text-slate-400" />
-
-            <input
-              type="text"
-              placeholder="Search students, courses..."
-              className="w-64 outline-none"
-            />
-
-          </div>
-
-          {/* Notification */}
-
-          <button className="rounded-xl bg-white p-3 shadow transition hover:bg-slate-100">
-
-            <Bell size={22} />
-
-          </button>
-
-          {/* Profile */}
-
-          <div className="flex items-center gap-3 rounded-xl bg-white px-4 py-2 shadow">
-
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
-
-              {admin.fullName?.charAt(0).toUpperCase()}
-
-            </div>
-
-            <div>
-
-              <h4 className="font-semibold">
-  {admin.fullName}
-</h4>
-
-<p className="text-sm text-slate-500">
-  {admin.role}
-</p>
-
-            </div>
-
-          </div>
-
-        </div>
-
+        </section>
       </div>
-
-      {/* Welcome Banner */}
-
-      <div className="mt-8 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 p-8 text-white shadow-xl">
-
-        <h2 className="text-3xl font-bold">
-          ICU Learning Portal Admin Panel
-        </h2>
-
-        <p className="mt-3 max-w-3xl text-blue-100">
-
-          Manage {totalStudents} students,
-{totalCourses} courses,
-{totalCertificates} certificates
-and {premiumStudents} premium members
-from one professional dashboard.
-
-        </p>
-
-        <div className="mt-8 flex flex-wrap gap-4">
-
-          <button className="rounded-xl bg-white px-6 py-3 font-semibold text-blue-700 transition hover:bg-slate-100">
-
-            + Add Course
-
-          </button>
-
-          <button className="rounded-xl border border-white/30 px-6 py-3 font-semibold transition hover:bg-white/10">
-
-            View Reports
-
-          </button>
-
-          <button className="rounded-xl border border-white/30 px-6 py-3 font-semibold transition hover:bg-white/10">
-
-            Manage Students
-
-          </button>
-
-        </div>
-
-      </div>
-
-      {/* Statistics */}
-
-      <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-        {stats.map((item) => {
-  const Icon = item.icon;
-
-  return (
-    <div
-      key={item.title}
-      className="rounded-3xl bg-white p-6 shadow-lg transition duration-300 hover:-translate-y-1 hover:shadow-2xl"
-    >
-      <div className="flex items-center justify-between">
-
-        <div>
-
-          <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
-            {item.title}
-          </p>
-
-          <h3 className="mt-4 text-4xl font-bold text-slate-900">
-            {item.value}
-          </h3>
-
-          <p className="mt-3 text-sm text-emerald-600">
-            +12% this month
-          </p>
-
-        </div>
-
-        <div
-          className={`rounded-2xl p-5 text-white shadow-lg ${item.color}`}
-        >
-          <Icon size={32} />
-        </div>
-
-      </div>
-    </div>
-  );
-})}
-
-</div>
-
-{/* Quick Actions */}
-
-<div className="mt-10 grid gap-6 lg:grid-cols-4">
-
-  <button className="rounded-2xl bg-blue-600 p-6 text-left text-white shadow-lg transition hover:bg-blue-700">
-
-    <Users size={34} />
-
-    <h3 className="mt-5 text-xl font-bold">
-      Students
-    </h3>
-
-    <p className="mt-2 text-blue-100">
-      Manage all registered students.
-    </p>
-
-  </button>
-
-  <button className="rounded-2xl bg-emerald-600 p-6 text-left text-white shadow-lg transition hover:bg-emerald-700">
-
-    <BookOpen size={34} />
-
-    <h3 className="mt-5 text-xl font-bold">
-      Courses
-    </h3>
-
-    <p className="mt-2 text-emerald-100">
-      Create and manage premium courses.
-    </p>
-
-  </button>
-
-  <button className="rounded-2xl bg-violet-600 p-6 text-left text-white shadow-lg transition hover:bg-violet-700">
-
-    <Award size={34} />
-
-    <h3 className="mt-5 text-xl font-bold">
-      Certificates
-    </h3>
-
-    <p className="mt-2 text-violet-100">
-      Issue and verify certificates.
-    </p>
-
-  </button>
-
-  <button className="rounded-2xl bg-orange-600 p-6 text-left text-white shadow-lg transition hover:bg-orange-700">
-
-    <CreditCard size={34} />
-
-    <h3 className="mt-5 text-xl font-bold">
-      Payments
-    </h3>
-
-    <p className="mt-2 text-orange-100">
-      View revenue and subscriptions.
-    </p>
-
-  </button>
-
-</div>
-
-        {/* Recent Section */}
-
-<div className="mt-10 grid gap-8 xl:grid-cols-3">
-
-  {/* Recent Students */}
-
-<div className="rounded-3xl bg-white p-7 shadow-lg">
-
-  <div className="mb-6 flex items-center justify-between">
-
-    <h2 className="text-2xl font-bold">
-      Recent Students
-    </h2>
-
-    <button className="text-blue-600 font-semibold">
-      View All
-    </button>
-
-  </div>
-
-  {recentStudents.map((student) => (
-
-    <div
-      key={student.id}
-      className="mb-4 flex items-center justify-between rounded-xl border p-4 hover:bg-slate-50"
-    >
-
-      <div className="flex items-center gap-3">
-
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
-
-          {student.fullName.charAt(0).toUpperCase()}
-
-        </div>
-
-        <div>
-
-          <h4 className="font-semibold">
-            {student.fullName}
-          </h4>
-
-          <p className="text-sm text-slate-500">
-            {student.email}
-          </p>
-
-        </div>
-
-      </div>
-
-      <Users
-        size={18}
-        className="text-slate-400"
-      />
-
-    </div>
-
-  ))}
-
-</div>
-
-    {[
-      {
-        name: "Rahul Sharma",
-        course: "ICU Nursing",
-      },
-      {
-        name: "Priya Singh",
-        course: "Ventilator",
-      },
-      {
-        name: "Amit Kumar",
-        course: "ECG",
-      },
-      {
-        name: "Sneha Gupta",
-        course: "ABG",
-      },
-    ].map((student) => (
-
-      <div
-        key={student.name}
-        className="mb-4 flex items-center justify-between rounded-xl border p-4 hover:bg-slate-50"
-      >
-
-        <div className="flex items-center gap-3">
-
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
-
-            {student.name.charAt(0)}
-
-          </div>
-
-          <div>
-
-            <h4 className="font-semibold">
-              {student.name}
-            </h4>
-
-            <p className="text-sm text-slate-500">
-              {student.course}
-            </p>
-
-          </div>
-
-        </div>
-
-        <Users
-          size={18}
-          className="text-slate-400"
-        />
-
-      </div>
-
-    ))}
-
-  </div>
-
-  {/* Recent Payments */}
-
-<div className="rounded-3xl bg-white p-7 shadow-lg">
-
-  <div className="mb-6 flex items-center justify-between">
-
-    <h2 className="text-2xl font-bold">
-      Recent Payments
-    </h2>
-
-    <button className="text-blue-600 font-semibold">
-      View All
-    </button>
-
-  </div>
-
-  {recentPayments.length === 0 ? (
-
-    <p className="text-slate-500">
-      No payments found.
-    </p>
-
-  ) : (
-
-    recentPayments.map((payment) => (
-
-      <div
-        key={payment.id}
-        className="mb-4 flex items-center justify-between rounded-xl border p-4 hover:bg-slate-50"
-      >
-
-        <div>
-
-          <h4 className="font-semibold">
-            {payment.user.fullName}
-          </h4>
-
-          <p className="text-sm text-slate-500">
-            Payment Received
-          </p>
-
-        </div>
-
-        <span className="font-bold text-emerald-600">
-
-          ₹{payment.amount}
-
-        </span>
-
-      </div>
-
-    ))
-
-  )}
-
-</div>
-
-  {/* Recent Certificates */}
-
-<div className="rounded-3xl bg-white p-7 shadow-lg">
-
-  <div className="mb-6 flex items-center justify-between">
-
-    <h2 className="text-2xl font-bold">
-      Certificates
-    </h2>
-
-    <button className="text-blue-600 font-semibold">
-      View All
-    </button>
-
-  </div>
-
-  {recentCertificates.length === 0 ? (
-
-    <p className="text-slate-500">
-      No certificates generated.
-    </p>
-
-  ) : (
-
-    recentCertificates.map((certificate) => (
-
-      <div
-        key={certificate.id}
-        className="mb-4 flex items-center justify-between rounded-xl border p-4 hover:bg-slate-50"
-      >
-
-        <div className="flex items-center gap-3">
-
-          <Award
-            className="text-yellow-500"
-            size={24}
-          />
-
-          <div>
-
-            <h4 className="font-semibold">
-              {certificate.course.title}
-            </h4>
-
-            <p className="text-sm text-slate-500">
-              {certificate.user.fullName}
-            </p>
-
-          </div>
-
-        </div>
-
-        <span className="rounded-lg bg-green-100 px-3 py-2 text-sm font-semibold text-green-700">
-          Issued
-        </span>
-
-      </div>
-
-    ))
-
-  )}
-
-</div>
-
-        {/* Analytics */}
-
-<div className="mt-10 grid gap-8 xl:grid-cols-2">
-
-  {/* Revenue */}
-
-  <div className="rounded-3xl bg-white p-8 shadow-lg">
-
-    <div className="mb-8 flex items-center justify-between">
-
-      <h2 className="text-2xl font-bold">
-        Revenue Analytics
-      </h2>
-
-      <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-        +18%
-      </span>
-
-    </div>
-
-    <div className="space-y-5">
-
-      {[
-        { month: "January", value: 65 },
-        { month: "February", value: 82 },
-        { month: "March", value: 92 },
-        { month: "April", value: 75 },
-        { month: "May", value: 96 },
-      ].map((item) => (
-
-        <div key={item.month}>
-
-          <div className="mb-2 flex justify-between">
-
-            <span>{item.month}</span>
-
-            <span>{item.value}%</span>
-
-          </div>
-
-          <div className="h-3 overflow-hidden rounded-full bg-slate-200">
-
-            <div
-              className="h-full rounded-full bg-blue-600"
-              style={{
-                width: `${item.value}%`,
-              }}
-            />
-
-          </div>
-
-        </div>
-
-      ))}
-
-    </div>
-
-  </div>
-
-  {/* Course Performance */}
-
-  <div className="rounded-3xl bg-white p-8 shadow-lg">
-
-    <h2 className="mb-8 text-2xl font-bold">
-      Course Performance
-    </h2>
-
-    {[
-      {
-        course: "ICU Nursing",
-        students: 325,
-      },
-      {
-        course: "Ventilator",
-        students: 241,
-      },
-      {
-        course: "ECG",
-        students: 198,
-      },
-      {
-        course: "ABG",
-        students: 151,
-      },
-      {
-        course: "Medical Coding",
-        students: 132,
-      },
-    ].map((item) => (
-
-      <div
-        key={item.course}
-        className="mb-5 flex items-center justify-between border-b pb-4"
-      >
-
-        <div>
-
-          <h3 className="font-semibold">
-            {item.course}
-          </h3>
-
-          <p className="text-sm text-slate-500">
-            {item.students} Students
-          </p>
-
-        </div>
-
-        <BookOpen
-          size={20}
-          className="text-blue-600"
-        />
-
-      </div>
-
-    ))}
-
-  </div>
-
-</div>
-
-{/* System Status */}
-
-<div className="mt-10 rounded-3xl bg-white p-8 shadow-lg">
-
-  <h2 className="mb-8 text-2xl font-bold">
-    System Status
-  </h2>
-
-  <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-
-    {[
-      {
-        title: "Server",
-        status: "Online",
-        color: "bg-green-500",
-      },
-      {
-        title: "Database",
-        status: "Healthy",
-        color: "bg-blue-500",
-      },
-      {
-        title: "Payments",
-        status: "Connected",
-        color: "bg-emerald-500",
-      },
-      {
-        title: "Certificates",
-        status: "Running",
-        color: "bg-violet-500",
-      },
-    ].map((item) => (
-
-      <div
-        key={item.title}
-        className="rounded-2xl border p-6"
-      >
-
-        <div
-          className={`mb-5 h-4 w-4 rounded-full ${item.color}`}
-        />
-
-        <h3 className="font-bold">
-          {item.title}
-        </h3>
-
-        <p className="mt-2 text-slate-500">
-          {item.status}
-        </p>
-
-      </div>
-
-    ))}
-
-  </div>
-
-</div>
-
-              {/* Footer */}
-
-      <footer className="mt-12 rounded-3xl bg-slate-900 p-8 text-white shadow-xl">
-
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-
-          <div>
-
-            <h2 className="text-2xl font-bold">
-              ICU Learning Portal
-            </h2>
-
-            <p className="mt-2 text-slate-400">
-              Premium Admin Dashboard • Version 1.0
-            </p>
-
-          </div>
-
-          <div className="flex flex-wrap gap-8 text-sm text-slate-400">
-
-            <span>
-  Total Students: {totalStudents}
-</span>
-
-<span>
-  Courses: {totalCourses}
-</span>
-
-<span>
-  Certificates: {totalCertificates}
-</span>
-
-<span>
-  Premium Students: {premiumStudents}
-</span>
-
-          </div>
-
-        </div>
-
-      </footer>
-
-    </section>
-
-  </main>
+    </main>
   );
 }
