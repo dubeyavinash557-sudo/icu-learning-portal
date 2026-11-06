@@ -3,11 +3,35 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
 import LegalPage from "@/components/LegalPage";
 
+
 export const metadata: Metadata = {
   title: "Terms & Conditions | ICU Learning Portal",
+
   description:
-    "Read the terms governing account use, course access, payments, content and certificates on ICU Learning Portal.",
+    "Read ICU Learning Portal's terms for student accounts, ICU course access, premium payments, educational content, certificates and acceptable website use.",
+
+  alternates: {
+    canonical: "https://www.iculearningportal.com/terms",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/terms",
+    title: "Terms & Conditions | ICU Learning Portal",
+    description:
+      "Understand the terms for account registration, course access, premium purchases, certificates and educational content.",
+    siteName: "ICU Learning Portal",
+    locale: "en_IN",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "Terms & Conditions | ICU Learning Portal",
+    description:
+      "Review the terms governing ICU Learning Portal accounts, courses, payments and certificates.",
+  },
 };
+
 
 export default function TermsPage() {
   return (

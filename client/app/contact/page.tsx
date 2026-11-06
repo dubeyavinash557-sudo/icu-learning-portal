@@ -13,9 +13,31 @@ import Footer from "@/components/Footer";
 import ContactForm from "@/components/ContactForm";
 
 export const metadata = {
-  title: "Contact Us | ICU Learning Portal",
+  title: "Contact ICU Learning Portal | Course & Student Support",
+
   description:
-    "Contact ICU Learning Portal for course, account, learning and technical support.",
+    "Contact ICU Learning Portal for ICU nursing course enquiries, student account assistance, premium access, payment issues and technical support.",
+
+  alternates: {
+    canonical: "https://www.iculearningportal.com/contact",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/contact",
+    title: "Contact ICU Learning Portal | Student Support",
+    description:
+      "Get assistance with ICU nursing courses, student accounts, premium access and technical support.",
+    siteName: "ICU Learning Portal",
+    locale: "en_IN",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "Contact ICU Learning Portal | Student Support",
+    description:
+      "Contact our support team for course, account and technical assistance.",
+  },
 };
 
 const supportTopics = [

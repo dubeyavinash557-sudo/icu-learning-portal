@@ -11,9 +11,31 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "FAQ | ICU Learning Portal",
+  title: "ICU Learning Portal FAQs | Courses, Payments & Certificates",
+
   description:
-    "Frequently asked questions about ICU Learning Portal courses, payments, access, certificates, refunds and mobile learning.",
+    "Find answers about ICU nursing courses, free demos, premium access, Razorpay payments, certificates, course notes, account support and refunds.",
+
+  alternates: {
+    canonical: "https://www.iculearningportal.com/faq",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/faq",
+    title: "Frequently Asked Questions | ICU Learning Portal",
+    description:
+      "Get answers about ICU Learning Portal courses, premium access, payments, certificates, refunds and student accounts.",
+    siteName: "ICU Learning Portal",
+    locale: "en_IN",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "ICU Learning Portal FAQs | Help Centre",
+    description:
+      "Answers about ICU nursing courses, payments, certificates and student support.",
+  },
 };
 
 const faqs = [

@@ -11,11 +11,44 @@ import {
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
 
+
 export const metadata: Metadata = {
-  title: "Certificate Sample | ICU Learning Portal",
+  title: "ICU Course Certificate Sample | ICU Learning Portal",
+
   description:
-    "View a professional sample of the ICU Learning Portal course completion certificate and understand certificate eligibility.",
+    "View a sample ICU Learning Portal course completion certificate. Learn about course lesson requirements, assessments and certificate eligibility for learners.",
+
+  alternates: {
+    canonical: "https://www.iculearningportal.com/certificate-sample",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/certificate-sample",
+    title: "ICU Course Certificate Sample | ICU Learning Portal",
+    description:
+      "Preview the ICU Learning Portal course completion certificate and understand the requirements for eligible learners.",
+    siteName: "ICU Learning Portal",
+    locale: "en_IN",
+    images: [
+      {
+        url: "https://www.iculearningportal.com/images/certificate-preview.svg",
+        alt: "Sample ICU Learning Portal course completion certificate",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "ICU Course Certificate Sample | ICU Learning Portal",
+    description:
+      "Preview a sample course completion certificate and learn about certificate eligibility.",
+    images: [
+      "https://www.iculearningportal.com/images/certificate-preview.svg",
+    ],
+  },
 };
+
 
 export default function CertificateSamplePage() {
   return (

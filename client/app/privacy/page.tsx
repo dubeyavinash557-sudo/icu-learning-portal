@@ -3,11 +3,35 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
 import LegalPage from "@/components/LegalPage";
 
+
 export const metadata: Metadata = {
   title: "Privacy Policy | ICU Learning Portal",
+
   description:
-    "Read how ICU Learning Portal collects, uses and protects learner account and payment-related information.",
+    "Learn how ICU Learning Portal collects, uses, stores and protects student account, course activity, support and payment-related information.",
+
+  alternates: {
+    canonical: "https://www.iculearningportal.com/privacy",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/privacy",
+    title: "Privacy Policy | ICU Learning Portal",
+    description:
+      "Read how ICU Learning Portal handles student account information, learning records, support requests and payment-related data.",
+    siteName: "ICU Learning Portal",
+    locale: "en_IN",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "Privacy Policy | ICU Learning Portal",
+    description:
+      "Understand how student account, learning and payment-related information is handled.",
+  },
 };
+
 
 export default function PrivacyPage() {
   return (

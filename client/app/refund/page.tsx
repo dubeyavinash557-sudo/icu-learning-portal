@@ -3,11 +3,35 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
 import LegalPage from "@/components/LegalPage";
 
+
 export const metadata: Metadata = {
   title: "Refund & Cancellation Policy | ICU Learning Portal",
+
   description:
-    "Read the ICU Learning Portal refund, cancellation, payment-failure and course-access policy for digital course purchases.",
+    "Understand ICU Learning Portal's refund and cancellation policy for digital ICU courses, including the 7-day request window, duplicate payments, failed transactions and course-access issues.",
+
+  alternates: {
+    canonical: "https://www.iculearningportal.com/refund",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/refund",
+    title: "Refund & Cancellation Policy | ICU Learning Portal",
+    description:
+      "Read the refund eligibility conditions, 7-day request window, payment-failure process and refund procedure for ICU Learning Portal courses.",
+    siteName: "ICU Learning Portal",
+    locale: "en_IN",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "Refund & Cancellation Policy | ICU Learning Portal",
+    description:
+      "Information about digital course refunds, cancellations, duplicate payments and payment-related support.",
+  },
 };
+
 
 export default function RefundPage() {
   return (
