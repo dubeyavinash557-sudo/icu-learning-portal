@@ -1,4 +1,20 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "ICU Emergency Drugs Course – Critical Care Pharmacology",
+  description:
+    "Study commonly used ICU emergency medications, drug classifications, indications, precautions, dosage principles and safe medication practices through structured critical care education.",
+  slug: "icu-emergency-drugs",
+  keywords: [
+    "ICU emergency drugs course",
+    "emergency drugs in ICU",
+    "critical care pharmacology",
+    "ICU medication training",
+    "emergency medicine for nurses",
+    "critical care drugs education",
+  ],
+});
 
 export default function ICUEmergencyDrugsPage() {
   return (

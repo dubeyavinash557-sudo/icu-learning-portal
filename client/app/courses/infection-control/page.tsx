@@ -1,4 +1,20 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Infection Control Course – Hospital & ICU Infection Prevention",
+  description:
+    "Learn infection prevention and control, hand hygiene, personal protective equipment, standard precautions, biomedical waste management and hospital infection-control practices.",
+  slug: "infection-control",
+  keywords: [
+    "infection control course",
+    "hospital infection prevention",
+    "ICU infection control",
+    "infection prevention training",
+    "hand hygiene training",
+    "hospital infection control practices",
+  ],
+});
 
 export default function InfectionControlPage() {
   return (

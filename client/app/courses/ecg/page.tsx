@@ -1,5 +1,23 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
 
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "ECG Interpretation Course – Cardiac Rhythm Analysis",
+  description:
+    "Learn ECG interpretation, cardiac rhythm recognition, 12-lead ECG basics, waveform analysis and common emergency cardiac patterns through structured critical-care education.",
+  slug: "ecg",
+  keywords: [
+    "ECG interpretation course",
+    "ECG training for nurses",
+    "cardiac rhythm interpretation",
+    "12 lead ECG",
+    "ECG analysis",
+    "ECG course for ICU nurses",
+  ],
+});
+
+
 export default function ECGPage() {
   return (
     <CourseLandingPage

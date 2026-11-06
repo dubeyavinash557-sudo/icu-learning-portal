@@ -1,4 +1,20 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Medical Coding Course – ICD-10-CM, CPT & HCPCS Training",
+  description:
+    "Learn medical coding fundamentals, medical terminology, ICD-10-CM, CPT and HCPCS coding concepts through structured healthcare education and practical examples.",
+  slug: "medical-coding",
+  keywords: [
+    "medical coding course",
+    "ICD-10-CM training",
+    "CPT coding course",
+    "HCPCS coding training",
+    "medical coding for beginners",
+    "medical terminology course",
+  ],
+});
 
 export default function MedicalCodingPage() {
   return (

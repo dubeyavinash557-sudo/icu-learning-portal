@@ -1,4 +1,20 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "ICU Technician Master Course – Critical Care Technician Training",
+  description:
+    "Learn ICU technician fundamentals, patient monitoring equipment, medical devices, oxygen therapy support, critical care procedures and essential hospital skills through structured lessons.",
+  slug: "icu-technician-master",
+  keywords: [
+    "ICU technician course",
+    "ICU technician training",
+    "critical care technician course",
+    "ICU equipment training",
+    "patient monitoring equipment",
+    "ICU technician education",
+  ],
+});
 
 export default function ICUTechnicianMasterPage() {
   return (

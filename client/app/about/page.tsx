@@ -18,9 +18,31 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "About ICU Learning Portal | Instructor & Mission",
+  title: "About ICU Learning Portal | Founder & ICU Nursing Educator",
+
   description:
-    "Meet the founder of ICU Learning Portal and learn about the platform's focus on structured ICU nursing and critical-care education.",
+    "Learn about ICU Learning Portal, its founder, educational background and mission to provide structured ICU nursing and critical care courses in Hindi and English.",
+
+  alternates: {
+    canonical: "https://www.iculearningportal.com/about",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "https://www.iculearningportal.com/about",
+    title: "About ICU Learning Portal | Founder & Educator",
+    description:
+      "Meet the founder of ICU Learning Portal and explore the platform's focus on ICU nursing, critical care education and structured online learning.",
+    siteName: "ICU Learning Portal",
+    locale: "en_IN",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "About ICU Learning Portal | Founder & Educator",
+    description:
+      "Discover the mission, educational background and learning approach behind ICU Learning Portal.",
+  },
 };
 
 const credentials = [

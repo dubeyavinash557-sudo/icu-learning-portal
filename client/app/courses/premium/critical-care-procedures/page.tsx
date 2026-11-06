@@ -1,4 +1,20 @@
 import CourseLandingPage from "../../_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Critical Care Procedures Course – Advanced ICU Skills",
+  description:
+    "Learn essential critical care procedures, patient preparation, clinical monitoring, procedural safety, bedside nursing responsibilities and evidence-based ICU practices.",
+  slug: "premium/critical-care-procedures",
+  keywords: [
+    "critical care procedures course",
+    "advanced ICU procedures",
+    "ICU nursing procedures training",
+    "critical care skills course",
+    "bedside nursing procedures",
+    "advanced critical care training",
+  ],
+});
 
 export default function CriticalCareProceduresPremiumPage() {
   return (

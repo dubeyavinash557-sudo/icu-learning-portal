@@ -1,5 +1,23 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
 
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "ICU Nursing Course – Critical Care Nursing Training",
+  description:
+    "Learn ICU nursing fundamentals, patient monitoring, critical care procedures, emergency management and essential bedside nursing skills through structured lessons.",
+  slug: "icu-nursing",
+  keywords: [
+    "ICU nursing course",
+    "ICU nursing training",
+    "critical care nursing course",
+    "ICU nurse education",
+    "ICU nursing skills",
+    "ICU nursing lessons",
+  ],
+});
+
+
 export default function ICUNursingPage() {
   return (
     <CourseLandingPage

@@ -1,4 +1,20 @@
 import CourseLandingPage from "../../_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Respiratory Failure Course – Advanced ICU Respiratory Care",
+  description:
+    "Study respiratory failure through structured lessons covering hypoxemia, hypercapnia, respiratory assessment, oxygen therapy, mechanical ventilation and critical care management principles.",
+  slug: "premium/respiratory-failure",
+  keywords: [
+    "respiratory failure course",
+    "respiratory failure in ICU",
+    "advanced respiratory care course",
+    "hypoxemic respiratory failure",
+    "hypercapnic respiratory failure",
+    "ICU respiratory nursing",
+  ],
+});
 
 export default function RespiratoryFailurePremiumPage() {
   return (

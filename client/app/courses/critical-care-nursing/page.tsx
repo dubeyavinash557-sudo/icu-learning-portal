@@ -1,5 +1,23 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
 
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Critical Care Nursing Course – Advanced ICU Nursing",
+  description:
+    "Study critical care nursing, patient assessment, ICU nursing procedures, emergency care, clinical monitoring and evidence-based bedside nursing concepts.",
+  slug: "critical-care-nursing",
+  keywords: [
+    "critical care nursing course",
+    "advanced ICU nursing",
+    "critical care nurse training",
+    "ICU nursing education",
+    "critical care procedures",
+    "critical care nursing skills",
+  ],
+});
+
+
 export default function CriticalCareNursingPage() {
   return (
     <CourseLandingPage

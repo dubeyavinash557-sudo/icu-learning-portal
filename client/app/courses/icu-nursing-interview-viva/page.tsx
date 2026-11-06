@@ -1,4 +1,20 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "ICU Nursing Interview & Viva Course – Questions and Answers",
+  description:
+    "Prepare for ICU nursing interviews and viva examinations with structured questions and answers covering critical care concepts, ICU procedures, patient monitoring and emergency nursing.",
+  slug: "icu-nursing-interview-viva",
+  keywords: [
+    "ICU nursing interview questions",
+    "ICU nursing viva questions",
+    "critical care nursing interview",
+    "ICU nurse interview preparation",
+    "ICU nursing questions and answers",
+    "ICU nursing viva preparation",
+  ],
+});
 
 export default function ICUNursingInterviewVivaPage() {
   return (

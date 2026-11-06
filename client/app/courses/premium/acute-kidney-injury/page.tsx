@@ -1,4 +1,20 @@
 import CourseLandingPage from "../../_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Acute Kidney Injury Course – AKI in Critical Care",
+  description:
+    "Study acute kidney injury, renal function assessment, AKI stages, clinical indicators, fluid balance, electrolyte disturbances and critical care management principles.",
+  slug: "premium/acute-kidney-injury",
+  keywords: [
+    "acute kidney injury course",
+    "AKI course for nurses",
+    "AKI in critical care",
+    "renal function assessment",
+    "acute renal failure education",
+    "ICU kidney injury training",
+  ],
+});
 
 export default function AcuteKidneyInjuryPremiumPage() {
   return (

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { createCourseMetadata } from "../_seo";
 import {
   Activity,
   ArrowRight,
@@ -20,6 +21,21 @@ import {
 import { auth } from "@/auth";
 import BuyNowButton from "@/components/course/BuyNowButton";
 import { getCourseBySlug } from "@/lib/course";
+
+export const metadata = createCourseMetadata({
+  title: "Emergency Care Course – ICU & Critical Care Emergency Training",
+  description:
+    "Learn emergency care principles, initial patient assessment, emergency response, life-saving interventions and critical care management through structured healthcare education.",
+  slug: "emergency-care",
+  keywords: [
+    "emergency care course",
+    "emergency management training",
+    "ICU emergency care",
+    "critical care emergency training",
+    "emergency nursing course",
+    "emergency patient assessment",
+  ],
+});
 
 const COURSE_SLUG = "emergency-care";
 

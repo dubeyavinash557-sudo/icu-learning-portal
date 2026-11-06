@@ -27,32 +27,36 @@ import { getCourses } from "@/lib/course";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "ICU Nursing & Critical Care Courses",
+  title: "ICU Learning Portal | ICU Nursing & Critical Care Courses",
+
   description:
-    "Explore ICU nursing and critical-care courses, practical lessons, ECG interpretation, ABG analysis, mechanical ventilation and structured learning resources at ICU Learning Portal.",
+    "Learn ICU nursing and critical care with structured online courses in mechanical ventilation, ECG interpretation, ABG analysis, emergency care and ICU nursing.",
+
   alternates: {
     canonical: "https://www.iculearningportal.com/",
   },
+
   openGraph: {
     type: "website",
     url: "https://www.iculearningportal.com/",
-    title: "ICU Nursing & Critical Care Courses | ICU Learning Portal",
+    title: "ICU Learning Portal | ICU Nursing & Critical Care Courses",
     description:
-      "Explore ICU nursing and critical-care courses, practical lessons, ECG interpretation, ABG analysis, mechanical ventilation and structured learning resources.",
+      "Explore structured ICU nursing and critical care courses, including mechanical ventilation, ECG interpretation, ABG analysis and emergency care.",
     siteName: "ICU Learning Portal",
     locale: "en_IN",
     images: [
       {
         url: "/images/icu-lms-hero.png",
-        alt: "ICU Learning Portal for ICU Nursing and Critical Care Education",
+        alt: "ICU Learning Portal – ICU Nursing and Critical Care Courses",
       },
     ],
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "ICU Nursing & Critical Care Courses | ICU Learning Portal",
+    title: "ICU Learning Portal | ICU Nursing & Critical Care Courses",
     description:
-      "Explore ICU nursing and critical-care courses and practical learning resources.",
+      "Explore ICU nursing courses and structured critical care learning resources.",
     images: ["/images/icu-lms-hero.png"],
   },
 };

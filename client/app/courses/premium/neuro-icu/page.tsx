@@ -1,4 +1,20 @@
 import CourseLandingPage from "../../_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Neuro ICU Course – Neuro Critical Care Nursing",
+  description:
+    "Study neuro critical care through structured lessons covering neurological assessment, Glasgow Coma Scale, intracranial pressure, stroke care, seizures and neuro ICU patient monitoring.",
+  slug: "premium/neuro-icu",
+  keywords: [
+    "neuro ICU course",
+    "neuro critical care nursing",
+    "neurological assessment course",
+    "Glasgow Coma Scale training",
+    "intracranial pressure monitoring",
+    "neuro ICU nursing training",
+  ],
+});
 
 export default function NeuroICUPremiumPage() {
   return (

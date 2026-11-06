@@ -1,4 +1,20 @@
 import CourseLandingPage from "../../_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium ICU Emergency Drugs Course – Advanced Critical Care Pharmacology",
+  description:
+    "Study ICU emergency medications, pharmacological principles, drug indications, contraindications, dosage calculations and medication safety in critical care settings.",
+  slug: "premium/icu-emergency-drugs",
+  keywords: [
+    "advanced ICU emergency drugs course",
+    "critical care pharmacology course",
+    "ICU medication training",
+    "emergency drugs for ICU nurses",
+    "critical care drug calculations",
+    "ICU medication safety",
+  ],
+});
 
 export default function ICUEmergencyDrugsPremiumPage() {
   return (

@@ -1,6 +1,22 @@
 import CourseLandingPage, {
   type CourseLandingData,
 } from "@/app/courses/_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Sepsis & Shock Course – Advanced Critical Care Training",
+  description:
+    "Study sepsis and shock through structured lessons covering sepsis recognition, septic shock, hemodynamic assessment, organ dysfunction, fluid resuscitation principles and critical care management.",
+  slug: "premium/sepsis-shock",
+  keywords: [
+    "sepsis and shock course",
+    "septic shock training",
+    "sepsis management in ICU",
+    "critical care sepsis course",
+    "hemodynamic assessment",
+    "ICU nursing sepsis training",
+  ],
+});
 
 export const dynamic = "force-dynamic";
 

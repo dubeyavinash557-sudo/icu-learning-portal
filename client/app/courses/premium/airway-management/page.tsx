@@ -1,6 +1,22 @@
 import CourseLandingPage, {
   type CourseLandingData,
 } from "@/app/courses/_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Airway Management Course – Advanced ICU Airway Training",
+  description:
+    "Learn advanced airway assessment, airway management, oxygen delivery, suctioning, intubation assistance, airway complications and critical care airway practices.",
+  slug: "premium/airway-management",
+  keywords: [
+    "advanced airway management course",
+    "premium airway management training",
+    "ICU airway management",
+    "airway assessment course",
+    "intubation assistance training",
+    "critical care airway training",
+  ],
+});
 
 const course: CourseLandingData = {
   title: "Airway Management & Advanced Airway Care Masterclass",

@@ -1,6 +1,22 @@
 import CourseLandingPage, {
   type CourseLandingData,
 } from "@/app/courses/_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium ABG Analysis Course – Advanced Blood Gas Interpretation",
+  description:
+    "Master advanced arterial blood gas analysis, acid-base disorders, compensation, oxygenation and clinical ABG case interpretation through structured critical care lessons.",
+  slug: "premium/abg-analysis",
+  keywords: [
+    "advanced ABG analysis course",
+    "premium ABG interpretation course",
+    "arterial blood gas training",
+    "acid base disorder interpretation",
+    "ABG case studies",
+    "ICU ABG training",
+  ],
+});
 
 export const dynamic = "force-dynamic";
 

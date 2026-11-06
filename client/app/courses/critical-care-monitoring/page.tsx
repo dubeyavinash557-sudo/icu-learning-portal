@@ -1,5 +1,23 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
 
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Critical Care Monitoring Course – ICU Patient Monitoring",
+  description:
+    "Learn ICU patient monitoring, vital signs assessment, ECG monitoring, hemodynamic parameters, oxygenation and clinical observation through structured critical care education.",
+  slug: "critical-care-monitoring",
+  keywords: [
+    "critical care monitoring course",
+    "ICU patient monitoring",
+    "hemodynamic monitoring",
+    "ECG monitoring",
+    "vital signs monitoring",
+    "critical care nursing training",
+  ],
+});
+
+
 export default function CriticalCareMonitoringPage() {
   return (
     <CourseLandingPage

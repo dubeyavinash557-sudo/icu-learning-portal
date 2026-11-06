@@ -1,6 +1,22 @@
 import CourseLandingPage, {
   type CourseLandingData,
 } from "@/app/courses/_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium ICU Emergency Management Course – Critical Care Training",
+  description:
+    "Learn ICU emergency management, rapid patient assessment, emergency response, resuscitation principles, clinical decision-making and critical care coordination.",
+  slug: "premium/icu-emergency-management",
+  keywords: [
+    "ICU emergency management course",
+    "critical care emergency training",
+    "emergency response in ICU",
+    "ICU resuscitation training",
+    "critical care patient assessment",
+    "advanced emergency nursing",
+  ],
+});
 
 export const dynamic = "force-dynamic";
 

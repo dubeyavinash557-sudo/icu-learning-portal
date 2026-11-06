@@ -1,3 +1,4 @@
+
 import type { MetadataRoute } from "next";
 
 const SITE_URL = "https://www.iculearningportal.com";
@@ -7,7 +8,19 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+
+        allow: [
+          "/",
+          "/about",
+          "/contact",
+          "/courses",
+          "/faq",
+          "/privacy",
+          "/terms",
+          "/refund",
+          "/courses/",
+        ],
+
         disallow: [
           "/admin",
           "/admin/",
@@ -23,11 +36,19 @@ export default function robots(): MetadataRoute.Robots {
           "/settings/",
           "/learn",
           "/learn/",
+          "/login",
+          "/register",
+          "/forgot-password",
+          "/reset-password",
+          "/verify",
+          "/quiz/",
           "/courses/*/lesson/",
         ],
       },
     ],
+
     sitemap: `${SITE_URL}/sitemap.xml`,
+
     host: SITE_URL,
   };
 }

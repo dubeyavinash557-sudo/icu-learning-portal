@@ -1,6 +1,22 @@
 import CourseLandingPage, {
   type CourseLandingData,
 } from "@/app/courses/_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium ECG & Cardiac Rhythm Course – Advanced ECG Interpretation",
+  description:
+    "Master ECG interpretation, cardiac rhythm analysis, 12-lead ECG fundamentals, arrhythmia recognition and cardiac monitoring through structured critical care education.",
+  slug: "premium/ecg-cardiac-rhythm",
+  keywords: [
+    "advanced ECG interpretation course",
+    "cardiac rhythm analysis course",
+    "premium ECG training",
+    "12 lead ECG interpretation",
+    "arrhythmia recognition course",
+    "ECG training for ICU nurses",
+  ],
+});
 
 const course: CourseLandingData = {
   title: "ECG & Cardiac Rhythm Interpretation Masterclass",

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-
+import { createCourseMetadata } from "../../_seo";
 import prisma from "@/lib/prisma";
 
 import CourseLandingPage, {
@@ -9,6 +9,21 @@ import CourseLandingPage, {
 import {
   getCourseImageConfig,
 } from "@/app/courses/_components/course-images";
+
+export const metadata = createCourseMetadata({
+  title: "Premium ICU Nursing Mastery Course – Advanced Critical Care Nursing",
+  description:
+    "Build advanced ICU nursing knowledge through structured lessons covering critical care assessment, patient monitoring, nursing procedures, emergency management and bedside clinical practices.",
+  slug: "premium/icu-nursing-mastery",
+  keywords: [
+    "ICU nursing mastery course",
+    "advanced ICU nursing course",
+    "premium critical care nursing",
+    "ICU nurse training",
+    "critical care nursing skills",
+    "advanced critical care education",
+  ],
+});
 
 /* ================================================================
    ICU NURSING MASTERY — PREMIUM LANDING PAGE

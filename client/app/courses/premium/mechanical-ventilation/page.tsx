@@ -1,4 +1,20 @@
 import CourseLandingPage from "@/app/courses/_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Mechanical Ventilation Course – Advanced ICU Ventilator Training",
+  description:
+    "Master mechanical ventilation through structured lessons covering ventilator modes, settings, alarms, respiratory assessment, oxygenation and advanced critical care ventilation principles.",
+  slug: "premium/mechanical-ventilation",
+  keywords: [
+    "premium mechanical ventilation course",
+    "advanced ventilator training",
+    "ICU ventilator course",
+    "mechanical ventilation for nurses",
+    "ventilator modes and settings",
+    "critical care respiratory management",
+  ],
+});
 
 export const dynamic = "force-dynamic";
 

@@ -8,6 +8,8 @@ import { auth } from "@/auth";
 
 import BuyNowButton from "@/components/course/BuyNowButton";
 import FreeEnrollButton from "@/components/course/FreeEnrollButton";
+import type { Metadata } from "next";
+import { createCourseMetadata } from "../_seo";
 
 import {
   ArrowLeft,
@@ -38,6 +40,31 @@ type Props = {
     id: string;
   }>;
 };
+
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
+  const { id } = await params;
+
+  const course = await getCourseByIdOrSlug(id);
+
+  if (!course) {
+    return {
+      title: "Course Not Found",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  return createCourseMetadata({
+    title: course.title,
+    description: course.description,
+    slug: course.slug,
+    image: course.image || undefined,
+  });
+}
 
 export default async function CourseDetailsPage({
   params,

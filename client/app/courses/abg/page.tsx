@@ -1,4 +1,20 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "ABG Analysis Master Course – Step-by-Step Interpretation",
+  description:
+    "Learn ABG analysis, acid-base balance, pH, PaCO2, HCO3, compensation and oxygenation through structured ICU-focused lessons and clinical case practice.",
+  slug: "abg",
+  keywords: [
+    "ABG analysis course",
+    "ABG interpretation",
+    "arterial blood gas analysis",
+    "acid base disorders",
+    "ABG interpretation in ICU",
+    "ABG nursing course",
+  ],
+});
 
 export default function ABGPage() {
   return (

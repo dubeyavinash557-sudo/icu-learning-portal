@@ -1,3 +1,4 @@
+
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -14,6 +15,23 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // ============================================================
+      // SEO: CANONICAL DOMAIN REDIRECT
+      // Redirect non-www domain to www domain
+      // ============================================================
+
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "iculearningportal\\.com",
+          },
+        ],
+        destination: "https://www.iculearningportal.com/:path*",
+        permanent: true,
+      },
+
       // ============================================================
       // LEGACY PUBLIC COURSE ROUTES
       // ============================================================

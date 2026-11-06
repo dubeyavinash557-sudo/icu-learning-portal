@@ -1,4 +1,20 @@
 import CourseLandingPage from "../../_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Cardiac ICU Course – Advanced Cardiac Critical Care",
+  description:
+    "Study cardiac critical care, cardiac monitoring, ECG interpretation, hemodynamic assessment, common cardiac emergencies and essential nursing care in the cardiac ICU.",
+  slug: "premium/cardiac-icu",
+  keywords: [
+    "cardiac ICU course",
+    "cardiac critical care course",
+    "cardiac ICU nursing",
+    "cardiac monitoring training",
+    "cardiac emergency management",
+    "advanced cardiac care education",
+  ],
+});
 
 export default function CardiacICUPremiumPage() {
   return (

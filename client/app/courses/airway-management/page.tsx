@@ -1,5 +1,23 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
 
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Airway Management Course – ICU Airway Skills",
+  description:
+    "Learn airway assessment, airway management principles, oxygen delivery, suctioning, intubation assistance and essential airway care concepts for critical care settings.",
+  slug: "airway-management",
+  keywords: [
+    "airway management course",
+    "ICU airway management",
+    "airway management training",
+    "intubation nursing",
+    "airway assessment",
+    "critical care airway skills",
+  ],
+});
+
+
 export default function AirwayManagementPage() {
   return (
     <CourseLandingPage

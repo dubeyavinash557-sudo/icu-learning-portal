@@ -1,4 +1,21 @@
 import CourseLandingPage from "../_components/CourseLandingPage";
+import { createCourseMetadata } from "../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Ventilator Course – Mechanical Ventilation & ICU Training",
+  description:
+    "Learn ventilator fundamentals, ventilation modes, ventilator settings, alarms, respiratory assessment and mechanical ventilation concepts through structured ICU education.",
+  slug: "ventilator",
+  keywords: [
+    "ventilator course",
+    "ventilator training",
+    "mechanical ventilation course",
+    "ICU ventilator training",
+    "ventilator modes and settings",
+    "ventilator management for nurses",
+  ],
+});
+
 
 export default function VentilatorPage() {
   return (

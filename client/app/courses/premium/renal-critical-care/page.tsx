@@ -1,4 +1,20 @@
 import CourseLandingPage from "../../_components/CourseLandingPage";
+import { createCourseMetadata } from "../../_seo";
+
+export const metadata = createCourseMetadata({
+  title: "Premium Renal Critical Care Course – Kidney Care in ICU",
+  description:
+    "Study renal critical care through structured lessons covering kidney function, acute kidney injury, renal assessment, fluid and electrolyte balance, dialysis principles and ICU patient management.",
+  slug: "premium/renal-critical-care",
+  keywords: [
+    "renal critical care course",
+    "kidney care in ICU",
+    "renal nursing course",
+    "acute kidney injury training",
+    "fluid and electrolyte balance",
+    "renal replacement therapy education",
+  ],
+});
 
 export default function RenalCriticalCarePremiumPage() {
   return (
