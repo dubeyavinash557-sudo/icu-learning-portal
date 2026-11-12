@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -16,6 +17,7 @@ import {
   LogOut,
   Moon,
   Settings,
+  ShieldCheck,
   Sun,
   UserRound,
 } from "lucide-react";
@@ -66,10 +68,7 @@ const accountItems = [
   },
 ];
 
-function isCurrentPath(
-  pathname: string,
-  href: string
-) {
+function isCurrentPath(pathname: string, href: string) {
   if (href === "/dashboard") {
     return pathname === href;
   }
@@ -79,6 +78,7 @@ function isCurrentPath(
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
 
   const [mounted, setMounted] = useState(false);
@@ -88,6 +88,12 @@ export default function Sidebar() {
   }, []);
 
   const isDark = theme === "dark";
+
+  const userRole = (
+    session?.user as { role?: string } | undefined
+  )?.role;
+
+  const isAdmin = userRole === "ADMIN";
 
   async function handleLogout() {
     await signOut({
@@ -136,6 +142,22 @@ export default function Sidebar() {
             items={accountItems}
           />
         </div>
+
+        {isAdmin && (
+          <div className="mt-8">
+            <NavigationGroup
+              label="Administration"
+              pathname={pathname}
+              items={[
+                {
+                  title: "Admin Panel",
+                  href: "/admin",
+                  icon: ShieldCheck,
+                },
+              ]}
+            />
+          </div>
+        )}
       </div>
 
       <div className="space-y-3 border-t border-slate-200 p-4 dark:border-slate-800">
