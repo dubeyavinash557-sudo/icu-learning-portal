@@ -1,7 +1,7 @@
 
 import { get } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
-
+import { getSignedInAdmin } from "@/lib/admin-auth";
 import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
@@ -119,7 +119,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const isAdmin = user.role === "ADMIN";
+    const admin = await getSignedInAdmin();
+const isAdmin = Boolean(admin);
 
     // --------------------------------------------------
     // 4. LESSON + COURSE

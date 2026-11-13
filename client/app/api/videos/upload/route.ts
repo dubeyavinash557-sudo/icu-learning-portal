@@ -1,5 +1,5 @@
 
-import { auth } from "@/auth";
+import { getSignedInAdmin } from "@/lib/admin-auth";
 import prisma from "@/lib/prisma";
 import {
   handleUpload,
@@ -28,30 +28,6 @@ function jsonError(message: string, status: number) {
       },
     }
   );
-}
-
-async function getAdmin() {
-  const session = await auth();
-
-  if (!session?.user?.email) {
-    return null;
-  }
-
-  const user = await prisma.user.findUnique({
-    where: {
-      email: session.user.email,
-    },
-    select: {
-      id: true,
-      role: true,
-    },
-  });
-
-  if (!user || user.role !== "ADMIN") {
-    return null;
-  }
-
-  return user;
 }
 
 function parseClientPayload(value: string | null) {
@@ -131,8 +107,8 @@ export async function POST(request: Request) {
         pathname,
         clientPayload
       ) => {
-        // Only an administrator may request an upload token.
-        const admin = await getAdmin();
+        // Verify Owner/Admin using the shared authorization helper.
+        const admin = await getSignedInAdmin();
 
         if (!admin) {
           throw new Error(
@@ -140,8 +116,6 @@ export async function POST(request: Request) {
           );
         }
 
-        // The course ID comes from clientPayload,
-        // but it is validated against the database.
         const { courseId } =
           parseClientPayload(clientPayload);
 
@@ -158,7 +132,6 @@ export async function POST(request: Request) {
           throw new Error("Course not found.");
         }
 
-        // Prevent uploads into another course's folder.
         validatePathname(pathname, courseId);
 
         return {
@@ -166,7 +139,6 @@ export async function POST(request: Request) {
           maximumSizeInBytes: MAX_VIDEO_SIZE,
           addRandomSuffix: true,
 
-          // Store only non-sensitive metadata in the token.
           tokenPayload: JSON.stringify({
             courseId,
             adminId: admin.id,
@@ -178,18 +150,14 @@ export async function POST(request: Request) {
         blob,
         tokenPayload,
       }) => {
-        // Vercel calls this after a successful upload.
-        // The lesson record is saved separately by the
-        // authenticated Admin lesson form.
-
         if (!blob.pathname.startsWith("videos/")) {
           throw new Error(
             "Unexpected uploaded video location."
           );
         }
 
-        // Do not log tokens or private URLs.
-        // tokenPayload is available for future auditing.
+        // Lesson record is saved separately when
+        // the Admin submits the lesson form.
         void tokenPayload;
       },
     });

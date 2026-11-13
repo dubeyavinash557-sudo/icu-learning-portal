@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { auth } from "@/auth";
+import { getSignedInAdmin } from "@/lib/admin-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -139,36 +139,15 @@ function normalizeVideoUrl(
 
 
 async function requireAdmin() {
-  const session = await auth();
+  const admin = await getSignedInAdmin();
 
-  if (!session?.user?.email) {
-    throw new Error(
-      "Authentication is required."
-    );
-  }
-
-  const user =
-    await prisma.user.findUnique({
-      where: {
-        email: session.user.email,
-      },
-      select: {
-        id: true,
-        role: true,
-      },
-    });
-
-  if (!user) {
-    throw new Error("User not found.");
-  }
-
-  if (user.role !== "ADMIN") {
+  if (!admin) {
     throw new Error(
       "Administrator access is required."
     );
   }
 
-  return user;
+  return admin;
 }
 
 export async function createCourse(

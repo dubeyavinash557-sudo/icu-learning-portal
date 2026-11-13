@@ -93,7 +93,14 @@ export default function Sidebar() {
     session?.user as { role?: string } | undefined
   )?.role;
 
-  const isAdmin = userRole === "ADMIN";
+  const userEmail = session?.user?.email
+  ?.trim()
+  .toLowerCase();
+
+const isOwner =
+  userEmail === "dubeyavinash557@gmail.com";
+
+const isAdmin = userRole === "ADMIN" || isOwner;
 
   async function handleLogout() {
     await signOut({
