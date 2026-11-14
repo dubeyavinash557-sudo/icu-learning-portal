@@ -202,7 +202,7 @@ export default function RootLayout({
         />
       </head>
 
-      <body className="min-h-full bg-slate-50">
+      <body className="min-h-full bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <Providers>{children}</Providers>
       </body>
     </html>

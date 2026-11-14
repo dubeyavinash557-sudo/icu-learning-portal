@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 import {
   Activity,
   ArrowRight,
@@ -49,8 +50,14 @@ export default async function Navbar() {
     | undefined;
 
   const isLoggedIn = Boolean(user?.email);
-  const isAdmin = user?.role === "ADMIN";
-  const isPremium = user?.isPremium === true;
+
+const isOwner =
+  user?.email?.trim().toLowerCase() ===
+  "dubeyavinash557@gmail.com";
+
+const isAdmin = user?.role === "ADMIN" || isOwner;
+
+const isPremium = user?.isPremium === true;
 
   const displayName =
     user?.name?.trim() ||
@@ -73,7 +80,7 @@ export default async function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 shadow-sm backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 text-slate-900 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/95 dark:text-slate-100">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex min-h-[72px] items-center justify-between gap-4">
 
@@ -149,6 +156,8 @@ export default async function Navbar() {
           ====================================================== */}
 
           <div className="hidden items-center gap-2 lg:flex">
+
+            <ThemeToggle />
 
             {/* =================================================
                 SUPPORT ACTIONS
@@ -385,8 +394,12 @@ export default async function Navbar() {
               MOBILE NAVIGATION
           ====================================================== */}
 
-          <details className="relative lg:hidden">
+          {/* Mobile Dark Mode - Always Visible */}
+<div className="mr-2 lg:hidden">
+  <ThemeToggle />
+</div>
 
+          <details className="relative lg:hidden">
             <summary
               className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 [&::-webkit-details-marker]:hidden"
               aria-label="Open navigation menu"
@@ -394,7 +407,7 @@ export default async function Navbar() {
               <Menu size={21} />
             </summary>
 
-            <div className="absolute right-0 top-14 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/10">
+            <div className="absolute right-0 top-14 max-h-[80vh] w-[calc(100vw-2rem)] max-w-sm overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl shadow-slate-900/10 dark:border-slate-700 dark:bg-slate-900">
 
               {/* Mobile brand strip */}
 
@@ -433,6 +446,10 @@ export default async function Navbar() {
                 )}
 
               </div>
+
+              <div className="mb-3">
+  <ThemeToggle />
+</div>
 
               {/* Primary links */}
 

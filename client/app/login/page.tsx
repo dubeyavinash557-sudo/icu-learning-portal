@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
@@ -43,7 +44,7 @@ export default function LoginPage() {
 
     const email =
       typeof emailValue === "string"
-        ? emailValue.trim()
+        ? emailValue.trim().toLowerCase()
         : "";
 
     const password =
@@ -77,9 +78,28 @@ export default function LoginPage() {
         return;
       }
 
-      setSuccess("Login successful. Redirecting to your dashboard...");
+      // Fetch the newly created authenticated session.
+      const session = await getSession();
 
-      router.replace("/dashboard");
+      const userRole = (
+        session?.user as
+          | { role?: string }
+          | undefined
+      )?.role;
+
+      // Route users according to their database role.
+      const destination =
+        userRole === "ADMIN"
+          ? "/admin"
+          : "/dashboard";
+
+      setSuccess(
+        userRole === "ADMIN"
+          ? "Admin login successful. Opening Admin Dashboard..."
+          : "Login successful. Redirecting to your dashboard..."
+      );
+
+      router.replace(destination);
       router.refresh();
     } catch (error) {
       console.error("LOGIN REQUEST ERROR:", error);
@@ -97,9 +117,7 @@ export default function LoginPage() {
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
         <div className="grid w-full overflow-hidden rounded-[2rem] border border-white/10 bg-white shadow-2xl lg:grid-cols-2">
 
-          {/* =====================================================
-              LEFT — BRAND / SECURITY INFORMATION
-          ===================================================== */}
+          {/* LEFT — BRAND / SECURITY INFORMATION */}
 
           <section className="relative hidden overflow-hidden bg-gradient-to-br from-cyan-600 via-blue-700 to-indigo-800 p-10 text-white lg:flex lg:flex-col lg:justify-between xl:p-14">
 
@@ -176,9 +194,7 @@ export default function LoginPage() {
             </div>
           </section>
 
-          {/* =====================================================
-              RIGHT — LOGIN FORM
-          ===================================================== */}
+          {/* RIGHT — LOGIN FORM */}
 
           <section className="bg-white p-6 sm:p-10 lg:p-12 xl:p-14">
             <div className="mx-auto max-w-md">
@@ -222,9 +238,7 @@ export default function LoginPage() {
                 </p>
               </div>
 
-              {/* =================================================
-                  SUCCESS MESSAGE
-              ================================================= */}
+              {/* SUCCESS MESSAGE */}
 
               {success && (
                 <div
@@ -245,9 +259,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* =================================================
-                  ERROR MESSAGE
-              ================================================= */}
+              {/* ERROR MESSAGE */}
 
               {error && (
                 <div
@@ -268,9 +280,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* =================================================
-                  LOGIN FORM
-              ================================================= */}
+              {/* LOGIN FORM */}
 
               <form
                 onSubmit={handleSubmit}
@@ -392,9 +402,7 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              {/* =================================================
-                  SECURITY NOTICE
-              ================================================= */}
+              {/* SECURITY NOTICE */}
 
               <div className="mt-8 rounded-2xl border border-slate-100 bg-slate-50 p-4">
                 <div className="flex items-start gap-3">
@@ -410,9 +418,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* =================================================
-                  REGISTER
-              ================================================= */}
+              {/* REGISTER */}
 
               <p className="mt-7 text-center text-sm text-slate-600">
                 Don&apos;t have an account?{" "}

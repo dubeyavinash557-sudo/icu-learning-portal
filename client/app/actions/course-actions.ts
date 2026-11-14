@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { auth } from "@/auth";
+import { getSignedInAdmin } from "@/lib/admin-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -89,8 +89,10 @@ function normalizeOptionalUrl(
   return url.toString();
 }
 
+
 function normalizeVideoUrl(
-  value: FormDataEntryValue | null
+  value: FormDataEntryValue | null,
+  courseId: string
 ) {
   const raw = cleanString(value);
 
@@ -98,46 +100,54 @@ function normalizeVideoUrl(
     return "";
   }
 
-  const normalized =
-    normalizeOptionalUrl(
-      raw,
-      "Video URL"
-    );
+  // Private Blob pathname validation
+  if (raw.startsWith("videos/")) {
+    const prefix = `videos/${courseId}/`;
+
+    if (!raw.startsWith(prefix)) {
+      throw new Error(
+        "Private video does not belong to this course."
+      );
+    }
+
+    const filename = raw.slice(prefix.length);
+
+    if (
+      !filename ||
+      filename.includes("/") ||
+      filename.includes("\\") ||
+      filename.includes("..") ||
+      !/^[a-zA-Z0-9._-]{1,180}$/.test(filename) ||
+      !/\.(mp4|webm|ogg)$/i.test(filename)
+    ) {
+      throw new Error(
+        "Invalid private video pathname."
+      );
+    }
+
+    return raw;
+  }
+
+  // Preserve existing video URL support during migration.
+  const normalized = normalizeOptionalUrl(
+    raw,
+    "Video URL"
+  );
 
   return normalized ?? "";
 }
 
+
 async function requireAdmin() {
-  const session = await auth();
+  const admin = await getSignedInAdmin();
 
-  if (!session?.user?.email) {
-    throw new Error(
-      "Authentication is required."
-    );
-  }
-
-  const user =
-    await prisma.user.findUnique({
-      where: {
-        email: session.user.email,
-      },
-      select: {
-        id: true,
-        role: true,
-      },
-    });
-
-  if (!user) {
-    throw new Error("User not found.");
-  }
-
-  if (user.role !== "ADMIN") {
+  if (!admin) {
     throw new Error(
       "Administrator access is required."
     );
   }
 
-  return user;
+  return admin;
 }
 
 export async function createCourse(
@@ -406,9 +416,10 @@ export async function updateLesson(
   );
 
   const videoUrl =
-    normalizeVideoUrl(
-      formData.get("videoUrl")
-    );
+  normalizeVideoUrl(
+    formData.get("videoUrl"),
+    courseId
+  );
 
   const notesUrl =
     normalizeOptionalUrl(
@@ -542,9 +553,10 @@ export async function createLesson(
   );
 
   const videoUrl =
-    normalizeVideoUrl(
-      formData.get("videoUrl")
-    );
+  normalizeVideoUrl(
+    formData.get("videoUrl"),
+    courseId
+  );
 
   const notesUrl =
     normalizeOptionalUrl(

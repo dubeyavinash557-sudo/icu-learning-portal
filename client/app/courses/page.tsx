@@ -1,6 +1,7 @@
 ﻿import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import Navbar from "@/components/layout/Navbar";
 
 import {
   ArrowRight,
@@ -297,7 +298,10 @@ export default async function CoursesPage() {
       : 0;
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+  <>
+    <Navbar />
+
+    <main className="courses-page min-h-screen overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <CourseCatalogJsonLd
         courses={[
           ...demoCourses,
@@ -805,7 +809,8 @@ export default async function CoursesPage() {
           </div>
         </div>
       </section>
-    </main>
+        </main>
+  </>
   );
 }
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import Navbar from "@/components/layout/Navbar";
 
 import {
   ArrowRight,
@@ -353,7 +354,10 @@ export default async function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+  <>
+    <Navbar />
+
+    <main className="dashboard-page min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto max-w-[1540px] px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
 
         <header className="mb-7">
@@ -1560,7 +1564,8 @@ export default async function DashboardPage() {
         </footer>
 
       </div>
-    </main>
+        </main>
+  </>
   );
 }
 
