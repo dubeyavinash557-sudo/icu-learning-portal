@@ -481,3 +481,52 @@ body {
 .dark .dashboard-page .to-slate-50 {
   --tw-gradient-to: #0f172a var(--tw-gradient-to-position);
 }
+
+/* Dashboard Loading Skeleton - Dark Mode */
+
+.dark .dashboard-page .bg-slate-200 {
+  background-color: #334155;
+}
+
+.dark .dashboard-page .bg-slate-100 {
+  background-color: #1e293b;
+}
+
+.dark .dashboard-page .bg-blue-100 {
+  background-color: #1e3a5f;
+}
+
+.dark .dashboard-page .bg-blue-50 {
+  background-color: #172554;
+}
+
+.dark .dashboard-page .border-slate-100 {
+  border-color: #334155;
+}
+
+/* Courses Loading Skeleton - Dark Mode */
+
+.dark .dashboard-page .bg-slate-200 {
+  background-color: #334155;
+}
+
+.dark .dashboard-page .bg-slate-100 {
+  background-color: #1e293b;
+}
+
+.dark .dashboard-page .bg-blue-100 {
+  background-color: #1e3a5f;
+}
+
+.dark .dashboard-page .border-slate-200,
+.dark .dashboard-page .border-slate-100 {
+  border-color: #334155;
+}
+
+.dark .dashboard-page .bg-white {
+  background-color: #0f172a;
+}
+
+.dark .dashboard-page .border-t {
+  border-color: #334155;
+}
