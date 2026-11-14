@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -75,29 +76,42 @@ export default function ContactForm() {
     }
   }
 
+  const inputClasses =
+    "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-950";
+
+  const labelClasses =
+    "text-sm font-bold text-slate-900 dark:text-slate-100";
+
   return (
-    <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-700 dark:bg-slate-900">
+
+      {/* FORM HEADER */}
+
       <div>
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600">
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-600 dark:text-blue-400">
           Contact Form
         </p>
 
-        <h2 className="mt-2 text-2xl font-black text-slate-950">
+        <h2 className="mt-2 text-2xl font-black text-slate-950 dark:text-white">
           Send us an enquiry
         </h2>
 
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300">
           Tell us what you need help with. Please do not include passwords,
           OTPs, card numbers or other sensitive authentication information.
         </p>
       </div>
+
+      {/* FORM */}
 
       <form
         onSubmit={handleSubmit}
         className="mt-7 space-y-5"
         noValidate
       >
+
         {/* Honeypot field */}
+
         <div
           aria-hidden="true"
           className="absolute -left-[9999px] h-px w-px overflow-hidden"
@@ -115,11 +129,13 @@ export default function ContactForm() {
           />
         </div>
 
+        {/* NAME AND EMAIL */}
+
         <div className="grid gap-5 md:grid-cols-2">
           <div>
             <label
               htmlFor="name"
-              className="text-sm font-bold text-slate-900"
+              className={labelClasses}
             >
               Your name
             </label>
@@ -132,14 +148,14 @@ export default function ContactForm() {
               maxLength={80}
               autoComplete="name"
               placeholder="Enter your name"
-              className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+              className={inputClasses}
             />
           </div>
 
           <div>
             <label
               htmlFor="email"
-              className="text-sm font-bold text-slate-900"
+              className={labelClasses}
             >
               Email address
             </label>
@@ -152,15 +168,17 @@ export default function ContactForm() {
               maxLength={160}
               autoComplete="email"
               placeholder="you@example.com"
-              className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+              className={inputClasses}
             />
           </div>
         </div>
 
+        {/* ENQUIRY TYPE */}
+
         <div>
           <label
             htmlFor="topic"
-            className="text-sm font-bold text-slate-900"
+            className={labelClasses}
           >
             Enquiry type
           </label>
@@ -170,7 +188,7 @@ export default function ContactForm() {
             name="topic"
             required
             defaultValue=""
-            className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+            className={inputClasses}
           >
             <option value="" disabled>
               Select an enquiry type
@@ -184,10 +202,12 @@ export default function ContactForm() {
           </select>
         </div>
 
+        {/* MESSAGE */}
+
         <div>
           <label
             htmlFor="message"
-            className="text-sm font-bold text-slate-900"
+            className={labelClasses}
           >
             Message
           </label>
@@ -200,14 +220,16 @@ export default function ContactForm() {
             maxLength={2000}
             rows={6}
             placeholder="Describe your question or problem..."
-            className="mt-2 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+            className={`${inputClasses} resize-y leading-6`}
           />
         </div>
+
+        {/* SUCCESS MESSAGE */}
 
         {status === "success" && (
           <div
             role="status"
-            className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"
+            className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
           >
             <CheckCircle2
               size={19}
@@ -218,10 +240,12 @@ export default function ContactForm() {
           </div>
         )}
 
+        {/* ERROR MESSAGE */}
+
         {status === "error" && (
           <div
             role="alert"
-            className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+            className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300"
           >
             <AlertCircle
               size={19}
@@ -231,6 +255,8 @@ export default function ContactForm() {
             <span>{message}</span>
           </div>
         )}
+
+        {/* SUBMIT BUTTON */}
 
         <button
           type="submit"

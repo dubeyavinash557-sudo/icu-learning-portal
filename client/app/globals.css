@@ -1,31 +1,483 @@
+
 @import "tailwindcss";
+
+/* Use next-themes .dark class for Tailwind dark: utilities */
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #f3f4f6;
   --foreground: #111827;
 }
 
+/* Global dark theme */
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --font-sans:
-    Arial,
-    Helvetica,
-    sans-serif;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
+}
 
-  --font-mono:
-    "Courier New",
-    Courier,
-    monospace;
+html,
+body {
+  min-height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
 
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
+/* =========================================
+   GLOBAL DARK MODE OVERRIDES
+========================================= */
+
+.dark body {
+  background: #020617;
+  color: #f8fafc;
+}
+
+/* Main backgrounds */
+.dark .bg-white,
+.dark [class~="bg-white/95"] {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-slate-50,
+.dark [class~="bg-slate-50/80"] {
+  background-color: #111827 !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+/* Text colors */
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+/* Borders */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+/* Hover backgrounds */
+.dark .hover\:bg-white:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background-color: #1e293b !important;
+}
+
+/* =========================================
+   COURSES PAGE - PROFESSIONAL DARK MODE
+========================================= */
+
+.dark .courses-page {
+  background-color: #020617;
+  color: #f8fafc;
+}
+
+/* Free demo section */
+.dark .courses-page .bg-emerald-50\/60 {
+  background-color: #0f172a !important;
+}
+
+.dark .courses-page .border-emerald-100 {
+  border-color: #334155 !important;
+}
+
+/* White and light backgrounds */
+.dark .courses-page .bg-white {
+  background-color: #0f172a !important;
+}
+
+.dark .courses-page .bg-slate-50 {
+  background-color: #111827 !important;
+}
+
+.dark .courses-page .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+/* Headings and body text */
+.dark .courses-page .text-slate-950,
+.dark .courses-page .text-slate-900,
+.dark .courses-page .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.dark .courses-page .text-slate-700,
+.dark .courses-page .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+/* Borders */
+.dark .courses-page .border-slate-100,
+.dark .courses-page .border-slate-200,
+.dark .courses-page .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+/* Professional course cards */
+.dark .courses-page article {
+  background-color: #0f172a;
+  border-color: #334155;
+}
+
+/* Curriculum preview */
+.dark .courses-page .bg-blue-100 {
+  background-color: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+
+/* Course metadata */
+.dark .courses-page .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+/* Premium learning features */
+.dark .courses-page .hover\:bg-white:hover {
+  background-color: #1e293b !important;
+}
+
+/* Focus rings */
+.dark .courses-page a:focus-visible {
+  outline-offset: 3px;
+}
+
+
+/* =========================================
+   COURSES PAGE - REMAINING DARK MODE FIX
+========================================= */
+
+/* White panels and cards */
+.dark .courses-page [class~="bg-white"] {
+  background-color: #0f172a !important;
+}
+
+/* Demo course green panels */
+.dark .courses-page [class~="bg-emerald-50/80"],
+.dark .courses-page [class~="bg-emerald-50"] {
+  background-color: #102c2b !important;
+}
+
+.dark .courses-page [class~="bg-emerald-100"] {
+  background-color: #064e3b !important;
+}
+
+/* Premium yellow panels */
+.dark .courses-page [class~="bg-amber-50/80"],
+.dark .courses-page [class~="bg-amber-50"] {
+  background-color: #332510 !important;
+}
+
+.dark .courses-page [class~="bg-amber-100"] {
+  background-color: #78350f !important;
+}
+
+/* Blue and cyan panels */
+.dark .courses-page [class~="bg-blue-50"],
+.dark .courses-page [class~="bg-cyan-50"] {
+  background-color: #172554 !important;
+}
+
+.dark .courses-page [class~="bg-blue-100"] {
+  background-color: #1e3a8a !important;
+}
+
+/* Slate panels */
+.dark .courses-page [class~="bg-slate-50"] {
+  background-color: #111827 !important;
+}
+
+.dark .courses-page [class~="bg-slate-100"] {
+  background-color: #1e293b !important;
+}
+
+/* Text contrast */
+.dark .courses-page [class~="text-slate-950"],
+.dark .courses-page [class~="text-slate-900"],
+.dark .courses-page [class~="text-slate-800"] {
+  color: #f8fafc !important;
+}
+
+.dark .courses-page [class~="text-slate-700"],
+.dark .courses-page [class~="text-slate-600"] {
+  color: #cbd5e1 !important;
+}
+
+/* Borders */
+.dark .courses-page [class~="border-slate-100"],
+.dark .courses-page [class~="border-slate-200"],
+.dark .courses-page [class~="border-emerald-100"],
+.dark .courses-page [class~="border-amber-100"] {
+  border-color: #334155 !important;
+}
+
+/* Curriculum module badges */
+.dark .courses-page [class~="bg-white"] {
+  color: #e2e8f0;
+}
+
+
+/* =========================================
+   ICU LEARNING PORTAL - DASHBOARD DARK MODE
+========================================= */
+
+.dark .dashboard-page {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+/* Main cards and panels */
+.dark .dashboard-page [class~="bg-white"]:not(a):not(button) {
+  background-color: #111c31 !important;
+  color: #f1f5f9;
+}
+
+.dark .dashboard-page [class~="bg-slate-50"] {
+  background-color: #172338 !important;
+}
+
+.dark .dashboard-page [class~="bg-slate-100"] {
+  background-color: #1e293b !important;
+}
+
+/* Continue learning header and white gradients */
+.dark .dashboard-page [class*="from-white"],
+.dark .dashboard-page [class*="via-white"],
+.dark .dashboard-page [class*="to-white"] {
+  background-image: none !important;
+  background-color: #172338 !important;
+}
+
+/* Amber premium information panels */
+.dark .dashboard-page [class*="from-amber-50"],
+.dark .dashboard-page [class*="via-amber-50"],
+.dark .dashboard-page [class*="to-orange-50"] {
+  background-image: none !important;
+  background-color: #302719 !important;
+}
+
+.dark .dashboard-page [class~="bg-amber-50"],
+.dark .dashboard-page [class~="bg-orange-50"],
+.dark .dashboard-page [class~="bg-amber-100"] {
+  background-color: #3a2b16 !important;
+}
+
+/* Cyan, blue and emerald information panels */
+.dark .dashboard-page [class~="bg-cyan-50"],
+.dark .dashboard-page [class~="bg-blue-50"],
+.dark .dashboard-page [class~="bg-emerald-50"] {
+  background-color: #172b43 !important;
+}
+
+.dark .dashboard-page [class~="bg-blue-100"] {
+  background-color: #1e3a8a !important;
+}
+
+.dark .dashboard-page [class~="bg-emerald-100"] {
+  background-color: #064e3b !important;
+}
+
+/* Violet and assessment panels */
+.dark .dashboard-page [class~="bg-violet-50"],
+.dark .dashboard-page [class~="bg-violet-50/60"] {
+  background-color: #291d43 !important;
+}
+
+/* Text readability */
+.dark .dashboard-page [class~="text-slate-950"],
+.dark .dashboard-page [class~="text-slate-900"],
+.dark .dashboard-page [class~="text-slate-800"] {
+  color: #f1f5f9 !important;
+}
+
+.dark .dashboard-page [class~="text-slate-700"],
+.dark .dashboard-page [class~="text-slate-600"] {
+  color: #cbd5e1 !important;
+}
+
+.dark .dashboard-page [class~="text-slate-500"],
+.dark .dashboard-page [class~="text-slate-400"] {
+  color: #94a3b8 !important;
+}
+
+/* Colored text on information panels */
+.dark .dashboard-page [class~="text-amber-700"],
+.dark .dashboard-page [class~="text-amber-900"] {
+  color: #fcd34d !important;
+}
+
+.dark .dashboard-page [class~="text-blue-700"],
+.dark .dashboard-page [class~="text-cyan-700"] {
+  color: #7dd3fc !important;
+}
+
+.dark .dashboard-page [class~="text-emerald-700"] {
+  color: #6ee7b7 !important;
+}
+
+.dark .dashboard-page [class~="text-violet-700"],
+.dark .dashboard-page [class~="text-violet-900"] {
+  color: #c4b5fd !important;
+}
+
+/* Borders */
+.dark .dashboard-page [class~="border-slate-100"],
+.dark .dashboard-page [class~="border-slate-200"],
+.dark .dashboard-page [class~="border-blue-100"],
+.dark .dashboard-page [class~="border-amber-100"],
+.dark .dashboard-page [class~="border-amber-200"],
+.dark .dashboard-page [class~="border-emerald-100"],
+.dark .dashboard-page [class~="border-violet-100"] {
+  border-color: #334155 !important;
+}
+
+/* Dashboard card shadows */
+.dark .dashboard-page article,
+.dark .dashboard-page section {
+  color: #f1f5f9;
+}
+
+/* Preserve the white primary CTA in the blue hero */
+.dark .dashboard-page a[class~="bg-white"] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+/* Keep colored action buttons readable */
+.dark .dashboard-page a[class~="bg-blue-700"],
+.dark .dashboard-page a[class~="bg-violet-700"],
+.dark .dashboard-page button[class~="bg-blue-700"] {
+  color: #ffffff !important;
+}
+
+/* Progress track */
+.dark .dashboard-page [class~="bg-slate-100"] {
+  background-color: #26364c !important;
+}
+
+/* Footer */
+.dark .dashboard-page footer {
+  border-color: #334155 !important;
+}
+
+
+/* Dashboard dark mode - remaining white cards fix */
+
+.dark .dashboard-page a.group[class~="bg-white"],
+.dark .dashboard-page article[class~="bg-white"] {
+  background-color: #111c31 !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+/* Support links and light blue rows */
+.dark .dashboard-page a[class*="bg-blue-50/60"],
+.dark .dashboard-page a[class*="bg-blue-50"] {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* White icon backgrounds inside cards */
+.dark .dashboard-page a.group [class~="bg-white"],
+.dark .dashboard-page article [class~="bg-white"] {
+  background-color: #26364c !important;
+  color: #e2e8f0 !important;
+}
+
+/* Metric card text */
+.dark .dashboard-page a.group [class~="text-slate-950"],
+.dark .dashboard-page a.group [class~="text-slate-500"] {
+  color: #e2e8f0 !important;
+}
+
+/* Keep hero's white Continue Learning button white */
+.dark .dashboard-page section a[class~="bg-white"] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+/* =========================================
+   DASHBOARD DARK MODE
+========================================= */
+
+.dark .dashboard-page {
+  background: #020617;
+  color: #f1f5f9;
+}
+
+.dark .dashboard-page .bg-white {
+  background-color: #0f172a;
+}
+
+.dark .dashboard-page .bg-slate-50 {
+  background-color: #0f172a;
+}
+
+.dark .dashboard-page .bg-slate-100 {
+  background-color: #1e293b;
+}
+
+.dark .dashboard-page .border-slate-200,
+.dark .dashboard-page .border-slate-100 {
+  border-color: #334155;
+}
+
+.dark .dashboard-page .text-slate-950,
+.dark .dashboard-page .text-slate-900,
+.dark .dashboard-page .text-slate-800 {
+  color: #f1f5f9;
+}
+
+.dark .dashboard-page .text-slate-700,
+.dark .dashboard-page .text-slate-600 {
+  color: #cbd5e1;
+}
+
+.dark .dashboard-page .text-slate-500 {
+  color: #94a3b8;
+}
+
+.dark .dashboard-page .bg-blue-50,
+.dark .dashboard-page .bg-cyan-50,
+.dark .dashboard-page .bg-emerald-50,
+.dark .dashboard-page .bg-violet-50,
+.dark .dashboard-page .bg-amber-50 {
+  background-color: #172554;
+}
+
+.dark .dashboard-page .border-blue-100,
+.dark .dashboard-page .border-cyan-100,
+.dark .dashboard-page .border-amber-100,
+.dark .dashboard-page .border-violet-100 {
+  border-color: #334155;
+}
+
+.dark .dashboard-page .from-white {
+  --tw-gradient-from: #0f172a var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position);
+}
+
+.dark .dashboard-page .to-slate-50 {
+  --tw-gradient-to: #0f172a var(--tw-gradient-to-position);
 }

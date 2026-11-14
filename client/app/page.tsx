@@ -334,7 +334,7 @@ export default async function Home() {
         {demoCourses.length > 0 && (
           <section
             id="free-demo-courses"
-            className="bg-emerald-50/60 py-16 sm:py-20"
+            className="bg-emerald-50/60 py-16 sm:py-20 dark:bg-slate-900"
           >
             <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
               <SectionHeading
@@ -369,7 +369,7 @@ export default async function Home() {
 
         <section
           id="premium-courses"
-          className="relative overflow-hidden bg-slate-50 py-20 sm:py-24"
+          className="relative overflow-hidden bg-slate-50 py-20 sm:py-24 dark:bg-slate-950"
         >
           <div
             aria-hidden="true"

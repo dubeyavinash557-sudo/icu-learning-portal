@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+﻿
+import Link from "next/link";
 import Image from "next/image";
 
 import {
@@ -36,53 +37,28 @@ type CourseCardProps = {
 export default function CourseCard({
   course,
 }: CourseCardProps) {
-  /*
-   * IMPORTANT:
-   *
-   * Public course URLs must use the SEO-friendly slug.
-   *
-   * Correct:
-   *
-   * /courses/icu-nursing-master-course
-   *
-   * Not:
-   *
-   * /courses/cmm123abc
-   */
   const courseHref = `/courses/${course.slug}`;
 
   const safeTitle =
-    course.title?.trim() ||
-    "ICU Learning Course";
+    course.title?.trim() || "ICU Learning Course";
 
   const safeInstructor =
-    course.instructor?.trim() ||
-    "ICU Learning Portal";
+    course.instructor?.trim() || "ICU Learning Portal";
 
   const safeLanguage =
-    course.language?.trim() ||
-    "Hindi";
+    course.language?.trim() || "Hindi";
 
   const safeLevel =
-    course.level?.trim() ||
-    "Beginner";
+    course.level?.trim() || "Beginner";
 
   const safeRating =
-    Number.isFinite(course.rating) &&
-    course.rating > 0
-      ? Math.min(
-          course.rating,
-          5
-        ).toFixed(1)
+    Number.isFinite(course.rating) && course.rating > 0
+      ? Math.min(course.rating, 5).toFixed(1)
       : null;
 
   const safePrice =
-    Number.isFinite(course.price) &&
-    course.price > 0
-      ? Math.max(
-          0,
-          course.price
-        ).toLocaleString("en-IN")
+    Number.isFinite(course.price) && course.price > 0
+      ? Math.max(0, course.price).toLocaleString("en-IN")
       : "0";
 
   const imageSource =
@@ -110,13 +86,14 @@ export default function CourseCard({
         hover:-translate-y-1.5
         hover:border-blue-200
         hover:shadow-2xl
+        dark:border-slate-700
+        dark:bg-slate-900
+        dark:hover:border-blue-500
       "
     >
-      {/* =====================================================
-          IMAGE
-      ====================================================== */}
+      {/* IMAGE */}
 
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
+      <div className="relative aspect-[16/10] overflow-hidden bg-slate-200 dark:bg-slate-800">
         <Image
           src={imageSource}
           alt={`${safeTitle} course cover`}
@@ -185,21 +162,19 @@ export default function CourseCard({
         </div>
       </div>
 
-      {/* =====================================================
-          CONTENT
-      ====================================================== */}
+      {/* CONTENT */}
 
       <div className="flex flex-1 flex-col p-5 sm:p-6">
 
         {/* INSTRUCTOR */}
 
         <div className="flex min-w-0 items-center gap-2">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300">
             <GraduationCap size={15} />
           </div>
 
           <p
-            className="truncate text-[11px] font-black uppercase tracking-[0.1em] text-cyan-700"
+            className="truncate text-[11px] font-black uppercase tracking-[0.1em] text-cyan-700 dark:text-cyan-300"
             title={safeInstructor}
           >
             {safeInstructor}
@@ -208,7 +183,7 @@ export default function CourseCard({
 
         {/* TITLE */}
 
-        <h3 className="mt-4 min-h-[3.5rem] line-clamp-2 text-xl font-black leading-7 tracking-tight text-slate-950">
+        <h3 className="mt-4 min-h-[3.5rem] line-clamp-2 text-xl font-black leading-7 tracking-tight text-slate-950 dark:text-white">
           {safeTitle}
         </h3>
 
@@ -218,9 +193,7 @@ export default function CourseCard({
           <CourseMeta
             icon={<Clock3 size={15} />}
             label="Duration"
-            value={formatDuration(
-              course.duration
-            )}
+            value={formatDuration(course.duration)}
           />
 
           <CourseMeta
@@ -242,7 +215,7 @@ export default function CourseCard({
           />
         </div>
 
-        <div className="my-5 h-px bg-slate-100" />
+        <div className="my-5 h-px bg-slate-100 dark:bg-slate-700" />
 
         {/* PRICE */}
 
@@ -253,23 +226,23 @@ export default function CourseCard({
             </p>
 
             {course.price > 0 ? (
-              <span className="mt-1 block text-2xl font-black text-slate-950">
+              <span className="mt-1 block text-2xl font-black text-slate-950 dark:text-white">
                 ₹{safePrice}
               </span>
             ) : (
-              <span className="mt-1 block text-2xl font-black text-emerald-600">
+              <span className="mt-1 block text-2xl font-black text-emerald-600 dark:text-emerald-400">
                 Free
               </span>
             )}
           </div>
 
           {course.isPremium ? (
-            <div className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-50 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wide text-yellow-700">
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-yellow-50 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wide text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-300">
               <Crown size={12} />
               Premium
             </div>
           ) : (
-            <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wide text-emerald-700">
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
               <CheckCircle2 size={12} />
               Free
             </div>
@@ -279,11 +252,10 @@ export default function CourseCard({
         {/* ACTIONS */}
 
         <div className="mt-5 space-y-2.5">
-
           <Link
             href={courseHref}
             aria-label={`View ${safeTitle} course`}
-            className="group/button flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/15 transition hover:bg-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="group/button flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-700/15 transition hover:bg-blue-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
           >
             View Course
 
@@ -296,21 +268,18 @@ export default function CourseCard({
           <Link
             href={courseHref}
             aria-label={`Start learning ${safeTitle}`}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-blue-500 dark:hover:bg-slate-700 dark:focus:ring-offset-slate-900"
           >
             <PlayCircle size={16} />
             Start Learning
           </Link>
-
         </div>
       </div>
     </article>
   );
 }
 
-/* ============================================================
-   COURSE META
-============================================================ */
+/* COURSE META */
 
 function CourseMeta({
   icon,
@@ -322,8 +291,8 @@ function CourseMeta({
   value: string;
 }) {
   return (
-    <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5">
-      <div className="flex min-w-0 items-center gap-1.5 text-slate-400">
+    <div className="min-w-0 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 dark:border-slate-700 dark:bg-slate-800">
+      <div className="flex min-w-0 items-center gap-1.5 text-slate-400 dark:text-slate-400">
         {icon}
 
         <span className="truncate text-[10px] font-bold uppercase tracking-wide">
@@ -332,7 +301,7 @@ function CourseMeta({
       </div>
 
       <p
-        className="mt-1 truncate text-xs font-black text-slate-800"
+        className="mt-1 truncate text-xs font-black text-slate-800 dark:text-slate-100"
         title={value}
       >
         {value}
@@ -341,34 +310,21 @@ function CourseMeta({
   );
 }
 
-/* ============================================================
-   DURATION
-============================================================ */
+/* DURATION */
 
-function formatDuration(
-  minutes: number
-) {
-  if (
-    !Number.isFinite(minutes) ||
-    minutes <= 0
-  ) {
+function formatDuration(minutes: number) {
+  if (!Number.isFinite(minutes) || minutes <= 0) {
     return "—";
   }
 
-  const safeMinutes =
-    Math.floor(minutes);
+  const safeMinutes = Math.floor(minutes);
 
   if (safeMinutes < 60) {
     return `${safeMinutes} min`;
   }
 
-  const hours =
-    Math.floor(
-      safeMinutes / 60
-    );
-
-  const remainingMinutes =
-    safeMinutes % 60;
+  const hours = Math.floor(safeMinutes / 60);
+  const remainingMinutes = safeMinutes % 60;
 
   if (remainingMinutes === 0) {
     return `${hours} hr`;

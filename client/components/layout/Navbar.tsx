@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/components/layout/ThemeToggle";
 import {
   Activity,
   ArrowRight,
@@ -49,8 +50,14 @@ export default async function Navbar() {
     | undefined;
 
   const isLoggedIn = Boolean(user?.email);
-  const isAdmin = user?.role === "ADMIN";
-  const isPremium = user?.isPremium === true;
+
+const isOwner =
+  user?.email?.trim().toLowerCase() ===
+  "dubeyavinash557@gmail.com";
+
+const isAdmin = user?.role === "ADMIN" || isOwner;
+
+const isPremium = user?.isPremium === true;
 
   const displayName =
     user?.name?.trim() ||
@@ -149,6 +156,8 @@ export default async function Navbar() {
           ====================================================== */}
 
           <div className="hidden items-center gap-2 lg:flex">
+
+            <ThemeToggle />
 
             {/* =================================================
                 SUPPORT ACTIONS
@@ -433,6 +442,10 @@ export default async function Navbar() {
                 )}
 
               </div>
+
+              <div className="mb-3">
+  <ThemeToggle />
+</div>
 
               {/* Primary links */}
 
